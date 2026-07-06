@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SpotSync Web
 
-## Getting Started
+Map-first Next.js frontend for [SpotSync](../SpotSync) — illustrated parking lot, demo showcase layer, and spot-level reservations.
 
-First, run the development server:
+## Features
+
+- Full-viewport illustrated parking map (SVG + d3-zoom)
+- Click-to-reserve with `spot_id` + demo auto-expiry (`X-Demo-Reservation`)
+- One-click **Demo Driver** login (`alice@spotsync.com` / `DriverPass123!`)
+- Client-side ghost traffic (GSAP drive-in animation, no API writes)
+- Minimal premium motion (Framer Motion for UI; GSAP for car paths only)
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ensure the SpotSync API is running with migrations through `000002` and seed data:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd ../SpotSync
+make migrate-up
+go run ./cmd/seed
+make run
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment
 
-## Learn More
+| Variable | Description |
+| --- | --- |
+| `NEXT_PUBLIC_API_BASE_URL` | API base (default `http://localhost:8080/api/v1`) |
+| `NEXT_PUBLIC_DEMO_MODE` | Enable live ghost traffic + demo booking headers |
+| `NEXT_PUBLIC_DEMO_ADMIN_EMAIL` | Admin email for one-click demo (from seed env) |
+| `NEXT_PUBLIC_DEMO_ADMIN_PASSWORD` | Admin password for demo login |
 
-To learn more about Next.js, take a look at the following resources:
+## Demo credentials
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Driver:** `alice@spotsync.com` / `DriverPass123!`
+- **Admin:** values from backend `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Demo reservations auto-expire after 10 minutes (backend `demo_expires_at` lazy cleanup).
 
-## Deploy on Vercel
+## Design reference
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `docs/design.md` and backend `assets/spotsync-demo-preview-desktop-map.png`.
