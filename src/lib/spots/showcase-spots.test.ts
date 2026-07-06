@@ -1,0 +1,39 @@
+import { describe, expect, it } from "vitest";
+import { isOfflineSpotData, normalizeShowcaseSpots, patchSpotOccupied, patchSpotReleased } from "./showcase-spots";
+import { offlineShowcaseSpots } from "./offline-fallback";
+
+describe("isOfflineSpotData", () => {
+  it("detects offline demo spots by zone_id 0", () => {
+    expect(isOfflineSpotData(offlineShowcaseSpots())).toBe(true);
+  });
+
+  it("returns false for API spots", () => {
+    const api = offlineShowcaseSpots().map((s) => ({ ...s, zone_id: 5, created_at: "2024-01-01" }));
+    expect(isOfflineSpotData(api)).toBe(false);
+  });
+});
+
+describe("normalizeShowcaseSpots", () => {
+  it("falls back to offline layout when API returns empty", () => {
+    const spots = normalizeShowcaseSpots([], 9);
+    expect(spots).toHaveLength(24);
+    expect(spots[0].zone_id).toBe(9);
+  });
+});
+
+describe("patchSpotOccupied", () => {
+  it("toggles occupied flag on matching id", () => {
+    const spots = offlineShowcaseSpots();
+    const patched = patchSpotOccupied(spots, 3, true);
+    expect(patched.find((s) => s.id === 3)?.occupied).toBe(true);
+    expect(patched.find((s) => s.id === 4)?.occupied).toBe(false);
+  });
+});
+
+describe("patchSpotReleased", () => {
+  it("marks spot available after release", () => {
+    const spots = patchSpotOccupied(offlineShowcaseSpots(), 2, true);
+    const released = patchSpotReleased(spots, 2);
+    expect(released.find((s) => s.id === 2)?.occupied).toBe(false);
+  });
+});

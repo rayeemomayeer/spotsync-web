@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "SpotSync — Parking Reservations",
-  description: "Illustrated map-first parking reservation showcase",
+  description: "Live Operations Console for SpotSync parking reservations",
 };
 
 export default function RootLayout({

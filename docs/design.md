@@ -1,37 +1,51 @@
-# SpotSync UI — Locked Design + Showcase Spec
+# SpotSync UI — Live Operations Console (v2)
 
-Reference mockup: `public/reference-desktop-map.png` (desktop illustrated map dashboard).
+**Phase F unlock (owner-approved):** Replaces the illustrated map-first design. The raster-map + polygon calibration approach was retired in favor of a label-driven spot grid.
 
 ## Visual identity
 
-- Illustrated top-down parking map (~90% viewport)
-- Soft pastel palette: sky blue `#7EC8E3`, tan asphalt `#D4C4A8`, terracotta `#C45C4A`, road `#5E5E5C`
-- Peripheral overlays only — never cover empty stalls
+- **Layout:** Three-column desktop console on warm off-white `#F7F5F2`
+- **Accent:** Sky blue `#7EC8E3` — CTAs, selected stall, live SSE indicator
+- **Available:** Soft green `#6B9E6B`
+- **Occupied:** Warm grey `#5E5E5C`
+- **Unavailable:** Muted tan `#D4C4A8` at 50% opacity
+- **Text:** Warm dark `#2D2A26` on white card surfaces
 
-## Layout (matches mockup)
+## Layout
 
-| Position | Element |
+| Region | Element |
 | --- | --- |
-| Top-left | Zone pill — green dot, zone name, “N spots free” in sky blue |
-| Top-right | Search pill — “Search zone…” |
-| Bottom-left | Legend — Available (green) · Occupied (grey) |
-| Bottom-right | Reserve card — spot label, license plate, Reserve button |
-| Bottom-center | Dock — home, elevated location-pin FAB, notification bell |
+| Top bar | Logo, Demo Driver / Demo Admin, user chip, API + SSE status |
+| Left rail | Zone list, search, type filter, availability badges |
+| Center | Zone title, availability meter (`18 / 24 free`), 4×6 spot grid |
+| Right column | Live activity feed (SSE), reserve panel, my reservations |
+
+## Spot grid
+
+- Stalls from API `label`, `status`, `occupied` — no raster map or `pos_x`/`pos_y` for interaction
+- Four blocks of six: A-01…A-06, A-07…A-12, A-13…A-18, A-19…A-24
+- Cell states: available, occupied, unavailable, selected, ghost (demo), stress pulse (last spot)
 
 ## Animation catalog
 
 | Moment | Tool |
 | --- | --- |
-| Spot select pulse | Framer Motion |
-| Overlay enter/exit | Framer Motion spring |
-| 409 spot taken | Framer shake + toast |
-| Occupancy counter | Framer AnimatePresence |
-| Last spot stress | Pulsing zone pill + stall highlight |
-| Ghost car drive-in | GSAP timeline on SVG path |
-| Dock FAB hover | Framer scale 1.05 |
+| Spot select ring | Framer Motion `layoutId` |
+| Occupancy change | Framer scale + color transition |
+| Activity feed entry | Framer slide-in |
+| 409 spot taken | Shake on cell + error text |
+| Last spot stress | Pulsing availability counter + grid border |
+| Ghost demo occupancy | Client-only cell flash (`NEXT_PUBLIC_DEMO_GHOST_GRID`) |
 
-## Demo strategy (hybrid)
+## Demo strategy
 
-- **Ghost cars:** client-only `SimulationEngine`, max 3, 8–15s interval
 - **Demo booking:** real API + `X-Demo-Reservation: true` + `DEMO-*` plate
-- **DB safety:** ghosts never call API; demo reservations TTL 10m on backend
+- **Ghost grid:** client-only simulated occupancy on random cells when demo mode + ghost flag enabled
+- **Demo admin:** POST reserve only; admin CRUD hidden for `demo_admin` role
+
+## Explicitly retired
+
+- Illustrated `map.png` interactive layer
+- Stall polygon registry and `/dev/calibrate-map`
+- GSAP road-path ghost cars
+- d3-zoom pan/zoom map canvas

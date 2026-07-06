@@ -1,6 +1,6 @@
 import type { ErrorEnvelope, SuccessEnvelope } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
 
 export class ApiError extends Error {
   status: number;
@@ -84,10 +84,12 @@ export const api = {
       body: { email, password },
     }),
   me: (token: string) => apiRequest<import("./types").User>("/auth/me", { token }),
-  zones: (params?: { q?: string; type?: string }) => {
+  zones: (params?: { q?: string; type?: string; sort?: string; order?: string }) => {
     const qs = new URLSearchParams();
     if (params?.q) qs.set("q", params.q);
     if (params?.type) qs.set("type", params.type);
+    if (params?.sort) qs.set("sort", params.sort);
+    if (params?.order) qs.set("order", params.order);
     const query = qs.toString();
     return apiRequest<import("./types").Zone[]>(`/zones${query ? `?${query}` : ""}`);
   },
@@ -123,6 +125,7 @@ export const api = {
 
 export const DEMO_CREDENTIALS = {
   driver: { email: "alice@spotsync.com", password: "DriverPass123!" },
+  demoAdmin: { email: "demo_admin@spotsync.com", password: "DemoAdminPass123!" },
   admin: { email: process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL ?? "", password: process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD ?? "" },
 };
 

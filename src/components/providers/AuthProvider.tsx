@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api/client";
 import type { User } from "@/lib/api/types";
-import { clearSession, getToken, isDemoSession, setDemoSession, setToken } from "@/lib/auth/session";
+import { clearSession, getCachedUser, getToken, isDemoSession, setCachedUser, setDemoSession, setToken } from "@/lib/auth/session";
 
 type AuthContextValue = {
   user: User | null;
@@ -31,10 +31,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       return;
     }
+    const cached = getCachedUser<User>();
     try {
       const me = await api.me(t);
       setUser(me);
+      setCachedUser(me);
     } catch {
+      if (cached) {
+        setUser(cached);
+        return;
+      }
       clearSession();
       setUser(null);
       setTokenState(null);
@@ -59,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTokenState(data.token);
     setDemoSessionState(demo);
     setUser(data.user);
+    setCachedUser(data.user);
   }, []);
 
   const logout = useCallback(() => {

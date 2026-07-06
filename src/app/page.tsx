@@ -1,5 +1,10 @@
-import { SpotSyncDashboard } from "@/components/SpotSyncDashboard";
+import { ConsoleErrorBoundary } from "@/components/console/ConsoleErrorBoundary";
+import { LiveConsole } from "@/components/LiveConsole";
 
 export default function Home() {
-  return <SpotSyncDashboard />;
+  return (
+    <ConsoleErrorBoundary>
+      <LiveConsole />
+    </ConsoleErrorBoundary>
+  );
 }
