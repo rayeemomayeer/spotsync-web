@@ -2,10 +2,18 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { MapCanvas } from "@/components/map/MapCanvas";
 import { AuthSheet } from "@/components/overlays/AuthSheet";
-import { Dock, Legend, ReserveCard, ZonePill } from "@/components/overlays/UiChrome";
+import { SidePanel } from "@/components/overlays/SidePanel";
+import {
+  Dock,
+  Legend,
+  ReserveCard,
+  SearchBar,
+  SpotTooltip,
+  ZonePill,
+} from "@/components/overlays/UiChrome";
 import { DemoBadge } from "@/components/demo/DemoLoginButtons";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api, ApiError, demoPlate } from "@/lib/api/client";
@@ -19,8 +27,12 @@ export function SpotSyncDashboard() {
   const qc = useQueryClient();
   const engineRef = useRef<SimulationEngine | null>(null);
   const spotsRef = useRef<Spot[]>([]);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
+  const [hoveredSpot, setHoveredSpot] = useState<Spot | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [search, setSearch] = useState("");
   const [plate, setPlate] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
   const [reserveLoading, setReserveLoading] = useState(false);
@@ -29,13 +41,12 @@ export function SpotSyncDashboard() {
   const [ghosts, setGhosts] = useState<GhostCar[]>([]);
   const [ghostSpotIds, setGhostSpotIds] = useState<Set<number>>(new Set());
   const [liveActivity, setLiveActivity] = useState(DEMO_MODE);
-  const [legendPulse, setLegendPulse] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
 
   const { data: zones = [] } = useQuery({
-    queryKey: ["zones"],
-    queryFn: () => api.zones(),
+    queryKey: ["zones", search],
+    queryFn: () => api.zones(search.trim() ? { q: search.trim() } : undefined),
     refetchInterval: 8000,
   });
 
@@ -51,12 +62,22 @@ export function SpotSyncDashboard() {
     refetchInterval: 5000,
   });
 
-  spotsRef.current = spots;
+  const visibleSpots = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return spots;
+    return spots.filter((s) => s.label.toLowerCase().includes(q));
+  }, [spots, search]);
+
+  useEffect(() => {
+    spotsRef.current = visibleSpots;
+  }, [visibleSpots]);
 
   const freeCount = useMemo(
     () => spots.filter((s) => s.status === "available" && !s.occupied && !ghostSpotIds.has(s.id)).length,
     [spots, ghostSpotIds],
   );
+
+  const lastSpotStress = freeCount === 1;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -75,12 +96,10 @@ export function SpotSyncDashboard() {
       onSpawn: (ghost) => {
         setGhosts((prev) => [...prev, ghost]);
         setGhostSpotIds(engine.getGhostSpotIds());
-        setLegendPulse((k) => k + 1);
       },
       onRemove: (id) => {
         setGhosts((prev) => prev.filter((g) => g.id !== id));
         setGhostSpotIds(engine.getGhostSpotIds());
-        setLegendPulse((k) => k + 1);
       },
     });
     engineRef.current = engine;
@@ -90,10 +109,6 @@ export function SpotSyncDashboard() {
       engine.clear();
     };
   }, [liveActivity, showcaseZone?.id]);
-
-  useEffect(() => {
-    setLegendPulse((k) => k + 1);
-  }, [freeCount]);
 
   const handleSelectSpot = (spot: Spot) => {
     setSelectedSpot(spot);
@@ -121,13 +136,14 @@ export function SpotSyncDashboard() {
       );
       await qc.invalidateQueries({ queryKey: ["spots"] });
       await qc.invalidateQueries({ queryKey: ["zones"] });
+      await qc.invalidateQueries({ queryKey: ["my-reservations"] });
       if (engineRef.current) {
         engineRef.current.removeGhost(
           ghosts.find((g) => g.spotId === selectedSpot.id)?.id ?? "",
         );
       }
       setSelectedSpot(null);
-      showToast(demoSession ? "Demo booking — auto-releases in 10 min" : "Spot reserved!");
+      showToast(demoSession || DEMO_MODE ? "Demo booking — auto-releases in 10 min" : "Spot reserved!");
     } catch (e) {
       if (e instanceof ApiError && e.status === 409) {
         setShakeSpotId(selectedSpot.id);
@@ -147,9 +163,22 @@ export function SpotSyncDashboard() {
     else showToast("No available spots right now");
   };
 
+  const handleMapMouseMove = (e: React.MouseEvent) => {
+    if (!hoveredSpot || !mapRef.current) return;
+    const rect = mapRef.current.getBoundingClientRect();
+    setTooltipPos({ x: e.clientX - rect.left + 12, y: e.clientY - rect.top - 36 });
+  };
+
+  const refreshAll = () => {
+    qc.invalidateQueries({ queryKey: ["spots"] });
+    qc.invalidateQueries({ queryKey: ["zones"] });
+    qc.invalidateQueries({ queryKey: ["my-reservations"] });
+    qc.invalidateQueries({ queryKey: ["admin-reservations"] });
+  };
+
   if (isLoading && !spots.length) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#C9B896] text-[#2D2A26]">
+      <div className="flex h-screen items-center justify-center bg-[#D4C4A8] text-[#2D2A26]">
         Loading parking map…
       </div>
     );
@@ -157,45 +186,53 @@ export function SpotSyncDashboard() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
-      <MapCanvas
-        spots={spots}
-        ghostSpotIds={ghostSpotIds}
-        ghosts={ghosts}
-        selectedSpot={selectedSpot}
-        shakeSpotId={shakeSpotId}
-        onSelectSpot={handleSelectSpot}
-      />
+      <div ref={mapRef} className="absolute inset-0" onMouseMove={handleMapMouseMove}>
+        <MapCanvas
+          spots={visibleSpots}
+          ghostSpotIds={ghostSpotIds}
+          ghosts={ghosts}
+          selectedSpot={selectedSpot}
+          hoveredSpot={hoveredSpot}
+          shakeSpotId={shakeSpotId}
+          stressHighlight={lastSpotStress}
+          onSelectSpot={handleSelectSpot}
+          onHoverSpot={setHoveredSpot}
+        />
+      </div>
 
       <div className="pointer-events-none absolute inset-0 z-10">
-        <div className="pointer-events-auto absolute left-4 top-4 flex items-center gap-2">
+        <div className="pointer-events-auto absolute left-5 top-5 flex flex-col gap-2">
           {showcaseZone && (
-            <ZonePill zoneName={showcaseZone.name} free={freeCount} total={showcaseZone.total_capacity} />
+            <ZonePill
+              zoneName={showcaseZone.name}
+              free={freeCount}
+              total={showcaseZone.total_capacity}
+              stress={lastSpotStress}
+            />
           )}
           {demoSession && <DemoBadge />}
-        </div>
-
-        <div className="pointer-events-auto absolute right-4 top-4">
-          {user ? (
+          {user && (
             <button
               type="button"
               onClick={logout}
-              className="rounded-full bg-white/92 px-3 py-1.5 text-xs shadow-md"
+              className="w-fit rounded-full bg-white/95 px-3 py-1 text-xs text-[#666] shadow-sm"
             >
-              {user.name} · Sign out
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setAuthOpen(true)}
-              className="rounded-full bg-white/92 px-4 py-2 text-sm font-medium text-[#2D2A26] shadow-md"
-            >
-              Sign in
+              Sign out
             </button>
           )}
         </div>
 
+        <div className="pointer-events-auto absolute right-5 top-5">
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            signedIn={!!user}
+            onSignIn={() => setAuthOpen(true)}
+          />
+        </div>
+
         <div className="pointer-events-auto absolute bottom-6 left-6">
-          <Legend pulseKey={legendPulse} />
+          <Legend pulseKey={freeCount + ghosts.length} />
         </div>
 
         <div className="pointer-events-auto absolute bottom-6 right-6">
@@ -215,79 +252,44 @@ export function SpotSyncDashboard() {
           </AnimatePresence>
         </div>
 
-        <div className="pointer-events-auto absolute bottom-4 left-1/2 -translate-x-1/2">
+        <div className="pointer-events-auto absolute bottom-3 left-1/2 -translate-x-1/2">
           <Dock
-            onHome={() => qc.invalidateQueries()}
+            onHome={refreshAll}
             onLocate={handleLocate}
             onNotifications={() => setPanelOpen(true)}
             onToggleActivity={() => setLiveActivity((v) => !v)}
             liveActivity={liveActivity}
-            isAdmin={user?.role === "admin"}
-            onManage={() => setPanelOpen(true)}
           />
         </div>
       </div>
 
-      {toast && (
-        <div className="absolute left-1/2 top-20 z-20 -translate-x-1/2 rounded-full bg-[#2D2A26] px-4 py-2 text-sm text-white shadow-lg">
-          {toast}
-        </div>
-      )}
+      {hoveredSpot && <SpotTooltip spot={hoveredSpot} x={tooltipPos.x} y={tooltipPos.y} />}
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="absolute left-1/2 top-24 z-20 -translate-x-1/2 rounded-full bg-[#2D2A26] px-4 py-2 text-sm text-white shadow-lg"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AuthSheet open={authOpen} onClose={() => setAuthOpen(false)} />
 
-      {panelOpen && token && (
-        <ReservationsPanel
+      {panelOpen && token && user && (
+        <SidePanel
           token={token}
+          userRole={user.role}
+          zones={zones}
+          showcaseZoneId={showcaseZone?.id}
           onClose={() => setPanelOpen(false)}
-          onCancel={() => qc.invalidateQueries({ queryKey: ["spots"] })}
+          onRefresh={refreshAll}
         />
       )}
-    </div>
-  );
-}
-
-function ReservationsPanel({
-  token,
-  onClose,
-  onCancel,
-}: {
-  token: string;
-  onClose: () => void;
-  onCancel: () => void;
-}) {
-  const { data: reservations = [] } = useQuery({
-    queryKey: ["my-reservations"],
-    queryFn: () => api.myReservations(token),
-  });
-
-  return (
-    <div className="fixed inset-y-0 right-0 z-30 w-80 bg-white/95 p-4 shadow-2xl backdrop-blur-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold">My reservations</h3>
-        <button type="button" onClick={onClose}>
-          ×
-        </button>
-      </div>
-      <ul className="space-y-2">
-        {reservations.map((r) => (
-          <li key={r.id} className="rounded-lg border border-[#eee] p-3 text-sm">
-            <p className="font-medium">{r.spot?.label ?? `Zone ${r.zone_id}`}</p>
-            <p className="text-[#888]">{r.license_plate}</p>
-            <button
-              type="button"
-              className="mt-2 text-xs text-red-500"
-              onClick={async () => {
-                await api.cancelReservation(token, r.id);
-                onCancel();
-              }}
-            >
-              Cancel
-            </button>
-          </li>
-        ))}
-        {reservations.length === 0 && <p className="text-sm text-[#888]">No reservations yet</p>}
-      </ul>
     </div>
   );
 }

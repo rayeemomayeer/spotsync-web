@@ -47,6 +47,36 @@ export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Pr
   return (json as SuccessEnvelope<T>).data;
 }
 
+type PaginatedResult<T> = {
+  items: T;
+  total: number;
+  page: number;
+  limit: number;
+};
+
+async function apiRequestPaginated<T>(
+  path: string,
+  token: string,
+): Promise<PaginatedResult<T>> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;
+  if (!res.ok || !json.success) {
+    const err = json as ErrorEnvelope;
+    throw new ApiError(res.status, err.message ?? "Request failed", err.errors ?? {});
+  }
+  return {
+    items: (json as SuccessEnvelope<T>).data,
+    total: Number(res.headers.get("X-Total-Count") ?? 0),
+    page: Number(res.headers.get("X-Page") ?? 1),
+    limit: Number(res.headers.get("X-Limit") ?? 20),
+  };
+}
+
 export const api = {
   login: (email: string, password: string) =>
     apiRequest<{ token: string; user: import("./types").User }>("/auth/login", {
@@ -54,7 +84,13 @@ export const api = {
       body: { email, password },
     }),
   me: (token: string) => apiRequest<import("./types").User>("/auth/me", { token }),
-  zones: () => apiRequest<import("./types").Zone[]>("/zones"),
+  zones: (params?: { q?: string; type?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set("q", params.q);
+    if (params?.type) qs.set("type", params.type);
+    const query = qs.toString();
+    return apiRequest<import("./types").Zone[]>(`/zones${query ? `?${query}` : ""}`);
+  },
   zone: (id: number) => apiRequest<import("./types").Zone>(`/zones/${id}`),
   spots: (zoneId: number) => apiRequest<import("./types").Spot[]>(`/zones/${zoneId}/spots`),
   reserve: (
@@ -78,6 +114,11 @@ export const api = {
       token,
       body: { status },
     }),
+  allReservations: (token: string, page: number, limit: number) =>
+    apiRequestPaginated<import("./types").Reservation[]>(
+      `/reservations?page=${page}&limit=${limit}`,
+      token,
+    ),
 };
 
 export const DEMO_CREDENTIALS = {

@@ -4,19 +4,19 @@ export type PathPoint = { x: number; y: number };
 
 /** Road entry → aisle → stall approach for GSAP timeline */
 export function pathForSpot(spot: Spot): PathPoint[] {
-  const entryX = 40;
-  const entryY = spot.pos_y + 20;
-  const aisleX = spot.pos_x - 30;
-  const aisleY = spot.pos_y + 20;
-  const approachX = spot.pos_x + 10;
-  const approachY = spot.pos_y + 35;
+  const roadY = 308;
+  const entryX = 20;
+  const entryY = roadY;
+  const mergeX = spot.pos_x - 50;
+  const mergeY = roadY;
+  const aisleY = spot.pos_y + 24;
 
   return [
     { x: entryX, y: entryY },
-    { x: aisleX, y: entryY },
-    { x: aisleX, y: aisleY },
-    { x: approachX, y: approachY },
-    { x: spot.pos_x + 18, y: spot.pos_y + 28 },
+    { x: mergeX, y: mergeY },
+    { x: mergeX, y: aisleY },
+    { x: spot.pos_x + 12, y: aisleY },
+    { x: spot.pos_x + 20, y: spot.pos_y + 32 },
   ];
 }
 

@@ -1,14 +1,18 @@
 # SpotSync Web
 
-Map-first Next.js frontend for [SpotSync](../SpotSync) — illustrated parking lot, demo showcase layer, and spot-level reservations.
+Map-first Next.js frontend for [SpotSync](https://github.com/rayeemomayeer/SpotSync) — illustrated parking lot matching the locked desktop mockup, demo showcase layer, and spot-level reservations.
+
+![Desktop map UI](./public/reference-desktop-map.png)
 
 ## Features
 
-- Full-viewport illustrated parking map (SVG + d3-zoom)
+- Full-viewport illustrated parking map (SVG scene + d3-zoom pan/zoom)
+- UI overlays match reference: zone pill, search, legend, reserve card, bottom dock
 - Click-to-reserve with `spot_id` + demo auto-expiry (`X-Demo-Reservation`)
 - One-click **Demo Driver** login (`alice@spotsync.com` / `DriverPass123!`)
-- Client-side ghost traffic (GSAP drive-in animation, no API writes)
-- Minimal premium motion (Framer Motion for UI; GSAP for car paths only)
+- Client-only ghost traffic (GSAP drive-in paths, no API writes)
+- Spot hover tooltip, last-spot stress highlight, admin spot toggle + paginated reservations
+- Framer Motion for UI; GSAP for ghost paths only
 
 ## Setup
 
@@ -18,7 +22,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Ensure the SpotSync API is running with migrations through `000002` and seed data:
+Backend (migrations + seed):
 
 ```bash
 cd ../SpotSync
@@ -32,17 +36,27 @@ make run
 | Variable | Description |
 | --- | --- |
 | `NEXT_PUBLIC_API_BASE_URL` | API base (default `http://localhost:8080/api/v1`) |
-| `NEXT_PUBLIC_DEMO_MODE` | Enable live ghost traffic + demo booking headers |
-| `NEXT_PUBLIC_DEMO_ADMIN_EMAIL` | Admin email for one-click demo (from seed env) |
+| `NEXT_PUBLIC_DEMO_MODE` | `true` — ghost traffic + demo booking headers |
+| `NEXT_PUBLIC_DEMO_ADMIN_EMAIL` | Admin email for one-click demo |
 | `NEXT_PUBLIC_DEMO_ADMIN_PASSWORD` | Admin password for demo login |
 
 ## Demo credentials
 
 - **Driver:** `alice@spotsync.com` / `DriverPass123!`
-- **Admin:** values from backend `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`
+- **Admin:** from backend `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`
 
-Demo reservations auto-expire after 10 minutes (backend `demo_expires_at` lazy cleanup).
+Demo reservations auto-expire after 10 minutes (backend lazy cleanup).
 
 ## Design reference
 
-See `docs/design.md` and backend `assets/spotsync-demo-preview-desktop-map.png`.
+- `public/reference-desktop-map.png` — locked UI mockup
+- `docs/design.md` — tokens, layout rules, animation catalog
+
+## Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Local dev server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript check |
