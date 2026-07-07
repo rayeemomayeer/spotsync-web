@@ -23,6 +23,7 @@ import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useZoneSpots, readZoneSpotsCache, writeZoneSpotsCache, type ZoneSpotsResult } from "@/lib/hooks/useZoneSpots";
 import { useZones } from "@/lib/hooks/useZones";
 import { useZoneEvents } from "@/lib/realtime/useZoneEvents";
+import { useZonesStream } from "@/lib/realtime/useZonesStream";
 import { nextAvailableSpot, pickShowcaseZone } from "@/lib/spots/grouping";
 import { OFFLINE_SHOWCASE_ZONE } from "@/lib/spots/offline-fallback";
 import { patchSpotOccupied, patchSpotReleased } from "@/lib/spots/showcase-spots";
@@ -55,6 +56,8 @@ export function LiveConsole() {
   const zonesQuery = useZones(debouncedSearch, typeFilter);
   const zones = useMemo(() => zonesQuery.data?.zones ?? [], [zonesQuery.data?.zones]);
   const apiOnline = zonesQuery.data?.online ?? true;
+
+  useZonesStream(apiOnline);
 
   const activeZone = useMemo(() => {
     if (selectedZoneId !== null) {
