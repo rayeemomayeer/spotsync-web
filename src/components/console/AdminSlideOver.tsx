@@ -27,7 +27,6 @@ export function AdminSlideOver({
   onCancel?: (reservation: Reservation) => void;
 }) {
   const isAdmin = userRole === "admin";
-  const isDemoAdmin = userRole === "demo_admin";
   const [tab, setTab] = useState<Tab>("reservations");
   const [adminPage, setAdminPage] = useState(1);
   const [zoneId, setZoneId] = useState(showcaseZoneId ?? zones[0]?.id);
@@ -86,10 +85,6 @@ export function AdminSlideOver({
         </div>
 
         <div className="console-slideover__body">
-          {isDemoAdmin && tab !== "reservations" && (
-            <p className="console-demo-admin-note">Demo admin can reserve spots only — management tools require full admin.</p>
-          )}
-
           {tab === "reservations" && (
             <ul className="console-booking-list">
               {myReservations

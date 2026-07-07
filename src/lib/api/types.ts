@@ -2,7 +2,7 @@ export type User = {
   id: number;
   name: string;
   email: string;
-  role: "driver" | "admin" | "demo_admin";
+  role: "driver" | "admin";
   created_at: string;
   updated_at: string;
 };

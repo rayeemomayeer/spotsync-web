@@ -10,6 +10,22 @@ export type ZoneSpotsResult = {
   online: boolean;
 };
 
+export function readZoneSpotsCache(
+  data: ZoneSpotsResult | Spot[] | undefined,
+  fallback: Spot[],
+): ZoneSpotsResult {
+  if (!data) return { spots: fallback, online: true };
+  if (Array.isArray(data)) return { spots: data, online: true };
+  return data;
+}
+
+export function writeZoneSpotsCache(spots: Spot[], prev: ZoneSpotsResult | Spot[] | undefined): ZoneSpotsResult {
+  if (prev && !Array.isArray(prev)) {
+    return { ...prev, spots };
+  }
+  return { spots, online: true };
+}
+
 export function useZoneSpots(activeZone: Zone | undefined, apiOnline: boolean) {
   const queryKey = useMemo(
     () => ["spots", activeZone?.id, apiOnline] as const,

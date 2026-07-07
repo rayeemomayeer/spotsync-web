@@ -20,7 +20,7 @@ import { getToken } from "@/lib/auth/session";
 import { useGhostGrid } from "@/lib/demo/ghost-grid";
 import { useActivityFeed } from "@/lib/hooks/useActivityFeed";
 import { useDebounce } from "@/lib/hooks/useDebounce";
-import { useZoneSpots } from "@/lib/hooks/useZoneSpots";
+import { useZoneSpots, readZoneSpotsCache, writeZoneSpotsCache, type ZoneSpotsResult } from "@/lib/hooks/useZoneSpots";
 import { useZones } from "@/lib/hooks/useZones";
 import { useZoneEvents } from "@/lib/realtime/useZoneEvents";
 import { nextAvailableSpot, pickShowcaseZone } from "@/lib/spots/grouping";
@@ -195,9 +195,13 @@ export function LiveConsole() {
 
     const reservedSpot = selectedSpot;
     const reservedPlate = plate;
-    const previousSpots = qc.getQueryData<Spot[]>(spotsQueryKey) ?? displaySpots;
+    const cached = qc.getQueryData<ZoneSpotsResult | Spot[]>(spotsQueryKey);
+    const { spots: previousSpots, online: spotsOnlineFlag } = readZoneSpotsCache(cached, displaySpots);
 
-    qc.setQueryData(spotsQueryKey, patchSpotOccupied(previousSpots, reservedSpot.id, true));
+    qc.setQueryData(
+      spotsQueryKey,
+      writeZoneSpotsCache(patchSpotOccupied(previousSpots, reservedSpot.id, true), cached),
+    );
     pushLocal("spot_reserved", reservedSpot.label, reservedPlate);
 
     setReserveLoading(true);
@@ -214,7 +218,10 @@ export function LiveConsole() {
       );
 
       const optimisticSpots = patchSpotOccupied(previousSpots, reservedSpot.id, true);
-      qc.setQueryData(spotsQueryKey, optimisticSpots);
+      qc.setQueryData(
+        spotsQueryKey,
+        writeZoneSpotsCache(optimisticSpots, { spots: previousSpots, online: spotsOnlineFlag }),
+      );
 
       const next = nextAvailableSpot(optimisticSpots, reservedSpot.id);
       setSelectedSpotId(next?.id ?? null);
@@ -226,7 +233,10 @@ export function LiveConsole() {
       void qc.invalidateQueries({ queryKey: ["zones"] });
       void qc.invalidateQueries({ queryKey: ["my-reservations"] });
     } catch (e) {
-      qc.setQueryData(spotsQueryKey, previousSpots);
+      qc.setQueryData(
+        spotsQueryKey,
+        writeZoneSpotsCache(previousSpots, { spots: previousSpots, online: spotsOnlineFlag }),
+      );
       if (e instanceof ApiError && e.status === 409) {
         setShakeSpotId(reservedSpot.id);
         setTimeout(() => setShakeSpotId(null), 500);
@@ -243,8 +253,12 @@ export function LiveConsole() {
   const handleCancelReservation = useCallback(
     (reservation: Reservation) => {
       if (reservation.spot_id && reservation.zone_id === activeZone?.id) {
-        const previousSpots = qc.getQueryData<Spot[]>(spotsQueryKey) ?? displaySpots;
-        qc.setQueryData(spotsQueryKey, patchSpotReleased(previousSpots, reservation.spot_id));
+        const cached = qc.getQueryData<ZoneSpotsResult | Spot[]>(spotsQueryKey);
+        const { spots: previousSpots } = readZoneSpotsCache(cached, displaySpots);
+        qc.setQueryData(
+          spotsQueryKey,
+          writeZoneSpotsCache(patchSpotReleased(previousSpots, reservation.spot_id), cached),
+        );
       }
       const label = reservation.spot?.label ?? spotLabelById.get(reservation.spot_id ?? 0) ?? "Spot";
       pushLocal("spot_released", label, reservation.license_plate);

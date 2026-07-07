@@ -85,11 +85,7 @@ export function TopBar({
         ) : (
           <div className="console-user-chip">
             <span className="console-user-chip__name">{user.name}</span>
-            <span
-              className={`console-user-chip__role ${user.role === "demo_admin" ? "console-user-chip__role--demo" : ""}`}
-            >
-              {user.role === "demo_admin" ? "demo admin · POST only" : user.role}
-            </span>
+            <span className="console-user-chip__role">{user.role}</span>
             <button type="button" className="console-btn console-btn--text" onClick={logout}>
               Sign out
             </button>
