@@ -1,8 +1,10 @@
+export type UserRole = "driver" | "admin" | "saas_admin" | "org_admin";
+
 export type User = {
   id: number;
   name: string;
   email: string;
-  role: "driver" | "admin";
+  role: UserRole;
   created_at: string;
   updated_at: string;
 };
@@ -14,6 +16,7 @@ export type Zone = {
   total_capacity: number;
   price_per_hour: number;
   available_spots: number;
+  organization_id?: number;
   created_at: string;
   updated_at: string;
 };
