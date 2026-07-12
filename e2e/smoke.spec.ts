@@ -19,6 +19,26 @@ test.describe("Marketing + theme", () => {
   });
 });
 
+test.describe("Auth + role shells", () => {
+  test("login page renders", async ({ page }) => {
+    await page.goto("/login");
+    await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+    await expect(page.getByLabel("Email")).toBeVisible();
+  });
+
+  test("org shell asks for sign-in when anonymous", async ({ page }) => {
+    await page.goto("/org");
+    await expect(page.getByRole("heading", { name: "Org operations" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+  });
+
+  test("platform shell asks for sign-in when anonymous", async ({ page }) => {
+    await page.goto("/platform");
+    await expect(page.getByRole("heading", { name: "Platform admin" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+  });
+});
+
 test.describe("Live Console smoke", () => {
   test("loads console shell", async ({ page }) => {
     await page.goto("/console");

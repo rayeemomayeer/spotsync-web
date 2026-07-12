@@ -32,6 +32,9 @@ export default function PlatformPage() {
                   <p style={{ margin: "0.35rem 0 0" }}>Placeholder — org roster will load from BFF.</p>
                 </li>
               </ul>
+              <p>
+                <Link href="/platform/billing">Billing (Stripe test) →</Link>
+              </p>
               <Link href="/console">Open live console →</Link>
             </>
           )}

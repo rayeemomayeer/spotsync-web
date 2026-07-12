@@ -21,6 +21,9 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:unit
       - run: npm run build
+      - name: npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
   e2e:
     name: playwright smoke
