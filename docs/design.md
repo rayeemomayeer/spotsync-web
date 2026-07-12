@@ -1,6 +1,6 @@
 # SpotSync UI — Live Operations Console (v2)
 
-**Phase F unlock (owner-approved):** Replaces the illustrated map-first design. The raster-map + polygon calibration approach was retired in favor of a label-driven spot grid.
+**Design note:** Replaces the illustrated map-first design. The raster-map + polygon calibration approach was retired in favor of a label-driven spot grid.
 
 ## Visual identity
 

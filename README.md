@@ -12,8 +12,8 @@ Marketplace parking product UI for SpotSync — drivers book across org zones, o
 | **Live API** | https://spotsync-ei6g.onrender.com/api/v1 |
 | **This repo** | https://github.com/rayeemomayeer/spotsync-web |
 | **Go API** | https://github.com/rayeemomayeer/SpotSync |
-| **BFF** | sibling `spotsync-bff` (Better Auth) |
-| **Notify** | sibling `spotsync-notify` (Resend) |
+| **BFF** | sibling `spotsync-bff` (Better Auth + Stripe test + notify forward) |
+| **Notify** | sibling `spotsync-notify` (Resend + Redis) |
 
 ## Product surfaces
 
@@ -24,17 +24,18 @@ Marketplace parking product UI for SpotSync — drivers book across org zones, o
 | `/driver` | Driver book flow (LiveConsole) |
 | `/org` | Org admin shell |
 | `/platform` | SaaS admin shell |
-| `/platform/billing` | Stripe **test mode** plans |
+| `/platform/billing` | Stripe **test mode** plans (flag `stripe_billing`) |
 | `/console` | Live ops console (demo JWT path) |
 | `/developers` | Lightweight developer portal |
 
-Dark / light theme supported (system preference + toggle).
+Dark / light theme supported (system preference + toggle). Optional client observability via `NEXT_PUBLIC_SENTRY_DSN` (stub until full Sentry SDK wired).
 
 ## Local development
 
-1. Start Go API (+ Redis recommended) from SpotSync-server.
-2. Start `spotsync-bff` on `:4000`.
-3. `npm install && cp .env.example .env.local && npm run dev`
+1. Start Go API (+ Redis recommended) from SpotSync-server compose.
+2. Start `spotsync-bff` on `:4000` (optional `NOTIFY_URL` → notify `:3100`).
+3. Optional: start `spotsync-notify` on `:3100`.
+4. `npm install && cp .env.example .env.local && npm run dev`
 
 | Variable | Purpose |
 | --- | --- |
@@ -42,14 +43,20 @@ Dark / light theme supported (system preference + toggle).
 | `NEXT_PUBLIC_BFF_URL` | Express BFF origin |
 | `NEXT_PUBLIC_DEMO_MODE` | Demo reserve headers |
 | `NEXT_PUBLIC_FEATURE_FLAGS` | e.g. `stripe_billing` |
-| `NEXT_PUBLIC_SENTRY_DSN` | Optional client observability |
+| `NEXT_PUBLIC_SENTRY_DSN` | Optional client observability stub |
 
 ## Tests
 
 ```bash
 npm run test:unit
+npm run lint
+npm run build
 npm run test:e2e
 ```
+
+## Deploy
+
+Vercel — `vercel.json` sets security headers (CSP, frame deny, nosniff, referrer, permissions).
 
 ## License
 

@@ -26,6 +26,12 @@ test.describe("Auth + role shells", () => {
     await expect(page.getByLabel("Email")).toBeVisible();
   });
 
+  test("driver shell loads Live Console", async ({ page }) => {
+    await page.goto("/driver");
+    await expect(page.getByText("Live Console")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Zones" })).toBeVisible();
+  });
+
   test("org shell asks for sign-in when anonymous", async ({ page }) => {
     await page.goto("/org");
     await expect(page.getByRole("heading", { name: "Org operations" })).toBeVisible();
@@ -36,6 +42,12 @@ test.describe("Auth + role shells", () => {
     await page.goto("/platform");
     await expect(page.getByRole("heading", { name: "Platform admin" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+  });
+
+  test("billing page shows Stripe test surface", async ({ page }) => {
+    await page.goto("/platform/billing");
+    await expect(page.getByRole("heading", { name: /Billing/i })).toBeVisible();
+    await expect(page.getByText(/Stripe/i).first()).toBeVisible();
   });
 });
 
