@@ -57,7 +57,7 @@ export function LiveConsole() {
   const zones = useMemo(() => zonesQuery.data?.zones ?? [], [zonesQuery.data?.zones]);
   const apiOnline = zonesQuery.data?.online ?? true;
 
-  useZonesStream(apiOnline);
+  useZonesStream(apiOnline, authToken);
 
   const activeZone = useMemo(() => {
     if (selectedZoneId !== null) {
@@ -132,20 +132,24 @@ export function LiveConsole() {
     qc.invalidateQueries({ queryKey: ["admin-reservations"] });
   }, [qc]);
 
-  const sseStatus = useZoneEvents(activeZone?.id && activeZone.id > 0 ? activeZone.id : undefined, {
-    spot_reserved: (event) => {
-      pushFromEvent(event, user?.id === event.user_id);
-      refreshAll();
+  const sseStatus = useZoneEvents(
+    activeZone?.id && activeZone.id > 0 ? activeZone.id : undefined,
+    authToken,
+    {
+      spot_reserved: (event) => {
+        pushFromEvent(event, user?.id === event.user_id);
+        refreshAll();
+      },
+      spot_released: (event) => {
+        pushFromEvent(event, user?.id === event.user_id);
+        refreshAll();
+      },
+      spot_expired: (event) => {
+        pushFromEvent(event, user?.id === event.user_id);
+        refreshAll();
+      },
     },
-    spot_released: (event) => {
-      pushFromEvent(event, user?.id === event.user_id);
-      refreshAll();
-    },
-    spot_expired: (event) => {
-      pushFromEvent(event, user?.id === event.user_id);
-      refreshAll();
-    },
-  });
+  );
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);

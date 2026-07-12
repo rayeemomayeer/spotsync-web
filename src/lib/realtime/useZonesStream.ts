@@ -5,9 +5,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { ZonesQueryResult } from "@/lib/hooks/useZones";
 import type { ZoneEvent, ZoneEventType } from "@/lib/realtime/events";
 
-function streamUrl(): string {
+function streamUrl(token: string | null): string {
   const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
-  return `${base.replace(/\/$/, "")}/zones/stream`;
+  const url = `${base.replace(/\/$/, "")}/zones/stream`;
+  if (!token) return url;
+  const u = new URL(url);
+  u.searchParams.set("access_token", token);
+  return u.toString();
 }
 
 function patchZoneAvailability(
@@ -31,13 +35,13 @@ function patchZoneAvailability(
   });
 }
 
-export function useZonesStream(enabled: boolean) {
+export function useZonesStream(enabled: boolean, token: string | null) {
   const qc = useQueryClient();
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !token) return;
 
-    const es = new EventSource(streamUrl());
+    const es = new EventSource(streamUrl(token));
 
     const listen = (type: ZoneEventType, delta: number) => {
       es.addEventListener(type, (msg) => {
@@ -55,5 +59,5 @@ export function useZonesStream(enabled: boolean) {
     listen("spot_expired", 1);
 
     return () => es.close();
-  }, [enabled, qc]);
+  }, [enabled, token, qc]);
 }

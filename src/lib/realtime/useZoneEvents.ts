@@ -5,14 +5,19 @@ import type { ZoneEvent, ZoneEventType } from "./events";
 
 export type SseStatus = "idle" | "connecting" | "live" | "reconnecting";
 
-function eventsUrl(zoneId: number): string {
+function eventsUrl(zoneId: number, token: string | null): string {
   const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
   const trimmed = base.replace(/\/$/, "");
-  return `${trimmed}/zones/${zoneId}/events`;
+  const url = `${trimmed}/zones/${zoneId}/events`;
+  if (!token) return url;
+  const u = new URL(url);
+  u.searchParams.set("access_token", token);
+  return u.toString();
 }
 
 export function useZoneEvents(
   zoneId: number | undefined,
+  token: string | null,
   handlers: Partial<Record<ZoneEventType, (event: ZoneEvent) => void>>,
 ): SseStatus {
   const handlersRef = useRef(handlers);
@@ -23,11 +28,11 @@ export function useZoneEvents(
   }, [handlers]);
 
   useEffect(() => {
-    if (!zoneId) return;
+    if (!zoneId || !token) return;
 
     // eslint-disable-next-line react-hooks/set-state-in-effect -- SSE subscription bootstrap
     setStatus("connecting");
-    const es = new EventSource(eventsUrl(zoneId));
+    const es = new EventSource(eventsUrl(zoneId, token));
     let wasLive = false;
 
     es.onopen = () => {
@@ -58,7 +63,7 @@ export function useZoneEvents(
       es.close();
       setStatus("idle");
     };
-  }, [zoneId]);
+  }, [zoneId, token]);
 
-  return zoneId ? status : "idle";
+  return zoneId && token ? status : "idle";
 }
