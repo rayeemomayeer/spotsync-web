@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { DEMO_CREDENTIALS } from "@/lib/api/client";
 import type { SseStatus } from "@/lib/realtime/useZoneEvents";
@@ -59,6 +60,7 @@ export function TopBar({
       </div>
 
       <div className="console-topbar__actions">
+        <ThemeToggle />
         {demoError && <span className="console-topbar__error">{demoError}</span>}
         {!user ? (
           <>
@@ -86,7 +88,7 @@ export function TopBar({
           <div className="console-user-chip">
             <span className="console-user-chip__name">{user.name}</span>
             <span className="console-user-chip__role">{user.role}</span>
-            <button type="button" className="console-btn console-btn--text" onClick={logout}>
+            <button type="button" className="console-btn console-btn--text" onClick={() => void logout()}>
               Sign out
             </button>
           </div>
