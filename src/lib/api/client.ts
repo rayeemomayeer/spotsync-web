@@ -1,4 +1,5 @@
 import type { ErrorEnvelope, SuccessEnvelope } from "./types";
+import { fetchWithColdStartRetry } from "./fetch-retry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
 
@@ -19,6 +20,7 @@ type RequestOptions = {
   token?: string | null;
   demoReservation?: boolean;
   timeoutMs?: number;
+  retries?: number;
 };
 
 export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Promise<T> {
@@ -32,14 +34,16 @@ export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Pr
     headers["X-Demo-Reservation"] = "true";
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: opts.method ?? "GET",
-    headers,
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
-    credentials: "include",
-    // Render free tier cold start can exceed default browser patience; keep UI retrying.
-    signal: AbortSignal.timeout(opts.timeoutMs ?? 45_000),
-  });
+  const res = await fetchWithColdStartRetry(
+    `${API_BASE}${path}`,
+    {
+      method: opts.method ?? "GET",
+      headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      credentials: "include",
+    },
+    { attempts: opts.retries ?? 3, timeoutMs: opts.timeoutMs ?? 90_000 },
+  );
 
   const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;
 

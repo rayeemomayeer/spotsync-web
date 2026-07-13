@@ -69,6 +69,11 @@ export default function SignupPage() {
         <button type="submit" className="console-btn console-btn--primary console-btn--full" disabled={loading}>
           {loading ? "Creating…" : "Create account"}
         </button>
+        {loading ? (
+          <p className="auth-card__sub" style={{ marginTop: "0.75rem", marginBottom: 0 }}>
+            First request can take up to ~90s while free-tier API wakes. Leave this open.
+          </p>
+        ) : null}
         <p className="auth-card__sub" style={{ marginTop: "1rem", marginBottom: 0 }}>
           Already have an account? <Link href="/login">Sign in</Link>
         </p>
