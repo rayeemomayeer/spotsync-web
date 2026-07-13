@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { DEMO_CREDENTIALS } from "@/lib/api/client";
+import { isDemoModeEnabled } from "@/lib/config/demo";
 import type { SseStatus } from "@/lib/realtime/useZoneEvents";
 
 function sseLabel(status: SseStatus): string {
@@ -31,6 +32,7 @@ export function TopBar({
   const { user, login, logout, demoSession } = useAuth();
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState("");
+  const showDemoButtons = isDemoModeEnabled();
 
   async function demoLogin(creds: { email: string; password: string }) {
     setDemoLoading(true);
@@ -64,22 +66,26 @@ export function TopBar({
         {demoError && <span className="console-topbar__error">{demoError}</span>}
         {!user ? (
           <>
-            <button
-              type="button"
-              className="console-btn console-btn--ghost"
-              disabled={demoLoading}
-              onClick={() => demoLogin(DEMO_CREDENTIALS.driver)}
-            >
-              {demoLoading ? "Signing in…" : "Demo Driver"}
-            </button>
-            <button
-              type="button"
-              className="console-btn console-btn--ghost"
-              disabled={demoLoading}
-              onClick={() => demoLogin(DEMO_CREDENTIALS.demoAdmin)}
-            >
-              Demo Admin
-            </button>
+            {showDemoButtons ? (
+              <>
+                <button
+                  type="button"
+                  className="console-btn console-btn--ghost"
+                  disabled={demoLoading}
+                  onClick={() => demoLogin(DEMO_CREDENTIALS.driver)}
+                >
+                  {demoLoading ? "Signing in…" : "Demo Driver"}
+                </button>
+                <button
+                  type="button"
+                  className="console-btn console-btn--ghost"
+                  disabled={demoLoading}
+                  onClick={() => demoLogin(DEMO_CREDENTIALS.demoAdmin)}
+                >
+                  Demo Admin
+                </button>
+              </>
+            ) : null}
             <button type="button" className="console-btn console-btn--primary" onClick={onSignIn}>
               Sign in
             </button>

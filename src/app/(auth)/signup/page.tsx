@@ -7,9 +7,10 @@ import { AppHeader } from "@/components/AppHeader";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { homePathForRole } from "@/lib/auth/roles";
 
-export default function LoginPage() {
-  const { loginWithSession } = useAuth();
+export default function SignupPage() {
+  const { signupWithSession } = useAuth();
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,10 +21,10 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const { role } = await loginWithSession(email, password);
+      const { role } = await signupWithSession({ name, email, password });
       router.replace(homePathForRole(role));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign in failed");
+      setError(err instanceof Error ? err.message : "Sign up failed");
     } finally {
       setLoading(false);
     }
@@ -33,8 +34,18 @@ export default function LoginPage() {
     <div className="auth-page">
       <AppHeader showAuthCta={false} />
       <form className="auth-card" onSubmit={onSubmit}>
-        <h1>Sign in</h1>
-        <p className="auth-card__sub">Email and password via SpotSync BFF.</p>
+        <h1>Create account</h1>
+        <p className="auth-card__sub">Driver signup via SpotSync BFF. Org and platform roles are seeded.</p>
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          autoComplete="name"
+          required
+          minLength={2}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
         <label htmlFor="email">Email</label>
         <input
           id="email"
@@ -48,19 +59,18 @@ export default function LoginPage() {
         <input
           id="password"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
           required
+          minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         {error ? <p className="auth-card__error">{error}</p> : null}
         <button type="submit" className="console-btn console-btn--primary console-btn--full" disabled={loading}>
-          {loading ? "Signing in…" : "Sign in"}
+          {loading ? "Creating…" : "Create account"}
         </button>
         <p className="auth-card__sub" style={{ marginTop: "1rem", marginBottom: 0 }}>
-          No account? <Link href="/signup">Create one</Link>
-          {" · "}
-          Demo console at <Link href="/console">/console</Link>
+          Already have an account? <Link href="/login">Sign in</Link>
         </p>
       </form>
     </div>

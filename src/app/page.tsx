@@ -12,8 +12,11 @@ export default function HomePage() {
           Live availability for drivers. Dense ops for orgs. One marketplace, no guesswork.
         </p>
         <div className="landing-hero__cta">
-          <Link href="/login" className="console-btn console-btn--primary">
-            Sign in / Get started
+          <Link href="/signup" className="console-btn console-btn--primary">
+            Get started
+          </Link>
+          <Link href="/login" className="console-btn console-btn--ghost" style={{ color: "#e8eef0", borderColor: "rgba(232,238,240,0.25)" }}>
+            Sign in
           </Link>
           <Link href="/console" className="console-btn console-btn--ghost" style={{ color: "#e8eef0", borderColor: "rgba(232,238,240,0.25)" }}>
             Live console

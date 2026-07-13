@@ -15,6 +15,12 @@ type AuthContextValue = {
   login: (email: string, password: string, demo?: boolean) => Promise<void>;
   /** better-auth session path — BFF login */
   loginWithSession: (email: string, password: string) => Promise<{ role?: string }>;
+  /** better-auth signup — BFF creates driver + Go bridge user */
+  signupWithSession: (input: {
+    name: string;
+    email: string;
+    password: string;
+  }) => Promise<{ role?: string }>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -122,6 +128,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { role: cached?.role };
   }, [refresh]);
 
+  const signupWithSession = useCallback(
+    async (input: { name: string; email: string; password: string }) => {
+      const result = await authClient.signUp.email({
+        name: input.name,
+        email: input.email,
+        password: input.password,
+      });
+      if (result.error) {
+        throw new Error(result.error.message ?? "Sign up failed");
+      }
+      const sessionUser = result.data?.user as
+        | { role?: string; id: string; name: string; email: string }
+        | undefined;
+      if (sessionUser) {
+        const mapped = sessionUserToAppUser(sessionUser);
+        setUser(mapped);
+        setCachedUser(mapped);
+        setTokenState(null);
+        setDemoSession(false);
+        setDemoSessionState(false);
+        return { role: mapped.role };
+      }
+      await refresh();
+      const cached = getCachedUser<User>();
+      return { role: cached?.role };
+    },
+    [refresh],
+  );
+
   const logout = useCallback(async () => {
     clearSession();
     setUser(null);
@@ -135,8 +170,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, token, loading, demoSession, login, loginWithSession, logout, refresh }),
-    [user, token, loading, demoSession, login, loginWithSession, logout, refresh],
+    () => ({
+      user,
+      token,
+      loading,
+      demoSession,
+      login,
+      loginWithSession,
+      signupWithSession,
+      logout,
+      refresh,
+    }),
+    [user, token, loading, demoSession, login, loginWithSession, signupWithSession, logout, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

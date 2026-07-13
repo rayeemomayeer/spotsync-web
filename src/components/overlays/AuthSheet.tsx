@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { DemoLoginButtons } from "@/components/demo/DemoLoginButtons";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { DEMO_CREDENTIALS } from "@/lib/api/client";
+import { isDemoModeEnabled } from "@/lib/config/demo";
 
 export function AuthSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { login } = useAuth();
@@ -12,6 +13,7 @@ export function AuthSheet({ open, onClose }: { open: boolean; onClose: () => voi
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const showDemo = isDemoModeEnabled();
 
   async function handleLogin(demo = false, creds?: { email: string; password: string }) {
     setLoading(true);
@@ -36,21 +38,25 @@ export function AuthSheet({ open, onClose }: { open: boolean; onClose: () => voi
         className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
       >
         <h2 className="mb-4 text-xl font-semibold text-[#2D2A26]">Sign in to reserve</h2>
-        <DemoLoginButtons
-          loading={loading}
-          onDriver={() => handleLogin(true, DEMO_CREDENTIALS.driver)}
-          onDemoAdmin={() => handleLogin(true, DEMO_CREDENTIALS.demoAdmin)}
-          onAdmin={
-            DEMO_CREDENTIALS.admin.email
-              ? () => handleLogin(true, DEMO_CREDENTIALS.admin)
-              : undefined
-          }
-        />
-        <div className="my-4 flex items-center gap-2 text-xs text-[#999]">
-          <span className="h-px flex-1 bg-[#eee]" />
-          or
-          <span className="h-px flex-1 bg-[#eee]" />
-        </div>
+        {showDemo ? (
+          <>
+            <DemoLoginButtons
+              loading={loading}
+              onDriver={() => handleLogin(true, DEMO_CREDENTIALS.driver)}
+              onDemoAdmin={() => handleLogin(true, DEMO_CREDENTIALS.demoAdmin)}
+              onAdmin={
+                DEMO_CREDENTIALS.admin.email
+                  ? () => handleLogin(true, DEMO_CREDENTIALS.admin)
+                  : undefined
+              }
+            />
+            <div className="my-4 flex items-center gap-2 text-xs text-[#999]">
+              <span className="h-px flex-1 bg-[#eee]" />
+              or
+              <span className="h-px flex-1 bg-[#eee]" />
+            </div>
+          </>
+        ) : null}
         <input
           type="email"
           placeholder="Email"

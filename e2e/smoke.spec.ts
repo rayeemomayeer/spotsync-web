@@ -4,7 +4,8 @@ test.describe("Marketing + theme", () => {
   test("landing shows SpotSync brand and CTA", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "SpotSync" })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Sign in \/ Get started/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Get started/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /^Sign in$/i })).toBeVisible();
   });
 
   test("theme toggle flips html dark class", async ({ page }) => {
@@ -24,6 +25,21 @@ test.describe("Auth + role shells", () => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
+  });
+
+  test("signup page renders", async ({ page }) => {
+    await page.goto("/signup");
+    await expect(page.getByRole("heading", { name: "Create account" })).toBeVisible();
+    await expect(page.getByLabel("Name")).toBeVisible();
+    await expect(page.getByLabel("Email")).toBeVisible();
+  });
+
+  test("console hides demo buttons when demo mode off", async ({ page }) => {
+    test.skip(process.env.NEXT_PUBLIC_DEMO_MODE === "true", "Demo mode enabled in this env");
+    await page.goto("/console");
+    await expect(page.getByText("Live Console")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Demo Driver" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Demo Admin" })).toHaveCount(0);
   });
 
   test("driver shell loads Live Console", async ({ page }) => {
@@ -60,6 +76,7 @@ test.describe("Live Console smoke", () => {
 
   test("demo driver can open reserve panel", async ({ page }) => {
     test.skip(!process.env.SPOTSYNC_E2E_API, "Set SPOTSYNC_E2E_API=1 with backend running");
+    test.skip(process.env.NEXT_PUBLIC_DEMO_MODE !== "true", "Needs NEXT_PUBLIC_DEMO_MODE=true");
 
     await page.goto("/console");
     await page.getByRole("button", { name: "Demo Driver" }).click();
