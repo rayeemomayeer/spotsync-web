@@ -1,6 +1,7 @@
 "use client";
 
 import { Component, type ReactNode } from "react";
+import { captureClientError } from "@/lib/observability/client";
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
@@ -10,6 +11,10 @@ export class ConsoleErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): State {
     return { error };
+  }
+
+  componentDidCatch(error: Error): void {
+    captureClientError(error, { boundary: "ConsoleErrorBoundary" });
   }
 
   render() {
