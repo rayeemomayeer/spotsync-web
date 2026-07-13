@@ -369,7 +369,8 @@ export function LiveConsole() {
       )}
       {effectiveApiOnline && spotsOffline && !showSpotSkeleton && (
         <p className="console-banner console-banner--warn">
-          Parking spots not seeded — run <code>go run ./cmd/seed</code> in the SpotSync backend repo
+          Spots API unreachable (cold start or timeout) — showing offline preview. Wait a few seconds and refresh;
+          data is seeded in production.
         </p>
       )}
 
