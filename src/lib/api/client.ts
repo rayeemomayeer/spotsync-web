@@ -18,6 +18,7 @@ type RequestOptions = {
   body?: unknown;
   token?: string | null;
   demoReservation?: boolean;
+  timeoutMs?: number;
 };
 
 export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Promise<T> {
@@ -36,6 +37,8 @@ export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Pr
     headers,
     body: opts.body ? JSON.stringify(opts.body) : undefined,
     credentials: "include",
+    // Render free tier cold start can exceed default browser patience; keep UI retrying.
+    signal: AbortSignal.timeout(opts.timeoutMs ?? 45_000),
   });
 
   const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;

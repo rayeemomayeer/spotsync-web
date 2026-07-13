@@ -21,7 +21,7 @@ import { useGhostGrid } from "@/lib/demo/ghost-grid";
 import { useActivityFeed } from "@/lib/hooks/useActivityFeed";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useZoneSpots, readZoneSpotsCache, writeZoneSpotsCache, type ZoneSpotsResult } from "@/lib/hooks/useZoneSpots";
-import { useZones } from "@/lib/hooks/useZones";
+import { useZones, zonesOrOffline } from "@/lib/hooks/useZones";
 import { useZoneEvents } from "@/lib/realtime/useZoneEvents";
 import { useZonesStream } from "@/lib/realtime/useZonesStream";
 import { nextAvailableSpot, pickShowcaseZone } from "@/lib/spots/grouping";
@@ -54,8 +54,9 @@ export function LiveConsole() {
   const authToken = token ?? getToken();
 
   const zonesQuery = useZones(debouncedSearch, typeFilter);
-  const zones = useMemo(() => zonesQuery.data?.zones ?? [], [zonesQuery.data?.zones]);
-  const apiOnline = zonesQuery.data?.online ?? true;
+  const zonesResult = zonesOrOffline(zonesQuery.data, zonesQuery.isError && !zonesQuery.isFetching);
+  const zones = zonesResult.zones;
+  const apiOnline = zonesResult.online || zonesQuery.isFetching;
 
   useZonesStream(apiOnline, authToken);
 

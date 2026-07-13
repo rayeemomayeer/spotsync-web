@@ -36,12 +36,11 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Same-origin proxy so Better Auth cookies stick on the Vercel host.
+  // Auth only: same-origin proxy helps some browsers. API calls go direct to BFF
+  // (Vercel→Render rewrites time out on free-tier cold starts).
   async rewrites() {
     return [
-      { source: "/healthz", destination: `${BFF_ORIGIN}/healthz` },
       { source: "/api/auth/:path*", destination: `${BFF_ORIGIN}/api/auth/:path*` },
-      { source: "/api/v1/:path*", destination: `${BFF_ORIGIN}/api/v1/:path*` },
     ];
   },
 };

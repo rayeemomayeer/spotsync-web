@@ -38,35 +38,43 @@ export function useZoneSpots(activeZone: Zone | undefined, apiOnline: boolean) {
       if (!activeZone || activeZone.id === 0) {
         return { spots: offlineShowcaseSpots(), online: false };
       }
-      try {
-        const data = await api.spots(activeZone.id);
-        return {
-          spots: normalizeShowcaseSpots(data, activeZone.id),
-          online: true,
-        };
-      } catch {
-        return { spots: offlineShowcaseSpots(), online: false };
-      }
+      const data = await api.spots(activeZone.id);
+      return {
+        spots: normalizeShowcaseSpots(data, activeZone.id),
+        online: true,
+      };
     },
-    enabled: !!activeZone,
-    refetchInterval: apiOnline ? 12000 : false,
-    retry: 1,
+    enabled: !!activeZone && activeZone.id !== 0,
+    refetchInterval: (q) => (q.state.error ? 5000 : apiOnline ? 12000 : 8000),
+    retry: 5,
+    retryDelay: (attempt) => Math.min(1500 * 2 ** attempt, 12_000),
+    placeholderData: (prev) => prev,
   });
 
-  const displaySpots = query.data?.spots ?? [];
+  const liveSpots = query.data?.online ? query.data.spots : undefined;
+  const displaySpots =
+    liveSpots ??
+    (query.isError || (activeZone?.id === 0 && query.isFetched)
+      ? offlineShowcaseSpots()
+      : []);
+
   const spotsMatchZone =
     displaySpots.length === 0 ||
     displaySpots.every((s) => !activeZone?.id || s.zone_id === activeZone.id || s.zone_id === 0);
-  const spotsOffline = displaySpots.length > 0 && isOfflineSpotData(displaySpots);
+
+  const spotsOffline = !liveSpots && displaySpots.length > 0 && isOfflineSpotData(displaySpots);
   const showSkeleton =
-    query.isLoading || !spotsMatchZone || (query.isFetching && displaySpots.length === 0);
+    !!activeZone &&
+    activeZone.id !== 0 &&
+    !liveSpots &&
+    (query.isPending || query.isFetching || !spotsMatchZone);
 
   return {
     queryKey,
     displaySpots,
     spotsOffline,
     showSkeleton,
-    spotsOnline: query.data?.online ?? false,
+    spotsOnline: !!liveSpots,
     isFetching: query.isFetching,
   };
 }
