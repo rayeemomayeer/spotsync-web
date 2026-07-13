@@ -35,6 +35,7 @@ export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Pr
     method: opts.method ?? "GET",
     headers,
     body: opts.body ? JSON.stringify(opts.body) : undefined,
+    credentials: "include",
   });
 
   const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;
@@ -63,6 +64,7 @@ async function apiRequestPaginated<T>(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
+    credentials: "include",
   });
   const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;
   if (!res.ok || !json.success) {
