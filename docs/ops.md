@@ -19,7 +19,7 @@ Render free sleeps. First hit after idle can take 30–90s. Web calls BFF **dire
 
 - Signup: `/signup` → Better Auth on BFF → Go user bridge (`driver` only).
 - Seeded: `admin@spotsync.com` (saas_admin), `demo_admin@spotsync.com` (org_admin), `alice@spotsync.com` (driver).
-- Prod: keep `NEXT_PUBLIC_DEMO_MODE=false` and `NEXT_PUBLIC_DEMO_GHOST_GRID=false` so Demo Driver/Admin stay hidden.
+- Prod/preview: `NEXT_PUBLIC_DEMO_MODE=true` + `NEXT_PUBLIC_DEMO_GHOST_GRID=true` so Demo Driver/Admin show on console.
 
 ## Outbox → email
 
