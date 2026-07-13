@@ -21,6 +21,25 @@ export type Zone = {
   updated_at: string;
 };
 
+export type Organization = {
+  id: number;
+  name: string;
+  slug: string;
+  status: "active" | "suspended" | string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AuditLog = {
+  id: number;
+  actor_user_id?: number;
+  organization_id?: number;
+  action: string;
+  resource_type: string;
+  resource_id?: number;
+  created_at: string;
+};
+
 export type Spot = {
   id: number;
   zone_id: number;

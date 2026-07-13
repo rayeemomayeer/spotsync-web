@@ -126,6 +126,29 @@ export const api = {
       `/reservations?page=${page}&limit=${limit}`,
       token,
     ),
+  orgs: (token?: string | null, q?: string) => {
+    const qs = q ? `?q=${encodeURIComponent(q)}` : "";
+    return apiRequest<import("./types").Organization[]>(`/orgs${qs}`, { token });
+  },
+  org: (token: string | null | undefined, id: number) =>
+    apiRequest<import("./types").Organization>(`/orgs/${id}`, { token }),
+  createOrg: (token: string | null | undefined, body: { name: string; slug: string }) =>
+    apiRequest<import("./types").Organization>("/orgs", { method: "POST", token, body }),
+  setOrgStatus: (
+    token: string | null | undefined,
+    id: number,
+    status: "active" | "suspended",
+  ) =>
+    apiRequest<import("./types").Organization>(`/orgs/${id}/status`, {
+      method: "PATCH",
+      token,
+      body: { status },
+    }),
+  orgAudit: (token: string | null | undefined, organizationId?: number) => {
+    const qs =
+      organizationId != null ? `?organization_id=${organizationId}` : "";
+    return apiRequest<import("./types").AuditLog[]>(`/orgs/audit${qs}`, { token });
+  },
 };
 
 export const DEMO_CREDENTIALS = {
