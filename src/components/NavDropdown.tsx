@@ -43,8 +43,9 @@ function publicExploreGroups(): NavMenuGroup[] {
     {
       title: "Account",
       items: [
-        { href: "/login", label: "Sign in", description: "BFF session" },
-        { href: "/signup", label: "Create account", description: "Driver signup" },
+        { href: "/login", label: "Driver sign in", description: "Book parking" },
+        { href: "/login?as=org", label: "Organization sign in", description: "Garage operators" },
+        { href: "/signup?as=org", label: "Create org account", description: "Apply → approve → pay" },
       ],
     },
   ];

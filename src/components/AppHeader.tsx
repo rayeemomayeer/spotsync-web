@@ -65,9 +65,17 @@ export function AppHeader({
               </Link>
             </>
           ) : showAuthCta ? (
-            <Link href="/login" className="app-header__cta">
-              Sign in
-            </Link>
+            <>
+              <Link href="/login?as=org" className="app-header__cta app-header__cta--ghost">
+                <span className="app-header__cta-label">Org</span>
+                <span className="app-header__cta-short" aria-hidden>
+                  Org
+                </span>
+              </Link>
+              <Link href="/login" className="app-header__cta">
+                Sign in
+              </Link>
+            </>
           ) : null}
         </div>
       </div>

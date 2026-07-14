@@ -48,6 +48,24 @@ export function homePathForRole(role: string | undefined | null): string {
   }
 }
 
+/**
+ * Post sign-in/up destination.
+ * Organization intent: org_admin → /org; driver still applying → /apply.
+ */
+export function postAuthPath(
+  role: string | undefined | null,
+  opts?: { intent?: "driver" | "organization"; next?: string | null },
+): string {
+  if (opts?.next) return opts.next;
+  if (opts?.intent === "organization") {
+    const n = normalizeRole(role);
+    if (n === "saas_admin") return "/platform";
+    if (n === "org_admin") return "/org";
+    return "/apply";
+  }
+  return homePathForRole(role);
+}
+
 /** Longest-prefix match for protected routes. Public paths return true. */
 export function canAccessPath(
   role: string | undefined | null,
@@ -72,7 +90,7 @@ export function primaryNavLinks(role: string | undefined | null): NavLink[] {
     return [
       { href: "/search", label: "Find parking" },
       { href: "/pricing", label: "Pricing" },
-      { href: "/apply", label: "Operate" },
+      { href: "/login?as=org", label: "For garages" },
       { href: "/how-it-works", label: "How it works" },
     ];
   }
@@ -100,7 +118,7 @@ export function primaryNavLinks(role: string | undefined | null): NavLink[] {
     { href: "/driver", label: "Driver map" },
     { href: "/search", label: "Find parking" },
     { href: "/reservations", label: "Reservations" },
-    { href: "/apply", label: "Operate" },
+    { href: "/apply", label: "Org account" },
     { href: "/account", label: "Account" },
   ];
 }

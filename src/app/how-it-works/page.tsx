@@ -34,8 +34,8 @@ export default function HowItWorksPage() {
           <h2>For operators</h2>
           <ol>
             <li>
-              <Link href="/apply">Apply</Link> with your account — org starts as{" "}
-              <code>pending</code>.
+              <Link href="/login?as=org">Organization sign in</Link> (or create an org account), then{" "}
+              <Link href="/apply">apply</Link> — org starts as <code>pending</code>.
             </li>
             <li>A platform admin approves (or rejects) your application.</li>
             <li>

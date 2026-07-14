@@ -2351,6 +2351,55 @@ html.dark .audience-split__panel--ops {
   color: var(--muted);
 }
 
+.auth-audience {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  margin: 0 0 1.1rem;
+  padding: 0.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 80%, var(--surface));
+}
+
+.auth-audience__tab {
+  text-align: center;
+  padding: 0.45rem 0.5rem;
+  border-radius: 9px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.auth-audience__tab:hover {
+  color: var(--ink);
+}
+
+.auth-audience__tab--active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-org-steps {
+  margin: 0 0 1.15rem;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.auth-org-steps li + li {
+  margin-top: 0.25rem;
+}
+
+.auth-org-steps--page {
+  max-width: 28rem;
+  margin-bottom: 1.5rem;
+  color: var(--ink);
+}
+
 .auth-card label {
   display: block;
   margin-bottom: 0.35rem;

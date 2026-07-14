@@ -4,6 +4,7 @@ import {
   homePathForRole,
   isPlatformAdmin,
   normalizeRole,
+  postAuthPath,
   primaryNavLinks,
 } from "./roles";
 
@@ -25,6 +26,18 @@ describe("homePathForRole", () => {
     expect(homePathForRole("saas_admin")).toBe("/platform");
     expect(homePathForRole("org_admin")).toBe("/org");
     expect(homePathForRole("driver")).toBe("/driver");
+  });
+});
+
+describe("postAuthPath", () => {
+  it("honors next override", () => {
+    expect(postAuthPath("driver", { next: "/apply" })).toBe("/apply");
+  });
+
+  it("routes organization intent", () => {
+    expect(postAuthPath("org_admin", { intent: "organization" })).toBe("/org");
+    expect(postAuthPath("driver", { intent: "organization" })).toBe("/apply");
+    expect(postAuthPath("saas_admin", { intent: "organization" })).toBe("/platform");
   });
 });
 
@@ -66,6 +79,6 @@ describe("primaryNavLinks", () => {
     expect(primaryNavLinks("org_admin").some((l) => l.href === "/org/members")).toBe(true);
     expect(primaryNavLinks("driver").some((l) => l.href === "/driver")).toBe(true);
     expect(primaryNavLinks("driver").some((l) => l.href === "/apply")).toBe(true);
-    expect(primaryNavLinks(null).some((l) => l.href === "/apply")).toBe(true);
+    expect(primaryNavLinks(null).some((l) => l.href === "/login?as=org")).toBe(true);
   });
 });

@@ -19,6 +19,7 @@ describe("orgEntitlement", () => {
   it("blocks missing org", () => {
     expect(orgEntitlement(null).entitled).toBe(false);
     expect(orgEntitlement(null).reason).toBe("no-org");
+    expect(orgEntitlement(null).ctaHref).toBe("/apply");
   });
 
   it("blocks pending without requiring plan first", () => {

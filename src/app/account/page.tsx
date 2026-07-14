@@ -76,7 +76,9 @@ export default function AccountPage() {
               {user.role === "driver" ? (
                 <>
                   {" · "}
-                  <Link href="/apply">Operate a garage</Link>
+                  <Link href="/login?as=org">Organization sign in</Link>
+                  {" / "}
+                  <Link href="/apply">Apply for garage</Link>
                 </>
               ) : null}
             </p>

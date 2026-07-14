@@ -4,13 +4,14 @@ import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
+import { AuthAudienceTabs, parseAuthAudience } from "@/components/auth/AuthAudienceTabs";
 import { AuthColdStartStatus, useAuthColdStart } from "@/components/auth/AuthColdStart";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PersonaSwitcher } from "@/components/demo/PersonaSwitcher";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
-import { homePathForRole } from "@/lib/auth/roles";
+import { postAuthPath } from "@/lib/auth/roles";
 
 function safeNextPath(raw: string | null): string | null {
   if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return null;
@@ -21,6 +22,8 @@ function LoginInner() {
   const { loginWithSession } = useAuth();
   const router = useRouter();
   const search = useSearchParams();
+  const audience = parseAuthAudience(search.get("as"));
+  const isOrg = audience === "organization";
   const nextPath = safeNextPath(search.get("next"));
   const { phase, setPhase, ensureReady, mapError } = useAuthColdStart();
   const [email, setEmail] = useState("");
@@ -36,7 +39,12 @@ function LoginInner() {
       await ensureReady();
       setPhase("signing");
       const { role } = await loginWithSession(email, password);
-      router.replace(nextPath ?? homePathForRole(role));
+      router.replace(
+        postAuthPath(role, {
+          intent: audience,
+          next: nextPath,
+        }),
+      );
     } catch (err) {
       setError(mapError(err));
       setPhase("degraded");
@@ -45,9 +53,11 @@ function LoginInner() {
     }
   }
 
-  const signupHref = nextPath
-    ? `/signup?next=${encodeURIComponent(nextPath)}`
-    : "/signup";
+  const signupHref = isOrg
+    ? `/signup?as=org${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`
+    : nextPath
+      ? `/signup?next=${encodeURIComponent(nextPath)}`
+      : "/signup";
 
   return (
     <div className="auth-page">
@@ -55,11 +65,31 @@ function LoginInner() {
       <div className="auth-layout">
         <aside className="auth-layout__brand">
           <h2>SpotSync</h2>
-          <p>Sign in to book spots, manage reservations, or operate your garage inventory.</p>
+          {isOrg ? (
+            <p>
+              Organization sign-in for garage operators. After platform approval and a Starter/Growth
+              plan, manage zones and spots from your org dashboard.
+            </p>
+          ) : (
+            <p>Sign in to book spots, manage reservations, or switch to Organization for garage tools.</p>
+          )}
         </aside>
         <form className="auth-card" onSubmit={onSubmit}>
-          <h1>Sign in</h1>
-          <p className="auth-card__sub">Email and password via SpotSync BFF.</p>
+          <AuthAudienceTabs value={audience} basePath="/login" nextPath={nextPath} />
+          <h1>{isOrg ? "Organization sign in" : "Sign in"}</h1>
+          <p className="auth-card__sub">
+            {isOrg
+              ? "Use your org account. New operators: create an account, then apply — approval unlocks billing, then zone publish."
+              : "Driver account via SpotSync BFF."}
+          </p>
+          {isOrg ? (
+            <ol className="auth-org-steps">
+              <li>Sign in or create an organization account</li>
+              <li>Submit garage application (pending)</li>
+              <li>Platform admin approves</li>
+              <li>Subscribe (Starter/Growth) → create zones &amp; spots</li>
+            </ol>
+          ) : null}
           <label htmlFor="email">Email</label>
           <Input
             id="email"
@@ -81,17 +111,37 @@ function LoginInner() {
           {error ? <p className="auth-card__error">{error}</p> : null}
           <AuthColdStartStatus phase={loading ? (phase === "signing" ? "signing" : "warming") : phase} />
           <Button type="submit" variant="primary" fullWidth disabled={loading}>
-            {loading ? (phase === "signing" ? "Signing in…" : "Waking API…") : "Sign in"}
+            {loading
+              ? phase === "signing"
+                ? "Signing in…"
+                : "Waking API…"
+              : isOrg
+                ? "Sign in as organization"
+                : "Sign in"}
           </Button>
           <GoogleAuthButton />
           <p className="auth-card__sub auth-card__sub--foot">
-            No account? <Link href={signupHref}>Create one</Link>
-            {" · "}
-            <Link href="/forgot-password">Forgot password</Link>
-            {" · "}
-            <Link href="/apply">Apply as operator</Link>
+            {isOrg ? (
+              <>
+                New garage? <Link href={signupHref}>Create organization account</Link>
+                {" · "}
+                <Link href="/apply">Already signed in? Apply</Link>
+              </>
+            ) : (
+              <>
+                No account? <Link href={signupHref}>Create one</Link>
+                {" · "}
+                <Link href="/forgot-password">Forgot password</Link>
+                {" · "}
+                <Link href="/login?as=org">Organization sign in</Link>
+              </>
+            )}
           </p>
-          <PersonaSwitcher onDone={(role) => router.replace(homePathForRole(role))} />
+          <PersonaSwitcher
+            onDone={(role) =>
+              router.replace(postAuthPath(role, { intent: audience, next: nextPath }))
+            }
+          />
         </form>
       </div>
     </div>

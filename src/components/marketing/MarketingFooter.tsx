@@ -16,8 +16,8 @@ const companyLinks = [
 const workspaceLinks = [
   { href: "/driver", label: "Driver map" },
   { href: "/console", label: "Live console" },
-  { href: "/login", label: "Sign in" },
-  { href: "/signup", label: "Create account" },
+  { href: "/login", label: "Driver sign in" },
+  { href: "/login?as=org", label: "Organization sign in" },
 ];
 
 export function MarketingFooter() {

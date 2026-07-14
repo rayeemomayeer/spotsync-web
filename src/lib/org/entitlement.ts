@@ -28,9 +28,9 @@ export function orgEntitlement(org: Organization | null | undefined): Entitlemen
       entitled: false,
       reason: "no-org",
       title: "No organization linked",
-      body: "This account is not attached to a garage org yet. Create or join an org, then wait for platform approval.",
-      ctaHref: "/org",
-      ctaLabel: "Org overview",
+      body: "Sign in as an organization and submit a garage application. After approval and a paid plan, zone publish unlocks.",
+      ctaHref: "/apply",
+      ctaLabel: "Apply for organization",
     };
   }
 
@@ -40,7 +40,7 @@ export function orgEntitlement(org: Organization | null | undefined): Entitlemen
       entitled: false,
       reason: "pending",
       title: "Waiting for platform approval",
-      body: "Zone publishing unlocks after a SaaS admin approves your org. Billing can wait until then.",
+      body: "Your organization account is ready. A SaaS admin must approve before you can subscribe and create zones/spots.",
       ctaHref: "/org",
       ctaLabel: "Check status",
     };

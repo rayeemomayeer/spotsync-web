@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { api } from "@/lib/api/client";
 import { getBffUrl } from "@/lib/auth/client";
 import { clearToken } from "@/lib/auth/session";
-import { homePathForRole, isPlatformAdmin } from "@/lib/auth/roles";
+import { homePathForRole, isOrgAdmin, isPlatformAdmin } from "@/lib/auth/roles";
 
 function slugify(name: string): string {
   return name
@@ -20,7 +21,7 @@ function slugify(name: string): string {
 }
 
 export default function ApplyOrgPage() {
-  const { user, loading, refresh } = useAuth();
+  const { user, token, loading, refresh } = useAuth();
   const router = useRouter();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -37,13 +38,22 @@ export default function ApplyOrgPage() {
     if (loading || !user) return;
     if (isPlatformAdmin(user.role)) {
       router.replace("/platform/orgs");
+      return;
     }
-  }, [loading, user, router]);
+    if (isOrgAdmin(user.role)) {
+      void api
+        .orgMe(token)
+        .then(() => router.replace("/org"))
+        .catch(() => {
+          /* no org yet — stay and apply */
+        });
+    }
+  }, [loading, user, token, router]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!user) {
-      router.push(`/login?next=${encodeURIComponent("/apply")}`);
+      router.push(`/login?as=org&next=${encodeURIComponent("/apply")}`);
       return;
     }
     setBusy(true);
@@ -71,7 +81,6 @@ export default function ApplyOrgPage() {
             "Application failed",
         );
       }
-      // Drop any stale Go JWT so cookie session (org_admin) wins.
       clearToken();
       await refresh();
       setDone(true);
@@ -84,36 +93,42 @@ export default function ApplyOrgPage() {
 
   return (
     <div className="shell">
-      <AppHeader tag="Apply" showAuthCta={!user} />
+      <AppHeader tag="Organization" showAuthCta={!user} />
       <main className="shell-main page-surface">
-        <h1>Apply as garage operator</h1>
+        <h1>Organization application</h1>
         <p className="page-surface__lede">
-          Create your organization. A platform admin must approve before you can publish zones
-          or subscribe. After approval, pick a plan on Billing.
+          Register your garage. After a platform admin approves and you subscribe (Starter or Growth),
+          you can create zones and spots.
         </p>
+        <ol className="auth-org-steps auth-org-steps--page">
+          <li>Organization account</li>
+          <li>This application (pending)</li>
+          <li>Admin approval</li>
+          <li>Subscribe → zones &amp; spots</li>
+        </ol>
 
         {loading ? (
           <p>Loading…</p>
         ) : !user ? (
           <div className="dash-empty">
-            <p>Sign in (or create a driver account) first, then apply.</p>
-            <p>
+            <p>Sign in with an organization account first (or create one).</p>
+            <p className="dash-cta-row">
               <Link
-                href={`/login?next=${encodeURIComponent("/apply")}`}
+                href={`/login?as=org&next=${encodeURIComponent("/apply")}`}
                 className="console-btn console-btn--primary console-btn--pill"
               >
-                Sign in
-              </Link>{" "}
+                Organization sign in
+              </Link>
               <Link
-                href={`/signup?next=${encodeURIComponent("/apply")}`}
+                href={`/signup?as=org&next=${encodeURIComponent("/apply")}`}
                 className="console-btn console-btn--ghost console-btn--pill"
               >
-                Create account
+                Create organization account
               </Link>
             </p>
           </div>
         ) : done ? (
-          <p className="status-ok">Application submitted — redirecting to org dashboard…</p>
+          <p className="status-ok">Application submitted — opening org dashboard…</p>
         ) : (
           <form onSubmit={(e) => void onSubmit(e)} className="account-section" style={{ maxWidth: "28rem" }}>
             {error ? <p className="auth-card__error">{error}</p> : null}
@@ -146,15 +161,15 @@ export default function ApplyOrgPage() {
               />
             </label>
             <p className="dash-table__meta">
-              Status after submit: <code>pending</code> until a saas admin approves on{" "}
-              <code>/platform/orgs</code>.
+              Starts as <code>pending</code>. Admins approve on <code>/platform/orgs</code>. Then open{" "}
+              <Link href="/org/billing">Billing</Link> before zone create.
             </p>
             <button
               type="submit"
               className="console-btn console-btn--primary console-btn--pill"
               disabled={busy}
             >
-              {busy ? "Submitting…" : "Submit application"}
+              {busy ? "Submitting…" : "Submit organization application"}
             </button>
             <p>
               <Link href={homePathForRole(user.role)}>← Back</Link>
