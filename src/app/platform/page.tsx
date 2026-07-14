@@ -53,6 +53,7 @@ export default function PlatformPage() {
   }
 
   async function toggleStatus(org: Organization) {
+    if (org.status === "pending" || org.status === "rejected") return;
     const next = org.status === "active" ? "suspended" : "active";
     setBusy(true);
     setError("");
@@ -65,6 +66,35 @@ export default function PlatformPage() {
       setBusy(false);
     }
   }
+
+  async function approveOrg(org: Organization) {
+    setBusy(true);
+    setError("");
+    try {
+      await api.approveOrg(token, org.id);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Approve failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function rejectOrg(org: Organization) {
+    setBusy(true);
+    setError("");
+    try {
+      await api.rejectOrg(token, org.id);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Reject failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const pendingOrgs = orgs.filter((o) => o.status === "pending");
+  const otherOrgs = orgs.filter((o) => o.status !== "pending");
 
   return (
     <div className="shell">
@@ -82,8 +112,42 @@ export default function PlatformPage() {
             <p>Role gate: saas_admin / admin only. Your role: {user.role}</p>
           ) : (
             <>
-              <p>Marketplace orgs via BFF → Go. Search, create, suspend.</p>
+              <p>Marketplace orgs via BFF → Go. Approve pending, manage status, billing.</p>
               {error ? <p className="auth-card__error">{error}</p> : null}
+
+              {pendingOrgs.length > 0 ? (
+                <>
+                  <h2 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>Pending approval</h2>
+                  <ul className="console-zone-list" style={{ marginBottom: "1.25rem" }}>
+                    {pendingOrgs.map((org) => (
+                      <li key={org.id} className="shell-card" style={{ boxShadow: "none" }}>
+                        <strong>
+                          {org.name}{" "}
+                          <span style={{ fontWeight: 400, opacity: 0.7 }}>({org.slug})</span>
+                        </strong>
+                        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
+                          <button
+                            type="button"
+                            className="console-btn console-btn--primary"
+                            disabled={busy}
+                            onClick={() => void approveOrg(org)}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            className="console-btn console-btn--ghost"
+                            disabled={busy}
+                            onClick={() => void rejectOrg(org)}
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
 
               <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
                 <input
@@ -99,12 +163,12 @@ export default function PlatformPage() {
               </div>
 
               <ul className="console-zone-list" style={{ marginBottom: "1.25rem" }}>
-                {orgs.length === 0 && !busy ? (
+                {otherOrgs.length === 0 && !busy ? (
                   <li className="shell-card" style={{ boxShadow: "none" }}>
                     <p style={{ margin: 0 }}>No organizations yet.</p>
                   </li>
                 ) : (
-                  orgs.map((org) => (
+                  otherOrgs.map((org) => (
                     <li key={org.id} className="shell-card" style={{ boxShadow: "none" }}>
                       <strong>
                         {org.name}{" "}
@@ -122,7 +186,7 @@ export default function PlatformPage() {
                       <button
                         type="button"
                         className="console-btn console-btn--ghost"
-                        disabled={busy}
+                        disabled={busy || org.status === "pending" || org.status === "rejected"}
                         onClick={() => void toggleStatus(org)}
                       >
                         {org.status === "active" ? "Suspend" : "Activate"}
@@ -155,7 +219,8 @@ export default function PlatformPage() {
               </form>
 
               <p>
-                <Link href="/platform/billing">Billing (Stripe test) →</Link>
+                <Link href="/platform/billing">Billing (Stripe test) →</Link> ·{" "}
+                <Link href="/pricing">Public pricing →</Link>
               </p>
               <Link href="/console">Open live console →</Link>
             </>

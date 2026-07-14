@@ -81,7 +81,7 @@ export default function OrgPage() {
                   ))
                 )}
               </ul>
-              <Link href="/console">Open live console →</Link>
+              <Link href="/org/billing">Billing →</Link> · <Link href="/console">Open live console →</Link>
             </>
           )}
         </div>

@@ -156,6 +156,18 @@ export const api = {
       token,
       body: { status },
     }),
+  approveOrg: (token: string | null | undefined, id: number) =>
+    apiRequest<import("./types").Organization>(`/orgs/${id}/approve`, {
+      method: "POST",
+      token,
+    }),
+  rejectOrg: (token: string | null | undefined, id: number) =>
+    apiRequest<import("./types").Organization>(`/orgs/${id}/reject`, {
+      method: "POST",
+      token,
+    }),
+  orgMe: (token?: string | null) =>
+    apiRequest<import("./types").Organization>("/orgs/me", { token }),
   orgAudit: (token: string | null | undefined, organizationId?: number) => {
     const qs =
       organizationId != null ? `?organization_id=${organizationId}` : "";
