@@ -136,16 +136,22 @@ function SearchInner() {
         </div>
       </div>
 
-      {zonesQuery.isLoading ? <p>Loading zones…</p> : null}
-      {zonesQuery.isError && zones.length === 0 ? (
-        <p className="auth-card__error">Could not load zones. Try again shortly.</p>
+      {zonesQuery.isLoading && zones.length === 0 ? (
+        <p className="search-experience__status" role="status">
+          Waking parking inventory… first load after idle can take a few seconds.
+        </p>
+      ) : null}
+      {zonesQuery.isError && zones.length === 0 && !zonesQuery.isFetching ? (
+        <p className="auth-card__error">
+          Could not load zones. Backend may be cold — retry in a moment.
+        </p>
       ) : null}
 
       {view === "map" ? (
         <SearchMapView zones={zones} selectedId={selectedId} onSelect={onSelectZone} />
       ) : (
         <ul className="zone-card-grid">
-          {zones.length === 0 && !zonesQuery.isLoading ? (
+          {zones.length === 0 && !zonesQuery.isLoading && !zonesQuery.isFetching ? (
             <li className="data-list__row">
               <p>No zones found.</p>
             </li>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { getBffUrl } from "@/lib/auth/client";
 import {
   getDemoSessionId,
@@ -8,7 +9,26 @@ import {
   setDemoSession,
 } from "@/lib/auth/session";
 
+/** Marketing / public pages — no demo chrome. */
+const HIDDEN_PREFIXES = [
+  "/",
+  "/pricing",
+  "/how-it-works",
+  "/developers",
+  "/legal",
+  "/login",
+  "/signup",
+];
+
+function shouldShowBanner(pathname: string): boolean {
+  if (pathname === "/") return false;
+  return !HIDDEN_PREFIXES.some(
+    (p) => p !== "/" && (pathname === p || pathname.startsWith(`${p}/`)),
+  );
+}
+
 export function DemoModeBanner() {
+  const pathname = usePathname() ?? "/";
   const [on, setOn] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -40,7 +60,7 @@ export function DemoModeBanner() {
         },
         body: JSON.stringify({}),
       });
-      const json = (await res.json()) as { message?: string; data?: unknown };
+      const json = (await res.json()) as { message?: string };
       if (!res.ok) throw new Error(json.message ?? "Reset failed");
       setMsg("Sandbox reset");
       window.location.reload();
@@ -51,33 +71,38 @@ export function DemoModeBanner() {
     }
   }
 
+  if (!shouldShowBanner(pathname)) return null;
+
   return (
-    <div
-      className="shell-card demo-mode-banner"
-      style={{
-        marginBottom: "0.75rem",
-        padding: "0.65rem 0.85rem",
-        display: "flex",
-        gap: "0.75rem",
-        flexWrap: "wrap",
-        alignItems: "center",
-      }}
-    >
-      <label style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
-        <input type="checkbox" checked={on} onChange={toggle} />
-        Demo mode (real stack, isolated session)
-      </label>
-      {on ? (
-        <button
-          type="button"
-          className="console-btn console-btn--ghost"
-          disabled={busy}
-          onClick={() => void resetSandbox()}
-        >
-          {busy ? "Resetting…" : "Reset sandbox"}
-        </button>
-      ) : null}
-      {msg ? <span style={{ fontSize: "0.85rem" }}>{msg}</span> : null}
+    <div className={`demo-bar${on ? " demo-bar--on" : ""}`} role="region" aria-label="Demo mode">
+      <div className="demo-bar__inner">
+        <label className="demo-bar__toggle">
+          <input
+            type="checkbox"
+            className="demo-bar__checkbox"
+            checked={on}
+            onChange={toggle}
+          />
+          <span className="demo-bar__label">
+            <span className="demo-bar__title">Demo mode</span>
+            <span className="demo-bar__hint">Isolated sandbox on live stack</span>
+          </span>
+        </label>
+
+        <div className="demo-bar__actions">
+          {msg ? <span className="demo-bar__msg">{msg}</span> : null}
+          {on ? (
+            <button
+              type="button"
+              className="demo-bar__btn"
+              disabled={busy}
+              onClick={() => void resetSandbox()}
+            >
+              {busy ? "Resetting…" : "Reset sandbox"}
+            </button>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }

@@ -161,6 +161,11 @@ body {
   pointer-events: none;
 }
 
+/* Compact demo strip sits above glass nav */
+html:has(.demo-bar) .app-header {
+  top: 2.45rem;
+}
+
 .app-header__bar,
 .app-header__glass {
   pointer-events: auto;
@@ -928,6 +933,10 @@ html.dark .app-header__glass {
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--color-ink);
+}
+
+.live-market__kpis--pending dd {
+  opacity: 0.55;
 }
 
 .live-market__list {
@@ -2156,6 +2165,10 @@ html.dark .audience-split__panel--ops {
   padding-top: 4.5rem;
   background: var(--bg);
   color: var(--ink);
+}
+
+html:has(.demo-bar) .shell {
+  padding-top: 6.75rem;
 }
 
 .shell-main {
@@ -3789,6 +3802,13 @@ html.dark .zone-detail-hero__media {
 
 .search-experience__footer {
   margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.search-experience__status {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 .search-toolbar input[type="datetime-local"] {
@@ -3853,12 +3873,105 @@ html.dark .zone-detail-hero__media {
   padding-top: 0;
 }
 
-.demo-mode-banner {
-  position: sticky;
+.demo-bar {
+  position: fixed;
   top: 0;
-  z-index: 30;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 92%, var(--ink));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.demo-bar--on {
+  border-bottom-color: color-mix(in srgb, var(--color-brand, var(--brand)) 35%, var(--border));
+  background: color-mix(in srgb, var(--color-brand, var(--brand)) 8%, var(--surface));
+}
+
+.demo-bar__inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.4rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.demo-bar__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
   margin: 0;
-  border-radius: 0;
+  min-width: 0;
+}
+
+.demo-bar__checkbox {
+  width: 0.95rem;
+  height: 0.95rem;
+  accent-color: var(--color-brand, var(--brand));
+  flex-shrink: 0;
+}
+
+.demo-bar__label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.demo-bar__title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.demo-bar__hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.2;
+}
+
+.demo-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.demo-bar__msg {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.demo-bar__btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill, 999px);
+  cursor: pointer;
+}
+
+.demo-bar__btn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-brand, var(--brand)) 40%, var(--border));
+}
+
+.demo-bar__btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.demo-mode-banner {
+  /* legacy — kept empty to avoid leftover rules fighting layout */
+  display: none;
 }
 
 .persona-switcher {
