@@ -84,7 +84,8 @@ export async function refundPayment(paymentId: number): Promise<void> {
   });
   const json = (await res.json()) as CheckoutEnvelope<unknown>;
   if (!res.ok || !json.success) {
-    throw new Error(json.message ?? "Refund failed");
+    const fieldErr = json.errors ? Object.values(json.errors)[0] : undefined;
+    throw new Error(json.message ?? fieldErr ?? "Refund failed");
   }
 }
 

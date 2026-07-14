@@ -57,7 +57,7 @@ function ReservationsInner() {
         await refundPayment(paymentId);
         await qc.invalidateQueries({ queryKey: ["my-reservations"] });
       } catch (e) {
-        setError(e instanceof ApiError ? e.message : "Refund failed");
+        setError(e instanceof Error ? e.message : "Refund failed");
       } finally {
         setBusyId(null);
       }
