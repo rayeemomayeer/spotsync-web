@@ -55,16 +55,17 @@ function CheckoutForm(props: {
   }
 
   return (
-    <form onSubmit={(e) => void onSubmit(e)} className="shell-card" style={{ boxShadow: "none" }}>
+    <form onSubmit={(e) => void onSubmit(e)} className="checkout-pay-form">
       <p>
-        Total: <strong>{formatCents(props.quote.amount_cents)}</strong> · {props.quote.duration_hours}h
+        Total: <strong className="font-mono">{formatCents(props.quote.amount_cents)}</strong> ·{" "}
+        {props.quote.duration_hours}h
       </p>
       <PaymentElement />
       {error ? <p className="auth-card__error">{error}</p> : null}
-      <button type="submit" className="console-btn console-btn--primary" disabled={!stripe || busy}>
+      <button type="submit" className="console-btn console-btn--primary console-btn--pill" disabled={!stripe || busy}>
         {busy ? "Processing…" : "Pay & reserve"}
       </button>
-      <p style={{ fontSize: "0.85rem", opacity: 0.75 }}>
+      <p className="checkout-pay-form__hint">
         Test card <code>4242 4242 4242 4242</code> · any future expiry · any CVC
       </p>
     </form>
@@ -201,14 +202,10 @@ function BookZoneInner() {
     <div className="shell">
       <AppHeader tag="Checkout" showAuthCta={!user} />
       <main className="shell-main">
-        <div className="shell-card checkout-layout">
+        <div className="page-surface checkout-layout">
           <CheckoutStepper step={step} />
           <h1>Book {zoneName || `zone #${zoneId}`}</h1>
-          {spotId ? (
-            <p style={{ marginTop: 0, color: "var(--muted)" }}>
-              Spot #{spotId} selected
-            </p>
-          ) : null}
+          {spotId ? <p className="checkout-spot-note">Spot #{spotId} selected</p> : null}
           {loading ? (
             <p>Loading session…</p>
           ) : !user ? (
@@ -218,11 +215,11 @@ function BookZoneInner() {
           ) : (
             <div className="checkout-layout__grid">
               <div>
-                <label style={{ display: "grid", gap: "0.35rem", marginBottom: "0.75rem" }}>
+                <label className="checkout-field">
                   License plate
                   <input className="ui-input" value={plate} onChange={(e) => setPlate(e.target.value)} required minLength={1} />
                 </label>
-                <label style={{ display: "grid", gap: "0.35rem", marginBottom: "0.75rem" }}>
+                <label className="checkout-field">
                   Duration (hours)
                   <input
                     className="ui-input"
@@ -238,7 +235,7 @@ function BookZoneInner() {
                 {!clientSecret ? (
                   <button
                     type="button"
-                    className="console-btn console-btn--primary"
+                    className="console-btn console-btn--primary console-btn--pill"
                     disabled={busy || !quote || !stripePromise}
                     onClick={() => void startPayment()}
                   >
@@ -255,7 +252,7 @@ function BookZoneInner() {
                   </Elements>
                 ) : null}
 
-                <p style={{ marginTop: "1rem" }}>
+                <p className="checkout-back">
                   <Link href="/driver">← Back to map</Link>
                 </p>
               </div>

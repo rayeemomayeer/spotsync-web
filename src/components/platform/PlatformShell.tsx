@@ -58,7 +58,7 @@ export function PlatformShell({
   return (
     <PlatformGate>
       <PlatformNav />
-      <h1>{title}</h1>
+      <h1 className="page-surface__title">{title}</h1>
       {children}
     </PlatformGate>
   );

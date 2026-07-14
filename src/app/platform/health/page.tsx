@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
+import { Badge } from "@/components/ui/Badge";
 import { PlatformShell } from "@/components/platform/PlatformShell";
 import { getBffUrl } from "@/lib/auth/client";
 
@@ -51,39 +52,40 @@ export default function PlatformHealthPage() {
   return (
     <div className="shell">
       <AppHeader tag="Health" />
-      <main className="shell-main">
-        <div className="shell-card">
-          <PlatformShell title="Service health">
-            <button type="button" className="console-btn console-btn--ghost" disabled={busy} onClick={() => void runChecks()}>
-              {busy ? "Checking…" : "Refresh checks"}
-            </button>
-            <ul className="console-zone-list" style={{ marginTop: "1rem" }}>
-              {checks.map((c) => (
-                <li key={c.url} className="shell-card" style={{ boxShadow: "none" }}>
-                  <strong>
-                    {c.name}{" "}
-                    {c.ok === null ? "" : c.ok ? (
-                      <span style={{ color: "var(--ok, #1a7f37)" }}>OK</span>
-                    ) : (
-                      <span className="auth-card__error" style={{ display: "inline" }}>
-                        DOWN
-                      </span>
-                    )}
-                  </strong>
-                  <p style={{ margin: "0.35rem 0", fontSize: "0.85rem" }}>
-                    <a href={c.url} target="_blank" rel="noopener noreferrer">
-                      {c.url}
-                    </a>
-                  </p>
-                  {c.detail ? <code style={{ fontSize: "0.75rem" }}>{c.detail}</code> : null}
-                </li>
-              ))}
-            </ul>
-            <p>
-              <Link href="/platform">← Overview</Link>
-            </p>
-          </PlatformShell>
-        </div>
+      <main className="shell-main page-surface">
+        <PlatformShell title="Service health">
+          <button
+            type="button"
+            className="console-btn console-btn--ghost"
+            disabled={busy}
+            onClick={() => void runChecks()}
+          >
+            {busy ? "Checking…" : "Refresh checks"}
+          </button>
+          <ul className="receipt-list">
+            {checks.map((c) => (
+              <li key={c.url} className="receipt-card">
+                <div className="receipt-card__head">
+                  <strong>{c.name}</strong>
+                  {c.ok === null ? null : c.ok ? (
+                    <Badge tone="success">OK</Badge>
+                  ) : (
+                    <Badge tone="warn">DOWN</Badge>
+                  )}
+                </div>
+                <p className="receipt-card__meta">
+                  <a href={c.url} target="_blank" rel="noopener noreferrer">
+                    {c.url}
+                  </a>
+                </p>
+                {c.detail ? <code className="font-mono">{c.detail}</code> : null}
+              </li>
+            ))}
+          </ul>
+          <p>
+            <Link href="/platform">← Overview</Link>
+          </p>
+        </PlatformShell>
       </main>
     </div>
   );

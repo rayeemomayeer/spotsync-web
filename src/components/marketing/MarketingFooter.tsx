@@ -47,8 +47,14 @@ export function MarketingFooter() {
           <h3>Stay in the loop</h3>
           <p className="landing-footer__newsletter">Newsletter coming soon — portfolio stub.</p>
           <form className="landing-footer__form" action="#" method="post">
-            <input type="email" placeholder="you@example.com" aria-label="Email for newsletter" disabled />
-            <button type="submit" className="console-btn console-btn--ghost" disabled>
+            <input
+              type="email"
+              className="ui-input"
+              placeholder="you@example.com"
+              aria-label="Email for newsletter"
+              disabled
+            />
+            <button type="submit" className="console-btn console-btn--ghost console-btn--pill" disabled>
               Notify me
             </button>
           </form>

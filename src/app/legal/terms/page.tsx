@@ -14,7 +14,7 @@ export default function TermsPage() {
     <div className="shell">
       <AppHeader tag="Legal" />
       <main className="shell-main">
-        <article className="shell-card legal-doc">
+        <article className="page-prose legal-doc">
           <h1>Terms of Service</h1>
           <p className="legal-doc__updated">Last updated: July 2026 · Portfolio demonstration only</p>
 

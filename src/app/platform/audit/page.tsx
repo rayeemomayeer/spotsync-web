@@ -20,36 +20,38 @@ export default function PlatformAuditPage() {
   return (
     <div className="shell">
       <AppHeader tag="Audit" />
-      <main className="shell-main">
-        <div className="shell-card">
-          <PlatformShell title="Audit log">
-            {auditQuery.isLoading ? <p>Loading audit…</p> : null}
-            {auditQuery.isError ? <p className="auth-card__error">Failed to load audit log.</p> : null}
-            <ul className="console-zone-list">
-              {logs.length === 0 && !auditQuery.isLoading ? (
-                <li className="shell-card" style={{ boxShadow: "none" }}>
-                  <p style={{ margin: 0 }}>No audit entries.</p>
-                </li>
-              ) : (
-                logs.map((e) => (
-                  <li key={e.id} className="shell-card" style={{ boxShadow: "none" }}>
+      <main className="shell-main page-surface">
+        <PlatformShell title="Audit log">
+          {auditQuery.isLoading ? <p>Loading audit…</p> : null}
+          {auditQuery.isError ? <p className="auth-card__error">Failed to load audit log.</p> : null}
+          <ul className="receipt-list">
+            {logs.length === 0 && !auditQuery.isLoading ? (
+              <li className="receipt-card receipt-card--empty">
+                <p>No audit entries.</p>
+              </li>
+            ) : (
+              logs.map((e) => (
+                <li key={e.id} className="receipt-card">
+                  <div className="receipt-card__head">
                     <strong>{e.action}</strong>
-                    <p style={{ margin: "0.35rem 0", fontSize: "0.85rem" }}>
-                      {e.resource_type}
-                      {e.resource_id != null ? ` #${e.resource_id}` : ""}
-                      {e.organization_id != null ? ` · org #${e.organization_id}` : ""}
-                      {e.actor_user_id != null ? ` · actor #${e.actor_user_id}` : ""}
-                    </p>
-                    <time dateTime={e.created_at}>{new Date(e.created_at).toLocaleString()}</time>
-                  </li>
-                ))
-              )}
-            </ul>
-            <p>
-              <Link href="/platform">← Overview</Link>
-            </p>
-          </PlatformShell>
-        </div>
+                    <time className="receipt-card__status" dateTime={e.created_at}>
+                      {new Date(e.created_at).toLocaleString()}
+                    </time>
+                  </div>
+                  <p className="receipt-card__meta">
+                    {e.resource_type}
+                    {e.resource_id != null ? ` #${e.resource_id}` : ""}
+                    {e.organization_id != null ? ` · org #${e.organization_id}` : ""}
+                    {e.actor_user_id != null ? ` · actor #${e.actor_user_id}` : ""}
+                  </p>
+                </li>
+              ))
+            )}
+          </ul>
+          <p>
+            <Link href="/platform">← Overview</Link>
+          </p>
+        </PlatformShell>
       </main>
     </div>
   );

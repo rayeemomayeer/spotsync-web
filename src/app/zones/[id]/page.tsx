@@ -36,56 +36,57 @@ export default function ZoneDetailPage() {
   return (
     <div className="shell">
       <AppHeader tag="Zone" />
-      <main className="shell-main">
-        <div className="shell-card">
-          {zoneQuery.isLoading ? (
-            <p>Loading zone…</p>
-          ) : !zone ? (
-            <p>Zone not found.</p>
-          ) : (
-            <>
-              <div className="zone-detail-hero">
-                <div className="zone-detail-hero__media" aria-hidden />
-                <div className="zone-detail-hero__body">
-                  <h1>{zone.name}</h1>
-                  <p>
-                    <Badge tone={zone.available_spots > 0 ? "success" : "muted"}>
-                      {zone.available_spots}/{zone.total_capacity} free
-                    </Badge>
-                    {" · "}
-                    <span className="font-mono">${zone.price_per_hour.toFixed(2)}/hr</span>
-                    {" · "}
-                    {zone.type.replace("_", " ")}
-                  </p>
-                </div>
+      <main className="shell-main page-surface">
+        {zoneQuery.isLoading ? (
+          <p>Loading zone…</p>
+        ) : !zone ? (
+          <p>Zone not found.</p>
+        ) : (
+          <>
+            <div className="zone-detail-hero">
+              <div className="zone-detail-hero__media" aria-hidden />
+              <div className="zone-detail-hero__body">
+                <h1>{zone.name}</h1>
+                <p>
+                  <Badge tone={zone.available_spots > 0 ? "success" : "muted"}>
+                    {zone.available_spots}/{zone.total_capacity} free
+                  </Badge>
+                  {" · "}
+                  <span className="font-mono">${zone.price_per_hour.toFixed(2)}/hr</span>
+                  {" · "}
+                  {zone.type.replace("_", " ")}
+                </p>
               </div>
-              <SpotGrid
-                spots={displaySpots}
-                ghostIds={new Set()}
-                ownedIds={new Set()}
-                onSelect={(spot) => {
-                  const qs = new URLSearchParams(bookQs);
-                  qs.set("spot", String(spot.id));
-                  window.location.href = `/book/${zone.id}?${qs.toString()}`;
-                }}
-              />
-              <p style={{ marginTop: "1rem" }}>
-                {user ? (
-                  <Link href={`/book/${zone.id}?${bookQs.toString()}`} className="console-btn console-btn--primary">
-                    Continue to checkout
-                  </Link>
-                ) : (
-                  <>
-                    <Link href={`/login?next=/zones/${zone.id}`}>Sign in</Link> to book
-                  </>
-                )}
-              </p>
-              <p>
-                <Link href="/search">← Search</Link>
-              </p>
-            </>
-          )}
-        </div>
+            </div>
+            <SpotGrid
+              spots={displaySpots}
+              ghostIds={new Set()}
+              ownedIds={new Set()}
+              onSelect={(spot) => {
+                const qs = new URLSearchParams(bookQs);
+                qs.set("spot", String(spot.id));
+                window.location.href = `/book/${zone.id}?${qs.toString()}`;
+              }}
+            />
+            <p>
+              {user ? (
+                <Link
+                  href={`/book/${zone.id}?${bookQs.toString()}`}
+                  className="console-btn console-btn--primary console-btn--pill"
+                >
+                  Continue to checkout
+                </Link>
+              ) : (
+                <>
+                  <Link href={`/login?next=/zones/${zone.id}`}>Sign in</Link> to book
+                </>
+              )}
+            </p>
+            <p>
+              <Link href="/search">← Search</Link>
+            </p>
+          </>
+        )}
       </main>
     </div>
   );

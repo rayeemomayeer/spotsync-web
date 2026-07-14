@@ -46,61 +46,65 @@ function BillingInner() {
   return (
     <div className="shell">
       <AppHeader tag="Billing" showAuthCta={!user} />
-      <main className="shell-main">
-        <div className="shell-card">
-          <h1>Billing (Stripe test)</h1>
-          {loading ? (
-            <p>Loading…</p>
-          ) : !user ? (
+      <main className="shell-main page-surface">
+        <h1>Billing (Stripe test)</h1>
+        {loading ? (
+          <p>Loading…</p>
+        ) : !user ? (
+          <p>
+            Platform admins only. <Link href="/login">Sign in</Link>
+          </p>
+        ) : !allowed ? (
+          <p>Role gate: saas_admin required.</p>
+        ) : (
+          <>
             <p>
-              Platform admins only. <Link href="/login">Sign in</Link>
+              Stripe runs in <strong>test mode</strong> only. Webhooks hit the Express BFF at{" "}
+              <code>/api/stripe/webhook</code>.
             </p>
-          ) : !allowed ? (
-            <p>Role gate: saas_admin required.</p>
-          ) : (
-            <>
-              <p>
-                Stripe runs in <strong>test mode</strong> only. Webhooks hit the Express BFF at{" "}
-                <code>/api/stripe/webhook</code>.
-              </p>
-              <p>
-                Feature flag <code>stripe_billing</code>: {stripeEnabled ? "enabled" : "disabled (env)"}
-              </p>
-              {checkoutState === "success" ? (
-                <p style={{ color: "var(--ok, #1a7f37)" }}>Checkout completed (test). Confirm webhook in BFF logs.</p>
-              ) : null}
-              {checkoutState === "cancel" ? <p>Checkout cancelled.</p> : null}
-              {error ? <p className="auth-card__error">{error}</p> : null}
-              <ul className="console-zone-list">
-                <li className="shell-card" style={{ boxShadow: "none" }}>
+            <p>
+              Feature flag <code>stripe_billing</code>: {stripeEnabled ? "enabled" : "disabled (env)"}
+            </p>
+            {checkoutState === "success" ? (
+              <p className="status-ok">Checkout completed (test). Confirm webhook in BFF logs.</p>
+            ) : null}
+            {checkoutState === "cancel" ? <p>Checkout cancelled.</p> : null}
+            {error ? <p className="auth-card__error">{error}</p> : null}
+            <ul className="receipt-list">
+              <li className="receipt-card">
+                <div className="receipt-card__head">
                   <strong>Starter</strong>
-                  <p style={{ margin: "0.35rem 0" }}>Org zone publishing — Stripe test price.</p>
-                  <button
-                    type="button"
-                    className="console-btn console-btn--primary"
-                    disabled={!stripeEnabled || busy != null}
-                    onClick={() => void startCheckout("starter")}
-                  >
-                    {busy === "starter" ? "Redirecting…" : "Subscribe (test)"}
-                  </button>
-                </li>
-                <li className="shell-card" style={{ boxShadow: "none" }}>
+                  <span className="font-mono">$49/mo</span>
+                </div>
+                <p className="receipt-card__meta">Org zone publishing — Stripe test price.</p>
+                <button
+                  type="button"
+                  className="console-btn console-btn--primary console-btn--pill"
+                  disabled={!stripeEnabled || busy != null}
+                  onClick={() => void startCheckout("starter")}
+                >
+                  {busy === "starter" ? "Redirecting…" : "Subscribe (test)"}
+                </button>
+              </li>
+              <li className="receipt-card">
+                <div className="receipt-card__head">
                   <strong>Growth</strong>
-                  <p style={{ margin: "0.35rem 0" }}>Higher capacity + webhook fan-out — Stripe test price.</p>
-                  <button
-                    type="button"
-                    className="console-btn console-btn--primary"
-                    disabled={!stripeEnabled || busy != null}
-                    onClick={() => void startCheckout("growth")}
-                  >
-                    {busy === "growth" ? "Redirecting…" : "Subscribe (test)"}
-                  </button>
-                </li>
-              </ul>
-              <Link href="/platform">← Platform</Link>
-            </>
-          )}
-        </div>
+                  <span className="font-mono">$149/mo</span>
+                </div>
+                <p className="receipt-card__meta">Higher capacity + webhook fan-out — Stripe test price.</p>
+                <button
+                  type="button"
+                  className="console-btn console-btn--primary console-btn--pill"
+                  disabled={!stripeEnabled || busy != null}
+                  onClick={() => void startCheckout("growth")}
+                >
+                  {busy === "growth" ? "Redirecting…" : "Subscribe (test)"}
+                </button>
+              </li>
+            </ul>
+            <Link href="/platform">← Platform</Link>
+          </>
+        )}
       </main>
     </div>
   );

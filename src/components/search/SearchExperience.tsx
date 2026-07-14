@@ -146,8 +146,8 @@ function SearchInner() {
       ) : (
         <ul className="zone-card-grid">
           {zones.length === 0 && !zonesQuery.isLoading ? (
-            <li className="shell-card" style={{ boxShadow: "none", gridColumn: "1 / -1" }}>
-              <p style={{ margin: 0 }}>No zones found.</p>
+            <li className="data-list__row">
+              <p>No zones found.</p>
             </li>
           ) : (
             zones.map((z) => (
@@ -182,7 +182,7 @@ function SearchInner() {
         </>
       ) : null}
 
-      <p style={{ marginTop: "1.5rem" }}>
+      <p className="search-experience__footer">
         <Link href="/driver">Map-first driver view →</Link>
       </p>
     </>
@@ -193,12 +193,10 @@ export function SearchExperience() {
   return (
     <div className="shell">
       <AppHeader tag="Search" />
-      <main className="shell-main">
-        <div className="shell-card landing-search-page">
-          <Suspense fallback={<p>Loading search…</p>}>
-            <SearchInner />
-          </Suspense>
-        </div>
+      <main className="shell-main page-surface">
+        <Suspense fallback={<p>Loading search…</p>}>
+          <SearchInner />
+        </Suspense>
       </main>
       <MarketingFooter />
     </div>

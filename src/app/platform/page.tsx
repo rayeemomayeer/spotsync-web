@@ -41,49 +41,47 @@ export default function PlatformOverviewPage() {
   return (
     <div className="shell">
       <AppHeader tag="Platform" />
-      <main className="shell-main">
-        <div className="shell-card">
-          <PlatformShell title="Platform overview">
-            <ul className="platform-kpi">
-              <li>
-                <span className="platform-kpi__value">{orgs.length}</span>
-                <span className="platform-kpi__label">Organizations</span>
-              </li>
-              <li>
-                <span className="platform-kpi__value">{pending}</span>
-                <span className="platform-kpi__label">Pending approval</span>
-              </li>
-              <li>
-                <span className="platform-kpi__value">{subscribed}</span>
-                <span className="platform-kpi__label">Subscribed orgs</span>
-              </li>
-              <li>
-                <span className="platform-kpi__value">{zones.length}</span>
-                <span className="platform-kpi__label">Zones live</span>
-              </li>
-              <li>
-                <span className="platform-kpi__value">{activeRes}</span>
-                <span className="platform-kpi__label">Active reservations</span>
-              </li>
-              <li>
-                <span className="platform-kpi__value">{formatCents(testMrrCents)}</span>
-                <span className="platform-kpi__label">Test MRR (demo)</span>
-              </li>
-            </ul>
+      <main className="shell-main page-surface">
+        <PlatformShell title="Platform overview">
+          <ul className="platform-kpi">
+            <li>
+              <span className="platform-kpi__value">{orgs.length}</span>
+              <span className="platform-kpi__label">Organizations</span>
+            </li>
+            <li>
+              <span className="platform-kpi__value">{pending}</span>
+              <span className="platform-kpi__label">Pending approval</span>
+            </li>
+            <li>
+              <span className="platform-kpi__value">{subscribed}</span>
+              <span className="platform-kpi__label">Subscribed orgs</span>
+            </li>
+            <li>
+              <span className="platform-kpi__value">{zones.length}</span>
+              <span className="platform-kpi__label">Zones live</span>
+            </li>
+            <li>
+              <span className="platform-kpi__value">{activeRes}</span>
+              <span className="platform-kpi__label">Active reservations</span>
+            </li>
+            <li>
+              <span className="platform-kpi__value">{formatCents(testMrrCents)}</span>
+              <span className="platform-kpi__label">Test MRR (demo)</span>
+            </li>
+          </ul>
 
-            {pending > 0 ? (
-              <p>
-                <Link href="/platform/orgs" className="console-btn console-btn--primary">
-                  Review {pending} pending org{pending === 1 ? "" : "s"}
-                </Link>
-              </p>
-            ) : null}
-
-            <p style={{ marginTop: "1rem" }}>
-              <Link href="/console">Open live console →</Link>
+          {pending > 0 ? (
+            <p>
+              <Link href="/platform/orgs" className="console-btn console-btn--primary console-btn--pill">
+                Review {pending} pending org{pending === 1 ? "" : "s"}
+              </Link>
             </p>
-          </PlatformShell>
-        </div>
+          ) : null}
+
+          <p>
+            <Link href="/console">Open live console →</Link>
+          </p>
+        </PlatformShell>
       </main>
     </div>
   );

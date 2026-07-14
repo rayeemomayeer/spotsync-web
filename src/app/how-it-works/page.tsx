@@ -14,7 +14,7 @@ export default function HowItWorksPage() {
     <div className="shell">
       <AppHeader tag="How it works" />
       <main className="shell-main">
-        <article className="shell-card legal-doc">
+        <article className="page-prose legal-doc">
           <h1>How SpotSync works</h1>
           <p>
             SpotSync is a two-sided parking marketplace. Drivers discover and pay for spots; operators publish
@@ -26,13 +26,17 @@ export default function HowItWorksPage() {
             <li>Search by location on the homepage or driver map.</li>
             <li>Select a zone and spot with live availability (SSE updates).</li>
             <li>Pay via Stripe test checkout — reservation is created only after payment succeeds.</li>
-            <li>Manage bookings on <Link href="/reservations">My reservations</Link>; cancel for a test refund.</li>
+            <li>
+              Manage bookings on <Link href="/reservations">My reservations</Link>; cancel for a test refund.
+            </li>
           </ol>
 
           <h2>For operators</h2>
           <ol>
             <li>Platform admin creates and approves your organization.</li>
-            <li>Subscribe on <Link href="/pricing">Starter or Growth</Link>.</li>
+            <li>
+              Subscribe on <Link href="/pricing">Starter or Growth</Link>.
+            </li>
             <li>Publish zones, set hourly rates, and monitor occupancy in the org console.</li>
           </ol>
 

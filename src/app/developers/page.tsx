@@ -28,72 +28,69 @@ const endpoints = [
 export default function DevelopersPage() {
   const openApi = goOpenApiUrl();
   const bff = process.env.NEXT_PUBLIC_BFF_URL ?? "http://localhost:4000";
+  const goBase = openApi.replace("/openapi.yaml", "");
 
   return (
     <div className="shell">
       <AppHeader tag="Developers" />
       <main className="shell-main">
-        <div className="shell-card">
+        <article className="page-prose">
           <h1>Developer portal</h1>
           <p>
             SpotSync = Go reservation engine + Express BFF (Better Auth, Stripe) + Next.js web. The graded contract
             keeps nine core endpoints stable; SaaS features are additive.
           </p>
 
-          <section className="dev-spec-links">
-            <h2>OpenAPI</h2>
-            <ul>
-              <li>
-                <a href={openApi} target="_blank" rel="noopener noreferrer">
-                  Go API — openapi.yaml
-                </a>
-              </li>
-              <li>
-                <span>
-                  BFF OpenAPI: <code>spotsync-bff/openapi.yaml</code> in repo
-                </span>
-              </li>
-            </ul>
-            <p>
-              View interactively: paste the Go spec URL into{" "}
-              <a href="https://editor.swagger.io/" target="_blank" rel="noopener noreferrer">
-                Swagger Editor
-              </a>{" "}
-              or run Scalar locally.
-            </p>
-          </section>
+          <h2>OpenAPI</h2>
+          <ul>
+            <li>
+              <a href={openApi} target="_blank" rel="noopener noreferrer">
+                Go API — openapi.yaml
+              </a>
+            </li>
+            <li>
+              BFF OpenAPI: <code>spotsync-bff/openapi.yaml</code> in repo
+            </li>
+          </ul>
+          <p>
+            View interactively: paste the Go spec URL into{" "}
+            <a href="https://editor.swagger.io/" target="_blank" rel="noopener noreferrer">
+              Swagger Editor
+            </a>{" "}
+            or run Scalar locally.
+          </p>
 
-          <h2 style={{ fontSize: "1.1rem", marginTop: "1.5rem" }}>Base URLs</h2>
-          <ul className="console-zone-list" style={{ marginBottom: "1.25rem" }}>
-            <li className="shell-card" style={{ boxShadow: "none" }}>
+          <h2>Base URLs</h2>
+          <ul className="data-list">
+            <li className="data-list__row">
               <strong>BFF</strong>
-              <p style={{ margin: "0.35rem 0 0" }}>
+              <p>
                 <code>{bff}</code> — auth cookies, checkout, proxy to Go
               </p>
             </li>
-            <li className="shell-card" style={{ boxShadow: "none" }}>
+            <li className="data-list__row">
               <strong>Go API</strong>
-              <p style={{ margin: "0.35rem 0 0" }}>
-                <code>{openApi.replace("/openapi.yaml", "")}</code>
+              <p>
+                <code>{goBase}</code>
               </p>
             </li>
           </ul>
 
-          <h2 style={{ fontSize: "1.1rem" }}>Core surface</h2>
-          <ul className="console-zone-list">
+          <h2>Core surface</h2>
+          <ul className="data-list">
             {endpoints.map((ep) => (
-              <li key={ep.path + ep.method} className="shell-card" style={{ boxShadow: "none" }}>
-                <strong>
-                  {ep.method} {ep.path}
-                </strong>
-                <p style={{ margin: "0.35rem 0 0" }}>{ep.note}</p>
+              <li key={ep.path + ep.method} className="endpoint-row">
+                <span className="endpoint-row__method">{ep.method}</span>
+                <code className="endpoint-row__path">{ep.path}</code>
+                <p className="endpoint-row__note">{ep.note}</p>
               </li>
             ))}
           </ul>
-          <p style={{ marginTop: "1.25rem" }}>
+
+          <p>
             <Link href="/">← Home</Link>
           </p>
-        </div>
+        </article>
       </main>
       <MarketingFooter />
     </div>

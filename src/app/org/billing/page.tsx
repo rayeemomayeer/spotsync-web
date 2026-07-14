@@ -91,78 +91,82 @@ function OrgBillingInner() {
   return (
     <div className="shell">
       <AppHeader tag="Org billing" showAuthCta={!user} />
-      <main className="shell-main">
-        <div className="shell-card">
-          <h1>Org billing</h1>
-          {loading ? (
-            <p>Loading…</p>
-          ) : !user ? (
-            <p>
-              Org admins only. <Link href="/login">Sign in</Link>
-            </p>
-          ) : !allowed ? (
-            <p>Role gate: org_admin required.</p>
-          ) : (
-            <>
-              {org ? (
-                <p>
-                  <strong>{org.name}</strong> · status <code>{org.status}</code>
-                  {org.billing_plan ? (
-                    <>
-                      {" "}
-                      · plan <code>{org.billing_plan}</code>
-                    </>
-                  ) : null}
-                </p>
-              ) : null}
-              {org?.status === "pending" ? (
-                <p>Platform approval pending — subscribe after approval.</p>
-              ) : null}
-              {checkoutState === "success" ? (
-                <p style={{ color: "var(--ok, #1a7f37)" }}>Checkout completed (test).</p>
-              ) : null}
-              {checkoutState === "cancel" ? <p>Checkout cancelled.</p> : null}
-              {error ? <p className="auth-card__error">{error}</p> : null}
-              <ul className="console-zone-list">
-                <li className="shell-card" style={{ boxShadow: "none" }}>
+      <main className="shell-main page-surface">
+        <h1>Org billing</h1>
+        {loading ? (
+          <p>Loading…</p>
+        ) : !user ? (
+          <p>
+            Org admins only. <Link href="/login">Sign in</Link>
+          </p>
+        ) : !allowed ? (
+          <p>Role gate: org_admin required.</p>
+        ) : (
+          <>
+            {org ? (
+              <p>
+                <strong>{org.name}</strong> · status <code>{org.status}</code>
+                {org.billing_plan ? (
+                  <>
+                    {" "}
+                    · plan <code>{org.billing_plan}</code>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
+            {org?.status === "pending" ? (
+              <p>Platform approval pending — subscribe after approval.</p>
+            ) : null}
+            {checkoutState === "success" ? (
+              <p className="status-ok">Checkout completed (test).</p>
+            ) : null}
+            {checkoutState === "cancel" ? <p>Checkout cancelled.</p> : null}
+            {error ? <p className="auth-card__error">{error}</p> : null}
+            <ul className="receipt-list">
+              <li className="receipt-card">
+                <div className="receipt-card__head">
                   <strong>Starter</strong>
-                  <button
-                    type="button"
-                    className="console-btn console-btn--primary"
-                    disabled={!stripeEnabled || !canSubscribe || busy != null}
-                    onClick={() => void startCheckout("starter")}
-                  >
-                    {busy === "starter" ? "Redirecting…" : "Subscribe (test)"}
-                  </button>
-                </li>
-                <li className="shell-card" style={{ boxShadow: "none" }}>
-                  <strong>Growth</strong>
-                  <button
-                    type="button"
-                    className="console-btn console-btn--primary"
-                    disabled={!stripeEnabled || !canSubscribe || busy != null}
-                    onClick={() => void startCheckout("growth")}
-                  >
-                    {busy === "growth" ? "Redirecting…" : "Subscribe (test)"}
-                  </button>
-                </li>
-              </ul>
-              {org?.stripe_customer_id ? (
+                  <span className="font-mono">$49/mo</span>
+                </div>
                 <button
                   type="button"
-                  className="console-btn console-btn--ghost"
-                  disabled={busy != null}
-                  onClick={() => void openPortal()}
+                  className="console-btn console-btn--primary console-btn--pill"
+                  disabled={!stripeEnabled || !canSubscribe || busy != null}
+                  onClick={() => void startCheckout("starter")}
                 >
-                  {busy === "portal" ? "Opening…" : "Manage subscription (portal)"}
+                  {busy === "starter" ? "Redirecting…" : "Subscribe (test)"}
                 </button>
-              ) : null}
-              <p style={{ marginTop: "1rem" }}>
-                <Link href="/pricing">Compare plans →</Link> · <Link href="/org">← Org</Link>
-              </p>
-            </>
-          )}
-        </div>
+              </li>
+              <li className="receipt-card">
+                <div className="receipt-card__head">
+                  <strong>Growth</strong>
+                  <span className="font-mono">$149/mo</span>
+                </div>
+                <button
+                  type="button"
+                  className="console-btn console-btn--primary console-btn--pill"
+                  disabled={!stripeEnabled || !canSubscribe || busy != null}
+                  onClick={() => void startCheckout("growth")}
+                >
+                  {busy === "growth" ? "Redirecting…" : "Subscribe (test)"}
+                </button>
+              </li>
+            </ul>
+            {org?.stripe_customer_id ? (
+              <button
+                type="button"
+                className="console-btn console-btn--ghost"
+                disabled={busy != null}
+                onClick={() => void openPortal()}
+              >
+                {busy === "portal" ? "Opening…" : "Manage subscription (portal)"}
+              </button>
+            ) : null}
+            <p>
+              <Link href="/pricing">Compare plans →</Link> · <Link href="/org">← Org</Link>
+            </p>
+          </>
+        )}
       </main>
     </div>
   );

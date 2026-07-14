@@ -3,6 +3,8 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
+import { Badge } from "@/components/ui/Badge";
+import { Input } from "@/components/ui/Input";
 import { PlatformShell } from "@/components/platform/PlatformShell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api, ApiError } from "@/lib/api/client";
@@ -93,72 +95,114 @@ export default function PlatformOrgsPage() {
   return (
     <div className="shell">
       <AppHeader tag="Orgs" />
-      <main className="shell-main">
-        <div className="shell-card">
-          <PlatformShell title="Organizations">
-            {error ? <p className="auth-card__error">{error}</p> : null}
+      <main className="shell-main page-surface">
+        <PlatformShell title="Organizations">
+          {error ? <p className="auth-card__error">{error}</p> : null}
 
-            {pendingOrgs.length > 0 ? (
-              <>
-                <h2 style={{ fontSize: "1.05rem" }}>Pending approval</h2>
-                <ul className="console-zone-list" style={{ marginBottom: "1rem" }}>
-                  {pendingOrgs.map((org) => (
-                    <li key={org.id} className="shell-card" style={{ boxShadow: "none" }}>
+          {pendingOrgs.length > 0 ? (
+            <>
+              <h2 className="page-surface__sub">Pending approval</h2>
+              <ul className="receipt-list">
+                {pendingOrgs.map((org) => (
+                  <li key={org.id} className="receipt-card">
+                    <div className="receipt-card__head">
                       <strong>
-                        {org.name} <span style={{ opacity: 0.7 }}>({org.slug})</span>
+                        {org.name} <span className="receipt-card__status">({org.slug})</span>
                       </strong>
-                      <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-                        <button type="button" className="console-btn console-btn--primary" disabled={busy} onClick={() => void approveOrg(org)}>
-                          Approve
-                        </button>
-                        <button type="button" className="console-btn console-btn--ghost" disabled={busy} onClick={() => void rejectOrg(org)}>
-                          Reject
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : null}
+                      <Badge tone="warn">pending</Badge>
+                    </div>
+                    <div className="zone-card__actions">
+                      <button
+                        type="button"
+                        className="console-btn console-btn--primary"
+                        disabled={busy}
+                        onClick={() => void approveOrg(org)}
+                      >
+                        Approve
+                      </button>
+                      <button
+                        type="button"
+                        className="console-btn console-btn--ghost"
+                        disabled={busy}
+                        onClick={() => void rejectOrg(org)}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
 
-            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-              <input type="search" placeholder="Search orgs" value={q} onChange={(e) => setQ(e.target.value)} style={{ flex: "1 1 12rem" }} />
-              <button type="button" className="console-btn console-btn--ghost" disabled={busy} onClick={() => void load()}>
-                Refresh
-              </button>
-            </div>
+          <div className="search-toolbar">
+            <Input
+              type="search"
+              placeholder="Search orgs"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              aria-label="Search organizations"
+            />
+            <button
+              type="button"
+              className="console-btn console-btn--ghost"
+              disabled={busy}
+              onClick={() => void load()}
+            >
+              Refresh
+            </button>
+          </div>
 
-            <ul className="console-zone-list" style={{ marginBottom: "1rem" }}>
-              {otherOrgs.map((org) => (
-                <li key={org.id} className="shell-card" style={{ boxShadow: "none" }}>
+          <ul className="receipt-list">
+            {otherOrgs.map((org) => (
+              <li key={org.id} className="receipt-card">
+                <div className="receipt-card__head">
                   <strong>
-                    {org.name} <span style={{ opacity: 0.7 }}>({org.slug})</span>
+                    {org.name} <span className="receipt-card__status">({org.slug})</span>
                   </strong>
-                  <p style={{ margin: "0.35rem 0" }}>
-                    <code>{org.status}</code>
-                    {org.billing_plan ? <> · plan <code>{org.billing_plan}</code></> : null}
-                  </p>
-                  <button type="button" className="console-btn console-btn--ghost" disabled={busy || org.status === "rejected"} onClick={() => void toggleStatus(org)}>
-                    {org.status === "active" ? "Suspend" : "Activate"}
-                  </button>
-                </li>
-              ))}
-            </ul>
+                  <Badge tone={org.status === "active" ? "success" : "muted"}>{org.status}</Badge>
+                </div>
+                <p className="receipt-card__meta">
+                  {org.billing_plan ? <>plan {org.billing_plan}</> : "no plan"}
+                </p>
+                <button
+                  type="button"
+                  className="console-btn console-btn--ghost"
+                  disabled={busy || org.status === "rejected"}
+                  onClick={() => void toggleStatus(org)}
+                >
+                  {org.status === "active" ? "Suspend" : "Activate"}
+                </button>
+              </li>
+            ))}
+          </ul>
 
-            <form onSubmit={onCreate} style={{ display: "grid", gap: "0.5rem" }}>
-              <h2 style={{ margin: 0, fontSize: "1.05rem" }}>Create org</h2>
-              <input required minLength={2} placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-              <input required minLength={2} placeholder="slug-kebab" pattern="[a-z0-9-]+" value={slug} onChange={(e) => setSlug(e.target.value)} />
-              <button type="submit" className="console-btn console-btn--primary" disabled={busy}>
-                Create
-              </button>
-            </form>
+          <form onSubmit={onCreate} className="account-section">
+            <h2 className="page-surface__sub">Create org</h2>
+            <label>
+              Name
+              <Input required minLength={2} placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
+            <label>
+              Slug
+              <Input
+                required
+                minLength={2}
+                placeholder="slug-kebab"
+                pattern="[a-z0-9-]+"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+              />
+            </label>
+            <button type="submit" className="console-btn console-btn--primary" disabled={busy}>
+              Create
+            </button>
+          </form>
 
-            <p style={{ marginTop: "1rem" }}>
-              <Link href="/platform">← Overview</Link>
-            </p>
-          </PlatformShell>
-        </div>
+          <p>
+            <Link href="/platform">← Overview</Link>
+          </p>
+        </PlatformShell>
       </main>
     </div>
   );
