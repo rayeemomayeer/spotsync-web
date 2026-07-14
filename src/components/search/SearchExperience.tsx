@@ -44,6 +44,8 @@ function SearchInner() {
     }
   }
 
+  const selectedZone = zones.find((z) => z.id === selectedId) ?? null;
+
   return (
     <>
       <form className="landing-search landing-search--inline" action="/search" method="get" role="search">
@@ -114,6 +116,13 @@ function SearchInner() {
                   {z.available_spots}/{z.total_capacity} free · ${z.price_per_hour.toFixed(2)}/hr · {z.type}
                 </p>
                 <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    className="console-btn console-btn--ghost"
+                    onClick={() => setSelectedId(z.id)}
+                  >
+                    Preview
+                  </button>
                   <Link href={`/zones/${z.id}`} className="console-btn console-btn--ghost">
                     Details
                   </Link>
@@ -126,6 +135,28 @@ function SearchInner() {
           )}
         </ul>
       )}
+
+      {selectedZone ? (
+        <>
+          <div className="search-sheet-backdrop" onClick={() => setSelectedId(null)} aria-hidden />
+          <div className="search-sheet" role="dialog" aria-label="Zone preview">
+            <div className="search-sheet__handle" />
+            <h3 className="search-sheet__title">{selectedZone.name}</h3>
+            <p className="search-sheet__meta">
+              {selectedZone.available_spots}/{selectedZone.total_capacity} free · $
+              {selectedZone.price_per_hour.toFixed(2)}/hr
+            </p>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+              <Link href={`/zones/${selectedZone.id}`} className="console-btn console-btn--ghost">
+                Details
+              </Link>
+              <Link href={bookHref(selectedZone.id, when)} className="console-btn console-btn--primary">
+                Book now
+              </Link>
+            </div>
+          </div>
+        </>
+      ) : null}
 
       <p>
         <Link href="/driver">Map-first driver view →</Link>

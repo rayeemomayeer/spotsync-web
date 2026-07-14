@@ -1955,3 +1955,129 @@ html.dark .driver-map__canvas {
   padding-top: 0;
 }
 
+.demo-mode-banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  margin: 0;
+  border-radius: 0;
+}
+
+.persona-switcher {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.persona-switcher__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.persona-switcher__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.notification-bell {
+  position: relative;
+}
+
+.notification-bell__trigger {
+  position: relative;
+  min-width: 2.5rem;
+}
+
+.notification-bell__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: #c0392b;
+  color: #fff;
+  font-size: 0.65rem;
+  line-height: 1rem;
+  text-align: center;
+}
+
+.notification-bell__panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  width: min(20rem, 90vw);
+  max-height: 18rem;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 0.75rem;
+  z-index: 50;
+}
+
+.notification-bell__list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+
+.notification-bell__item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.notification-bell__item--unread {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.search-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 40;
+}
+
+.search-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 0.75rem 1rem 1.5rem;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.search-sheet__handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  margin: 0 auto 0.75rem;
+}
+
+.search-sheet__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+}
+
+.search-sheet__meta {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .search-sheet-backdrop,
+  .search-sheet {
+    display: none;
+  }
+}
+

@@ -176,6 +176,10 @@ export const api = {
     apiRequest<import("./types").Organization>("/orgs/me", { token }),
   myPayments: (token: string) =>
     apiRequest<import("./types").Payment[]>("/payments/mine", { token }),
+  notifications: (token: string) =>
+    apiRequest<import("./types").AppNotification[]>("/notifications", { token }),
+  markNotificationRead: (token: string, id: number) =>
+    apiRequest<null>(`/notifications/${id}/read`, { method: "POST", token }),
   orgAudit: (token: string | null | undefined, organizationId?: number) => {
     const qs =
       organizationId != null ? `?organization_id=${organizationId}` : "";

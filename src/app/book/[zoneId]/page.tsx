@@ -10,6 +10,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { api } from "@/lib/api/client";
 import {
   createPaymentIntent,
+  confirmDemoCheckout,
   fetchCheckoutQuote,
   formatCents,
   type CheckoutQuote,
@@ -17,7 +18,7 @@ import {
 import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { PriceBreakdown } from "@/components/checkout/PriceBreakdown";
 import { isFeatureEnabled } from "@/lib/config/flags";
-import { getToken } from "@/lib/auth/session";
+import { getToken, isDemoModeActive } from "@/lib/auth/session";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
@@ -135,6 +136,16 @@ function BookZoneInner() {
     setBusy(true);
     setError("");
     try {
+      if (isDemoModeActive()) {
+        await confirmDemoCheckout({
+          zone_id: zoneId,
+          duration_hours: duration,
+          license_plate: plate.trim(),
+          spot_id: spotId,
+        });
+        await onPaid();
+        return;
+      }
       const pi = await createPaymentIntent({
         zone_id: zoneId,
         duration_hours: duration,
@@ -230,7 +241,7 @@ function BookZoneInner() {
                   disabled={busy || !quote || !stripePromise}
                   onClick={() => void startPayment()}
                 >
-                  {busy ? "Preparing…" : "Continue to payment"}
+                  {busy ? "Preparing…" : isDemoModeActive() ? "Confirm demo booking" : "Continue to payment"}
                 </button>
               ) : elementsOptions && stripePromise ? (
                 <Elements stripe={stripePromise} options={elementsOptions}>

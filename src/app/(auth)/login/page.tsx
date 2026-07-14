@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { PersonaSwitcher } from "@/components/demo/PersonaSwitcher";
 import { homePathForRole } from "@/lib/auth/roles";
 
 export default function LoginPage() {
@@ -67,6 +68,7 @@ export default function LoginPage() {
           {" · "}
           Demo console at <Link href="/console">/console</Link>
         </p>
+        <PersonaSwitcher onDone={(role) => router.replace(homePathForRole(role))} />
       </form>
     </div>
   );

@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { DemoModeProvider } from "@/components/providers/DemoModeProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ObservabilityProvider } from "@/components/providers/ObservabilityProvider";
 import { siteConfig } from "@/lib/seo/site";
@@ -59,7 +60,9 @@ export default function RootLayout({
         <ThemeProvider>
           <ObservabilityProvider>
             <QueryProvider>
-              <AuthProvider>{children}</AuthProvider>
+              <AuthProvider>
+                <DemoModeProvider>{children}</DemoModeProvider>
+              </AuthProvider>
             </QueryProvider>
           </ObservabilityProvider>
         </ThemeProvider>

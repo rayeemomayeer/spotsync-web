@@ -62,6 +62,15 @@ export type Spot = {
   updated_at: string;
 };
 
+export type AppNotification = {
+  id: number;
+  type: string;
+  title: string;
+  body: string;
+  read_at?: string | null;
+  created_at: string;
+};
+
 export type Payment = {
   id: number;
   reservation_id?: number | null;

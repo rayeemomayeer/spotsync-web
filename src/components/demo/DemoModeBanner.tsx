@@ -53,7 +53,7 @@ export function DemoModeBanner() {
 
   return (
     <div
-      className="shell-card"
+      className="shell-card demo-mode-banner"
       style={{
         marginBottom: "0.75rem",
         padding: "0.65rem 0.85rem",
