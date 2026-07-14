@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import type { User } from "@/lib/api/types";
 import { registerUnauthorizedHandler } from "@/lib/api/unauthorized";
+import { toAuthUserMessage } from "@/lib/api/fetch-retry";
 import { authClient } from "@/lib/auth/client";
 import { clearSession, getCachedUser, getToken, isDemoSession, setCachedUser, setDemoSession, setToken } from "@/lib/auth/session";
 
@@ -122,9 +123,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loginWithSession = useCallback(async (email: string, password: string) => {
-    const result = await authClient.signIn.email({ email, password });
+    let result: Awaited<ReturnType<typeof authClient.signIn.email>>;
+    try {
+      result = await authClient.signIn.email({ email, password });
+    } catch (err) {
+      throw new Error(toAuthUserMessage(err));
+    }
     if (result.error) {
-      throw new Error(result.error.message ?? "Sign in failed");
+      throw new Error(toAuthUserMessage(new Error(result.error.message ?? "Sign in failed")));
     }
     const sessionUser = result.data?.user as { role?: string; id: string; name: string; email: string } | undefined;
     if (sessionUser) {
@@ -143,13 +149,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signupWithSession = useCallback(
     async (input: { name: string; email: string; password: string }) => {
-      const result = await authClient.signUp.email({
-        name: input.name,
-        email: input.email,
-        password: input.password,
-      });
+      let result: Awaited<ReturnType<typeof authClient.signUp.email>>;
+      try {
+        result = await authClient.signUp.email({
+          name: input.name,
+          email: input.email,
+          password: input.password,
+        });
+      } catch (err) {
+        throw new Error(toAuthUserMessage(err));
+      }
       if (result.error) {
-        throw new Error(result.error.message ?? "Sign up failed");
+        throw new Error(toAuthUserMessage(new Error(result.error.message ?? "Sign up failed")));
       }
       const sessionUser = result.data?.user as
         | { role?: string; id: string; name: string; email: string }

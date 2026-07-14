@@ -1,11 +1,17 @@
 import { createAuthClient } from "better-auth/react";
 import { fetchWithColdStartRetry } from "@/lib/api/fetch-retry";
 
-function resolveAuthBaseURL(): string {
-  if (typeof window !== "undefined") {
-    return window.location.origin;
-  }
+/**
+ * Always target the BFF origin — never same-origin `/api/auth` rewrites.
+ * Vercel→Render rewrites return 504 while free tiers wake; direct calls wait.
+ * Cookies use SameSite=None + Secure + Partitioned in production (BFF auth.ts).
+ */
+export function getBffUrl(): string {
   return (process.env.NEXT_PUBLIC_BFF_URL ?? "http://localhost:4000").replace(/\/$/, "");
+}
+
+export function resolveAuthBaseURL(): string {
+  return getBffUrl();
 }
 
 export const authClient = createAuthClient({
@@ -13,13 +19,6 @@ export const authClient = createAuthClient({
   fetchOptions: {
     credentials: "include",
     customFetchImpl: (url, init) =>
-      fetchWithColdStartRetry(url, init, { attempts: 4, timeoutMs: 90_000 }),
+      fetchWithColdStartRetry(url, init, { attempts: 5, timeoutMs: 90_000 }),
   },
 });
-
-export function getBffUrl(): string {
-  if (typeof window !== "undefined") {
-    return window.location.origin;
-  }
-  return (process.env.NEXT_PUBLIC_BFF_URL ?? "http://localhost:4000").replace(/\/$/, "");
-}

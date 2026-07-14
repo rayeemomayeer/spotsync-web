@@ -13,7 +13,11 @@ Production stack (free tier):
 
 ## Cold starts
 
-Render free sleeps. First hit after idle can take 30–90s. Web calls BFF **directly** (`NEXT_PUBLIC_API_BASE_URL`) so Vercel rewrites do not time out.
+Render free sleeps. First hit after idle can take 30–90s.
+
+- **Web → BFF auth:** browser calls `NEXT_PUBLIC_BFF_URL` **directly** (Better Auth cookies are `SameSite=None`). Do **not** rely on Vercel `/api/auth` rewrites for login — those return **504 Gateway Timeout** while Render wakes.
+- **API data:** `NEXT_PUBLIC_API_BASE_URL` hits BFF/Go direct the same way.
+- Login/signup pages warm `/healthz` on mount and before submit; fetch layer retries 502/503/504 with backoff.
 
 ## Auth / demo
 
@@ -69,6 +73,7 @@ PLAYWRIGHT_BASE_URL=https://spotsync-nu.vercel.app npm run test:e2e:prod
 
 | Symptom | Likely cause |
 |---------|----------------|
+| Login gateway timeout / feels broken | Hit same-origin rewrite while BFF asleep — use direct BFF URL + warm; retry |
 | Login does nothing | Cookie SameSite / wrong `BETTER_AUTH_URL` / `FRONTEND_ORIGIN` |
 | Spots “unreachable” | BFF/Go cold start; wait and retry |
 | No reserve email | Redis mismatch, missing Resend key, or outbox relay down (`EMBED_WORKER`) |

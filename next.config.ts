@@ -37,11 +37,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Auth only: same-origin proxy helps some browsers. API calls go direct to BFF
-  // (Vercel→Render rewrites time out on free-tier cold starts).
+  // Prefer same-origin cookies locally via rewrite; production auth goes
+  // direct to NEXT_PUBLIC_BFF_URL (see auth/client.ts) so Vercel↔Render
+  // cold starts do not return 504 Gateway Timeout.
   async rewrites() {
     return [
       { source: "/api/auth/:path*", destination: `${BFF_ORIGIN}/api/auth/:path*` },
+      { source: "/healthz", destination: `${BFF_ORIGIN}/healthz` },
+      { source: "/readyz", destination: `${BFF_ORIGIN}/readyz` },
     ];
   },
 };

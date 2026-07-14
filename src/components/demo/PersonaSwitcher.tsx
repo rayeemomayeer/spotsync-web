@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { DEMO_CREDENTIALS } from "@/lib/api/client";
+import { toAuthUserMessage } from "@/lib/api/fetch-retry";
+import { warmBackend } from "@/lib/api/warm-backend";
 
 const personas = [
   {
@@ -38,10 +40,11 @@ export function PersonaSwitcher({ onDone }: { onDone?: (role?: string) => void }
     setBusy(id);
     setError("");
     try {
+      await warmBackend().catch(() => undefined);
       const { role } = await loginWithSession(email, password);
       onDone?.(role);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Login failed");
+      setError(toAuthUserMessage(e));
     } finally {
       setBusy(null);
     }

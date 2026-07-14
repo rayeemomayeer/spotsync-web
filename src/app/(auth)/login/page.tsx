@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
+import { AuthColdStartStatus, useAuthColdStart } from "@/components/auth/AuthColdStart";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -13,6 +14,7 @@ import { homePathForRole } from "@/lib/auth/roles";
 export default function LoginPage() {
   const { loginWithSession } = useAuth();
   const router = useRouter();
+  const { phase, setPhase, ensureReady, mapError } = useAuthColdStart();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,10 +25,13 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
+      await ensureReady();
+      setPhase("signing");
       const { role } = await loginWithSession(email, password);
       router.replace(homePathForRole(role));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign in failed");
+      setError(mapError(err));
+      setPhase("degraded");
     } finally {
       setLoading(false);
     }
@@ -62,15 +67,11 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
           {error ? <p className="auth-card__error">{error}</p> : null}
+          <AuthColdStartStatus phase={loading ? (phase === "signing" ? "signing" : "warming") : phase} />
           <Button type="submit" variant="primary" fullWidth disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? (phase === "signing" ? "Signing in…" : "Waking API…") : "Sign in"}
           </Button>
-          {loading ? (
-            <p className="auth-card__sub" style={{ marginTop: "0.75rem", marginBottom: 0 }}>
-              First request can take up to ~90s while free-tier API wakes. Leave this open.
-            </p>
-          ) : null}
-          <p className="auth-card__sub" style={{ marginTop: "1rem", marginBottom: 0 }}>
+          <p className="auth-card__sub auth-card__sub--foot">
             No account? <Link href="/signup">Create one</Link>
             {" · "}
             Demo console at <Link href="/console">/console</Link>
