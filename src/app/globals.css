@@ -185,6 +185,360 @@ body {
   text-decoration: none;
 }
 
+.landing-hero__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent, #3ecfba);
+}
+
+.landing-hero__cta-ghost {
+  color: #e8eef0;
+  border-color: rgba(232, 238, 240, 0.25);
+}
+
+.landing-search {
+  margin-bottom: 1.75rem;
+  max-width: 32rem;
+}
+
+.landing-search--inline {
+  margin-bottom: 1.25rem;
+}
+
+.landing-search__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: #a8bcc4;
+}
+
+.landing-search__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.landing-search__input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(232, 238, 240, 0.15);
+  background: rgba(12, 18, 22, 0.65);
+  color: #e8eef0;
+  font-size: 1rem;
+}
+
+.landing-search__input:focus {
+  outline: 2px solid var(--accent, #3ecfba);
+  outline-offset: 1px;
+}
+
+.shell .landing-search__input {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+.landing-search__btn {
+  flex-shrink: 0;
+}
+
+.landing-section {
+  padding: clamp(2rem, 6vw, 3.5rem) clamp(1.25rem, 5vw, 4rem);
+  max-width: 56rem;
+  border-top: 1px solid rgba(232, 238, 240, 0.06);
+}
+
+.landing-section__title {
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 700;
+  margin: 0 0 1.25rem;
+  color: #f0f7f8;
+}
+
+.landing-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+}
+
+.landing-steps li {
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  background: rgba(18, 28, 32, 0.55);
+  border: 1px solid rgba(232, 238, 240, 0.08);
+}
+
+.landing-steps strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #e8eef0;
+}
+
+.landing-steps p {
+  margin: 0;
+  color: #8aa0a8;
+  line-height: 1.45;
+}
+
+.landing-audience {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.landing-audience__card {
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: rgba(18, 28, 32, 0.55);
+  border: 1px solid rgba(232, 238, 240, 0.08);
+}
+
+.landing-audience__card h3 {
+  margin: 0 0 0.65rem;
+  color: #e8eef0;
+}
+
+.landing-audience__card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #8aa0a8;
+  line-height: 1.5;
+}
+
+.landing-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-stats__value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--accent, #3ecfba);
+}
+
+.landing-stats__label {
+  font-size: 0.85rem;
+  color: #8aa0a8;
+}
+
+.landing-testimonials {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.landing-testimonials__card {
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: rgba(18, 28, 32, 0.55);
+  border: 1px solid rgba(232, 238, 240, 0.08);
+}
+
+.landing-testimonials__card blockquote {
+  margin: 0 0 0.75rem;
+  font-style: italic;
+  color: #c5d4d8;
+}
+
+.landing-testimonials__card footer {
+  font-size: 0.85rem;
+  color: #8aa0a8;
+}
+
+.landing-faq {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.landing-faq__item {
+  border-radius: 10px;
+  border: 1px solid rgba(232, 238, 240, 0.1);
+  background: rgba(12, 18, 22, 0.45);
+  padding: 0.65rem 0.85rem;
+}
+
+.landing-faq__item summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #e8eef0;
+}
+
+.landing-faq__item p {
+  margin: 0.65rem 0 0.25rem;
+  color: #8aa0a8;
+  line-height: 1.45;
+}
+
+.landing-footer {
+  margin-top: auto;
+  padding: 2.5rem clamp(1.25rem, 5vw, 4rem) 1.5rem;
+  border-top: 1px solid rgba(232, 238, 240, 0.08);
+  background: rgba(8, 12, 14, 0.85);
+  color: #8aa0a8;
+}
+
+.shell .landing-footer {
+  background: var(--surface);
+  border-top-color: var(--border);
+  color: var(--muted, #6b7280);
+}
+
+.landing-footer__grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  max-width: 72rem;
+  margin: 0 auto 1.5rem;
+}
+
+.landing-footer__brand {
+  display: block;
+  color: #e8eef0;
+  font-size: 1.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.shell .landing-footer__brand {
+  color: var(--ink);
+}
+
+.landing-footer h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.5rem;
+  color: #c5d4d8;
+}
+
+.landing-footer nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.landing-footer a:hover {
+  color: var(--accent, #3ecfba);
+}
+
+.landing-footer__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.landing-footer__form input {
+  flex: 1 1 10rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border, rgba(232, 238, 240, 0.15));
+  background: transparent;
+}
+
+.landing-footer__copy {
+  text-align: center;
+  font-size: 0.8rem;
+  margin: 0;
+  max-width: 72rem;
+  margin-inline: auto;
+}
+
+.legal-doc h2 {
+  font-size: 1.1rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.legal-doc ul,
+.legal-doc ol {
+  line-height: 1.55;
+}
+
+.legal-doc__updated {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.pricing-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  margin: 1.5rem 0;
+}
+
+.pricing-card {
+  position: relative;
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.pricing-card--featured {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.pricing-card__badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.pricing-card__price {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0.25rem 0;
+}
+
+.pricing-card__price span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.pricing-card ul {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+  line-height: 1.5;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .shell {
   min-height: 100vh;
   display: flex;

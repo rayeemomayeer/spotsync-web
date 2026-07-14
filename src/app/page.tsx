@@ -1,28 +1,48 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import Script from "next/script";
 import { AppHeader } from "@/components/AppHeader";
+import { HeroSearch } from "@/components/marketing/HeroSearch";
+import { LandingFaq, LandingTestimonials } from "@/components/marketing/LandingFaq";
+import { LandingSections } from "@/components/marketing/LandingSections";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { organizationJsonLd, siteConfig, webSiteJsonLd } from "@/lib/seo/site";
+
+export const metadata: Metadata = {
+  title: siteConfig.title,
+  description: siteConfig.description,
+  openGraph: {
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.title,
+    description: siteConfig.description,
+  },
+  alternates: { canonical: siteConfig.url },
+};
 
 export default function HomePage() {
+  const jsonLd = [organizationJsonLd(), webSiteJsonLd()];
+
   return (
     <div className="landing">
+      <Script
+        id="spotsync-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <AppHeader showAuthCta={false} />
-      <main className="landing-hero">
-        <h1 className="landing-hero__brand">SpotSync</h1>
-        <p className="landing-hero__headline">Park like you ride — book a spot before you arrive.</p>
-        <p className="landing-hero__sub">
-          Live availability for drivers. Dense ops for orgs. One marketplace, no guesswork.
-        </p>
-        <div className="landing-hero__cta">
-          <Link href="/signup" className="console-btn console-btn--primary">
-            Get started
-          </Link>
-          <Link href="/login" className="console-btn console-btn--ghost" style={{ color: "#e8eef0", borderColor: "rgba(232,238,240,0.25)" }}>
-            Sign in
-          </Link>
-          <Link href="/console" className="console-btn console-btn--ghost" style={{ color: "#e8eef0", borderColor: "rgba(232,238,240,0.25)" }}>
-            Live console
-          </Link>
-        </div>
+      <main>
+        <HeroSearch />
+        <LandingSections />
+        <LandingTestimonials />
+        <LandingFaq />
       </main>
+      <MarketingFooter />
     </div>
   );
 }

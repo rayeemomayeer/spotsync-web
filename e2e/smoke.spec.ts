@@ -6,6 +6,7 @@ test.describe("Marketing + theme", () => {
     await expect(page.getByRole("heading", { name: "SpotSync" })).toBeVisible();
     await expect(page.getByRole("link", { name: /Get started/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /^Sign in$/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Find parking/i })).toBeVisible();
   });
 
   test("theme toggle flips html dark class", async ({ page }) => {
