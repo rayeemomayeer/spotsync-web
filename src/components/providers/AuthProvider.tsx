@@ -58,7 +58,18 @@ function sessionUserToAppUser(sessionUser: {
   };
 }
 
-async function hydrateGoBridgeToken(): Promise<string | null> {
+async function hydrateGoBridgeToken(creds?: {
+  email: string;
+  password: string;
+}): Promise<string | null> {
+  // Password exchange does not need cookies — one attempt is enough.
+  if (creds?.email && creds.password) {
+    const bridge = await fetchGoBridgeToken(creds);
+    if (bridge) {
+      setToken(bridge);
+      return bridge;
+    }
+  }
   for (let i = 0; i < 5; i++) {
     const bridge = await fetchGoBridgeToken();
     if (bridge) {
@@ -196,7 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const mapped = sessionUserToAppUser(sessionUser);
       setUser(mapped);
       setCachedUser(mapped);
-      const bridge = await hydrateGoBridgeToken();
+      const bridge = await hydrateGoBridgeToken({ email, password });
       setTokenState(bridge);
       if (!bridge) {
         throw new Error("Signed in, but could not link API access. Try again in a moment.");
@@ -237,7 +248,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const mapped = sessionUserToAppUser(sessionUser);
         setUser(mapped);
         setCachedUser(mapped);
-        const bridge = await hydrateGoBridgeToken();
+        const bridge = await hydrateGoBridgeToken({
+          email: input.email,
+          password: input.password,
+        });
         setTokenState(bridge);
         if (!bridge) {
           throw new Error("Account created, but could not link API access. Try signing in again.");
