@@ -2331,6 +2331,12 @@ html.dark .audience-split__panel--ops {
   justify-self: center;
 }
 
+.auth-social {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
 .auth-card h1 {
   font-family: var(--font-display);
   margin: 0 0 0.35rem;

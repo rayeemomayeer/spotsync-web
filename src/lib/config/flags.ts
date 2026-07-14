@@ -1,4 +1,11 @@
-const KNOWN_FLAGS = ["stripe_billing", "driver_payments", "org_search", "demo_console", "demo_mode"] as const;
+const KNOWN_FLAGS = [
+  "stripe_billing",
+  "driver_payments",
+  "org_search",
+  "demo_console",
+  "demo_mode",
+  "google_oauth",
+] as const;
 
 export type FeatureFlag = (typeof KNOWN_FLAGS)[number];
 
@@ -19,4 +26,9 @@ export function isFeatureEnabled(flag: FeatureFlag): boolean {
 export function listEnabledFeatures(): FeatureFlag[] {
   const enabled = parseFlags();
   return KNOWN_FLAGS.filter((f) => enabled.has(f));
+}
+
+/** Hosted Stripe Checkout (not Elements) is the production path when payments flags are on. */
+export function usesHostedCheckout(): boolean {
+  return isFeatureEnabled("driver_payments") || isFeatureEnabled("stripe_billing");
 }

@@ -15,6 +15,8 @@ const HIDDEN_PREFIXES = [
   "/legal",
   "/login",
   "/signup",
+  "/forgot-password",
+  "/reset-password",
 ];
 
 function shouldShowBanner(pathname: string): boolean {

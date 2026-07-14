@@ -10,17 +10,21 @@ import { api, ApiError } from "@/lib/api/client";
 import type { Organization } from "@/lib/api/types";
 import { isOrgAdmin } from "@/lib/auth/roles";
 import { getBffUrl } from "@/lib/auth/client";
-import { isFeatureEnabled } from "@/lib/config/flags";
+import { isFeatureEnabled, usesHostedCheckout } from "@/lib/config/flags";
+import { EntitlementBanner } from "@/components/dashboard/EntitlementBanner";
+import { orgEntitlement } from "@/lib/org/entitlement";
 
 function OrgBillingInner() {
   const { user, token, loading } = useAuth();
   const search = useSearchParams();
   const allowed = user && isOrgAdmin(user.role);
   const stripeEnabled = isFeatureEnabled("stripe_billing");
+  const hosted = usesHostedCheckout();
   const checkoutState = search.get("checkout");
   const [org, setOrg] = useState<Organization | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const entitlement = orgEntitlement(org);
 
   const load = useCallback(async () => {
     if (!allowed) return;
@@ -97,19 +101,38 @@ function OrgBillingInner() {
         <AdminShell
           eyebrow="Organization"
           title="Billing"
-          subtitle="Stripe test subscriptions for org capacity."
+          subtitle={
+            hosted
+              ? "Hosted Stripe Checkout (test) unlocks zone capacity after approval."
+              : "Stripe test subscriptions for org capacity."
+          }
           nav={ORG_NAV}
         >
         {loading ? (
           <p>Loading…</p>
         ) : !user ? (
-          <p>
-            Org admins only. <Link href="/login">Sign in</Link>
-          </p>
+          <div className="dash-empty">
+            <p>Org admins only.</p>
+            <Link href="/login" className="console-btn console-btn--primary console-btn--pill">
+              Sign in
+            </Link>
+          </div>
         ) : !allowed ? (
-          <p>Role gate: org_admin required.</p>
+          <p className="dash-empty">Role gate: org_admin required.</p>
         ) : (
           <>
+            <EntitlementBanner state={entitlement} />
+            {!stripeEnabled ? (
+              <aside className="entitle-banner" role="status">
+                <div className="entitle-banner__body">
+                  <p className="entitle-banner__title">Billing flag off</p>
+                  <p className="entitle-banner__text">
+                    Enable <code>stripe_billing</code> in{" "}
+                    <code>NEXT_PUBLIC_FEATURE_FLAGS</code> to run hosted Checkout.
+                  </p>
+                </div>
+              </aside>
+            ) : null}
             {org ? (
               <p>
                 <strong>{org.name}</strong> · status <code>{org.status}</code>
@@ -118,23 +141,31 @@ function OrgBillingInner() {
                     {" "}
                     · plan <code>{org.billing_plan}</code>
                   </>
-                ) : null}
+                ) : (
+                  <> · plan <code>none</code></>
+                )}
+              </p>
+            ) : (
+              <p className="dash-empty">No organization linked to this account yet.</p>
+            )}
+            {checkoutState === "success" ? (
+              <p className="status-ok">Checkout completed (test). Refresh if plan still empty.</p>
+            ) : null}
+            {checkoutState === "cancel" ? <p>Checkout cancelled — no charge.</p> : null}
+            {error ? <p className="auth-card__error">{error}</p> : null}
+            {!canSubscribe && org ? (
+              <p className="dash-empty">
+                Subscribe unlocks after status is <code>active</code>. Ask a platform admin to
+                approve first.
               </p>
             ) : null}
-            {org?.status === "pending" ? (
-              <p>Platform approval pending — subscribe after approval.</p>
-            ) : null}
-            {checkoutState === "success" ? (
-              <p className="status-ok">Checkout completed (test).</p>
-            ) : null}
-            {checkoutState === "cancel" ? <p>Checkout cancelled.</p> : null}
-            {error ? <p className="auth-card__error">{error}</p> : null}
             <ul className="receipt-list">
               <li className="receipt-card">
                 <div className="receipt-card__head">
                   <strong>Starter</strong>
                   <span className="font-mono">$49/mo</span>
                 </div>
+                <p className="dash-table__meta">Small garage · hosted Checkout</p>
                 <button
                   type="button"
                   className="console-btn console-btn--primary console-btn--pill"
@@ -149,6 +180,7 @@ function OrgBillingInner() {
                   <strong>Growth</strong>
                   <span className="font-mono">$149/mo</span>
                 </div>
+                <p className="dash-table__meta">Multi-zone capacity · hosted Checkout</p>
                 <button
                   type="button"
                   className="console-btn console-btn--primary console-btn--pill"

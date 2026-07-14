@@ -78,6 +78,7 @@ export function AdminShell({
 export const PLATFORM_NAV: AdminNavItem[] = [
   { href: "/platform", label: "Overview", hint: "KPIs" },
   { href: "/platform/orgs", label: "Organizations", hint: "Approve" },
+  { href: "/platform/users", label: "Users", hint: "Accounts" },
   { href: "/platform/zones", label: "Zones", hint: "Create" },
   { href: "/platform/observe", label: "Observe", hint: "Health" },
   { href: "/platform/grafana", label: "Grafana", hint: "Metrics" },

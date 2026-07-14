@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { homePathForRole } from "@/lib/auth/roles";
+import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 
 export default function SignupPage() {
   const { signupWithSession } = useAuth();
@@ -82,6 +83,7 @@ export default function SignupPage() {
           <Button type="submit" variant="primary" fullWidth disabled={loading}>
             {loading ? (phase === "signing" ? "Creating…" : "Waking API…") : "Create account"}
           </Button>
+          <GoogleAuthButton label="Sign up with Google" />
           <p className="auth-card__sub auth-card__sub--foot">
             Already have an account? <Link href="/login">Sign in</Link>
           </p>

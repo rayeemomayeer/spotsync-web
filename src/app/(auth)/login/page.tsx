@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { PersonaSwitcher } from "@/components/demo/PersonaSwitcher";
+import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { homePathForRole } from "@/lib/auth/roles";
 
 export default function LoginPage() {
@@ -71,8 +72,11 @@ export default function LoginPage() {
           <Button type="submit" variant="primary" fullWidth disabled={loading}>
             {loading ? (phase === "signing" ? "Signing in…" : "Waking API…") : "Sign in"}
           </Button>
+          <GoogleAuthButton />
           <p className="auth-card__sub auth-card__sub--foot">
             No account? <Link href="/signup">Create one</Link>
+            {" · "}
+            <Link href="/forgot-password">Forgot password</Link>
             {" · "}
             Demo console at <Link href="/console">/console</Link>
           </p>
