@@ -131,7 +131,11 @@ function SignupInner() {
                 ? "Continue to garage application"
                 : "Create account"}
           </Button>
-          <GoogleAuthButton label={isOrg ? "Continue with Google" : "Sign up with Google"} />
+          <GoogleAuthButton
+            label={isOrg ? "Continue with Google" : "Sign up with Google"}
+            audience={audience}
+            nextPath={isOrg ? nextPath ?? "/apply" : nextPath}
+          />
           <p className="auth-card__sub auth-card__sub--foot">
             Already have an account?{" "}
             <Link href={loginHref}>{isOrg ? "Organization sign in" : "Sign in"}</Link>

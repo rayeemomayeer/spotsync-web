@@ -29,7 +29,13 @@ function LoginInner() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() =>
+    search.get("error") === "google"
+      ? "Google sign-in failed. Try again or use email."
+      : search.get("error") === "session"
+        ? "Signed in with Google but session did not stick. Try again."
+        : "",
+  );
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -119,7 +125,7 @@ function LoginInner() {
                 ? "Sign in as organization"
                 : "Sign in"}
           </Button>
-          <GoogleAuthButton />
+          <GoogleAuthButton audience={audience} nextPath={nextPath} />
           <p className="auth-card__sub auth-card__sub--foot">
             {isOrg ? (
               <>

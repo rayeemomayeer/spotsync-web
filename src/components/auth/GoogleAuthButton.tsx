@@ -4,9 +4,40 @@ import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import { isFeatureEnabled } from "@/lib/config/flags";
 import { Button } from "@/components/ui/Button";
+import type { AuthAudience } from "@/components/auth/AuthAudienceTabs";
+
+type Props = {
+  label?: string;
+  /** Preserve org vs driver intent across Google redirect. */
+  audience?: AuthAudience;
+  /** Absolute path only, e.g. /apply */
+  nextPath?: string | null;
+};
+
+function buildContinueUrl(audience: AuthAudience, nextPath?: string | null): string {
+  const origin = window.location.origin;
+  const q = new URLSearchParams();
+  if (audience === "organization") q.set("as", "org");
+  if (nextPath) q.set("next", nextPath);
+  const qs = q.toString();
+  return `${origin}/auth/continue${qs ? `?${qs}` : ""}`;
+}
+
+function buildErrorUrl(audience: AuthAudience, nextPath?: string | null): string {
+  const origin = window.location.origin;
+  const q = new URLSearchParams();
+  q.set("error", "google");
+  if (audience === "organization") q.set("as", "org");
+  if (nextPath) q.set("next", nextPath);
+  return `${origin}/login?${q.toString()}`;
+}
 
 /** Google OAuth via BFF Better Auth. Hidden unless `google_oauth` feature flag. */
-export function GoogleAuthButton({ label = "Continue with Google" }: { label?: string }) {
+export function GoogleAuthButton({
+  label = "Continue with Google",
+  audience = "driver",
+  nextPath = null,
+}: Props) {
   const enabled = isFeatureEnabled("google_oauth");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -17,13 +48,10 @@ export function GoogleAuthButton({ label = "Continue with Google" }: { label?: s
     setBusy(true);
     setError("");
     try {
-      // Frontend origin only — never the BFF. Google redirects to BFF callback;
-      // Better Auth then sends the browser here.
-      const origin = window.location.origin;
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: `${origin}/driver`,
-        errorCallbackURL: `${origin}/login?error=google`,
+        callbackURL: buildContinueUrl(audience, nextPath),
+        errorCallbackURL: buildErrorUrl(audience, nextPath),
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Google sign-in failed");
