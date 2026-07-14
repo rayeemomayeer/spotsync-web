@@ -14,7 +14,8 @@ import {
   formatCents,
   type CheckoutQuote,
 } from "@/lib/checkout/client";
-import { isFeatureEnabled } from "@/lib/config/flags";
+import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
+import { PriceBreakdown } from "@/components/checkout/PriceBreakdown";
 import { getToken } from "@/lib/auth/session";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
@@ -168,6 +169,8 @@ function BookZoneInner() {
     [clientSecret],
   );
 
+  const step = clientSecret ? "payment" : "details";
+
   if (!paymentsOn) {
     return (
       <div className="shell">
@@ -186,8 +189,14 @@ function BookZoneInner() {
     <div className="shell">
       <AppHeader tag="Checkout" showAuthCta={!user} />
       <main className="shell-main">
-        <div className="shell-card">
+        <div className="shell-card checkout-layout">
+          <CheckoutStepper step={step} />
           <h1>Book {zoneName || `zone #${zoneId}`}</h1>
+          {spotId ? (
+            <p style={{ marginTop: 0, opacity: 0.85 }}>
+              Spot #{spotId} selected
+            </p>
+          ) : null}
           {loading ? (
             <p>Loading session…</p>
           ) : !user ? (
@@ -210,11 +219,7 @@ function BookZoneInner() {
                   onChange={(e) => setDuration(Number(e.target.value))}
                 />
               </label>
-              {quote ? (
-                <p style={{ marginBottom: "0.75rem" }}>
-                  Quote: {formatCents(quote.amount_cents)} · {quote.line_items[0]?.description}
-                </p>
-              ) : null}
+              {quote ? <PriceBreakdown quote={quote} /> : null}
               {error ? <p className="auth-card__error">{error}</p> : null}
 
               {!clientSecret ? (
