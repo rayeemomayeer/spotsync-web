@@ -81,6 +81,7 @@ export function primaryNavLinks(role: string | undefined | null): NavLink[] {
       { href: "/platform", label: "Platform" },
       { href: "/platform/orgs", label: "Orgs" },
       { href: "/platform/observe", label: "Observe" },
+      { href: "/platform/grafana", label: "Grafana" },
       { href: "/platform/zones", label: "Zones" },
     ];
   }

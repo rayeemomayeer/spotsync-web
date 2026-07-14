@@ -12,7 +12,7 @@ export default function PlatformObservePage() {
         <AdminShell
           eyebrow="Platform"
           title="Observe"
-          subtitle="Health probes, cold-start signals, Grafana observability."
+          subtitle="Health probes plus live Grafana-style API metrics."
           nav={PLATFORM_NAV}
         >
           <ObserveBoard showGrafana />

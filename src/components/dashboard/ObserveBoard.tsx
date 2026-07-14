@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/Badge";
+import { GrafanaDashboard } from "@/components/dashboard/GrafanaDashboard";
 import { fetchWithColdStartRetry } from "@/lib/api/fetch-retry";
 import { bffOrigin, goOrigin } from "@/lib/api/probe-origins";
 
@@ -39,8 +40,6 @@ export function ObserveBoard({
 }: {
   showGrafana?: boolean;
 }) {
-  const grafana = (process.env.NEXT_PUBLIC_GRAFANA_URL ?? "").replace(/\/$/, "");
-  const metricsPublic = (process.env.NEXT_PUBLIC_METRICS_URL ?? "").replace(/\/$/, "");
   const bff = bffOrigin();
   const go = goOrigin();
   const [probes, setProbes] = useState<Probe[]>([]);
@@ -116,45 +115,8 @@ export function ObserveBoard({
       </div>
 
       {showGrafana ? (
-        <div className="dash-panel">
-          <div className="dash-chart__head">
-            <h2>Grafana · app observation</h2>
-            <p>
-              Scrape <code>/metrics</code> with <code>METRICS_TOKEN</code>. Embed URL via{" "}
-              <code>NEXT_PUBLIC_GRAFANA_URL</code>.
-            </p>
-          </div>
-          {grafana ? (
-            <div className="dash-grafana">
-              <iframe
-                title="Grafana dashboard"
-                src={grafana}
-                className="dash-grafana__frame"
-                loading="lazy"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          ) : (
-            <div className="dash-grafana dash-grafana--empty">
-              <p>No Grafana URL configured.</p>
-              <p className="dash-table__meta">
-                Dashboard JSON ships in{" "}
-                <code>SpotSync-server/deploy/grafana/dashboards/spotsync-api.json</code>.
-                Set <code>NEXT_PUBLIC_GRAFANA_URL</code> to your panel share link.
-              </p>
-              {metricsPublic ? (
-                <p>
-                  <a href={metricsPublic} rel="noopener noreferrer" target="_blank">
-                    Open metrics endpoint →
-                  </a>
-                </p>
-              ) : (
-                <p className="dash-table__meta">
-                  Optional: <code>NEXT_PUBLIC_METRICS_URL</code> for a public metrics doc link.
-                </p>
-              )}
-            </div>
-          )}
+        <div className="dash-panel" id="grafana">
+          <GrafanaDashboard />
         </div>
       ) : null}
     </div>

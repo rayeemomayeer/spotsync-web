@@ -61,6 +61,8 @@ curl -sS "https://spotsync-notify.onrender.com/healthz"
 - BFF: `@sentry/node` — set `SENTRY_DSN` on Render.
 - Go: OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` set (Grafana Cloud / Jaeger).
 - Grafana dashboard as code: `SpotSync-server/deploy/grafana/dashboards/spotsync-api.json`.
+- **In-app Grafana:** `/platform/grafana` + Observe — panels poll `GET /api/platform/metrics` → Go `/metrics`.
+- Set Vercel `METRICS_TOKEN` when Go metrics gated; optional `NEXT_PUBLIC_GRAFANA_URL` for Cloud iframe.
 - Scrape `https://spotsync-ei6g.onrender.com/metrics` with `METRICS_TOKEN`.
 
 ## Smoke checks

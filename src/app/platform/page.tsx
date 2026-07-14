@@ -113,6 +113,9 @@ export default function PlatformOverviewPage() {
             <Link href="/platform/observe" className="console-btn console-btn--ghost console-btn--pill">
               Observe stack
             </Link>
+            <Link href="/platform/grafana" className="console-btn console-btn--ghost console-btn--pill">
+              Grafana metrics
+            </Link>
             <Link href="/console" className="console-btn console-btn--ghost console-btn--pill">
               Console
             </Link>

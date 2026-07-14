@@ -79,7 +79,8 @@ export const PLATFORM_NAV: AdminNavItem[] = [
   { href: "/platform", label: "Overview", hint: "KPIs" },
   { href: "/platform/orgs", label: "Organizations", hint: "Approve" },
   { href: "/platform/zones", label: "Zones", hint: "Create" },
-  { href: "/platform/observe", label: "Observe", hint: "Health · Grafana" },
+  { href: "/platform/observe", label: "Observe", hint: "Health" },
+  { href: "/platform/grafana", label: "Grafana", hint: "Metrics" },
   { href: "/platform/audit", label: "Audit", hint: "Trail" },
   { href: "/platform/billing", label: "Billing", hint: "Stripe test" },
 ];
