@@ -50,10 +50,11 @@ function OrgBillingInner() {
       const json = (await res.json()) as {
         success?: boolean;
         message?: string;
+        errors?: Record<string, string>;
         data?: { url?: string };
       };
       if (!res.ok || !json.success || !json.data?.url) {
-        throw new Error(json.message ?? "Checkout failed");
+        throw new Error(json.errors?.stripe ?? json.message ?? "Checkout failed");
       }
       window.location.href = json.data.url;
     } catch (e) {
