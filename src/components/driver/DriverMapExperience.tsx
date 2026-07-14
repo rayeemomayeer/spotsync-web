@@ -4,7 +4,9 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { ReservePanel } from "@/components/console/ReservePanel";
+import { isFeatureEnabled } from "@/lib/config/flags";
 import { SpotGrid } from "@/components/console/SpotGrid";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -34,6 +36,9 @@ export function DriverMapExperience() {
   const debouncedSearch = useDebounce(search, 300);
   const authToken = token ?? getToken();
   const isAuthed = !!user || !!authToken;
+  const driverPayments = isFeatureEnabled("driver_payments");
+  const useCheckout = driverPayments && !demoSession && !DEMO_MODE;
+  const router = useRouter();
 
   const zonesQuery = useZones(debouncedSearch, "");
   const zonesResult = zonesOrOffline(zonesQuery.data, zonesQuery.isError && !zonesQuery.isFetching);
@@ -85,6 +90,11 @@ export function DriverMapExperience() {
 
   const onReserve = useCallback(async () => {
     if (!activeZone || !selectedSpot || !isAuthed) return;
+    if (useCheckout) {
+      const qs = new URLSearchParams({ spot: String(selectedSpot.id) });
+      router.push(`/book/${activeZone.id}?${qs.toString()}`);
+      return;
+    }
     setReserveLoading(true);
     setReserveError("");
     try {
@@ -105,7 +115,7 @@ export function DriverMapExperience() {
     } finally {
       setReserveLoading(false);
     }
-  }, [activeZone, selectedSpot, isAuthed, authToken, plate, demoSession, qc]);
+  }, [activeZone, selectedSpot, isAuthed, authToken, plate, demoSession, qc, useCheckout, router]);
 
   return (
     <div className="driver-map" data-testid="driver-map">

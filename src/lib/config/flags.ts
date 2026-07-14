@@ -1,4 +1,4 @@
-const KNOWN_FLAGS = ["stripe_billing", "org_search", "demo_console"] as const;
+const KNOWN_FLAGS = ["stripe_billing", "driver_payments", "org_search", "demo_console"] as const;
 
 export type FeatureFlag = (typeof KNOWN_FLAGS)[number];
 

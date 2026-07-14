@@ -69,6 +69,8 @@ export type Reservation = {
   spot_id?: number;
   license_plate: string;
   status: string;
+  payment_status?: string | null;
+  payment_id?: number | null;
   created_at: string;
   updated_at: string;
   zone?: Zone;
