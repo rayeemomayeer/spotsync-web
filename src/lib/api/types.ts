@@ -62,6 +62,19 @@ export type Spot = {
   updated_at: string;
 };
 
+export type Payment = {
+  id: number;
+  reservation_id?: number | null;
+  user_id: number;
+  zone_id: number;
+  stripe_payment_intent_id: string;
+  amount_cents: number;
+  currency: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Reservation = {
   id: number;
   user_id: number;

@@ -1832,3 +1832,126 @@ html.dark .driver-map__canvas {
   font-size: 0.95rem;
 }
 
+/* Platform console */
+.platform-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.platform-nav__link {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.platform-nav__link--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.platform-kpi {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.platform-kpi li {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.platform-kpi__value {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.platform-kpi__label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+/* Search experience */
+.search-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.search-toolbar input[type="datetime-local"] {
+  flex: 1 1 12rem;
+}
+
+.search-map {
+  position: relative;
+  min-height: 280px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #e8f0ea 0%, #d4e4d8 100%);
+}
+
+.search-map__canvas {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+}
+
+.search-map__pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 12px 12px 12px 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.search-map__pin--active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.search-map__pin-label {
+  white-space: nowrap;
+}
+
+.search-map__hint {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.account-section {
+  margin: 1.25rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.account-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
