@@ -1,11 +1,11 @@
 import { ConsoleErrorBoundary } from "@/components/console/ConsoleErrorBoundary";
-import { LiveConsole } from "@/components/LiveConsole";
+import { DriverMapExperience } from "@/components/driver/DriverMapExperience";
 
-/** Driver shell — map/book via LiveConsole until slim map UI ships. */
+/** Map-first driver booking — Uber/Pathao style. Ops grid lives at /console. */
 export default function DriverPage() {
   return (
     <ConsoleErrorBoundary>
-      <LiveConsole />
+      <DriverMapExperience />
     </ConsoleErrorBoundary>
   );
 }

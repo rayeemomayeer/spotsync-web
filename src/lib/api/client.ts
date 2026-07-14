@@ -1,5 +1,6 @@
 import type { ErrorEnvelope, SuccessEnvelope } from "./types";
 import { fetchWithColdStartRetry } from "./fetch-retry";
+import { notifyUnauthorized } from "./unauthorized";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
 
@@ -47,6 +48,10 @@ export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Pr
 
   const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;
 
+  if (res.status === 401) {
+    notifyUnauthorized();
+  }
+
   if (!res.ok || !json.success) {
     const err = json as ErrorEnvelope;
     throw new ApiError(res.status, err.message ?? "Request failed", err.errors ?? {});
@@ -74,6 +79,9 @@ async function apiRequestPaginated<T>(
     credentials: "include",
   });
   const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;
+  if (res.status === 401) {
+    notifyUnauthorized();
+  }
   if (!res.ok || !json.success) {
     const err = json as ErrorEnvelope;
     throw new ApiError(res.status, err.message ?? "Request failed", err.errors ?? {});
@@ -153,6 +161,20 @@ export const api = {
       organizationId != null ? `?organization_id=${organizationId}` : "";
     return apiRequest<import("./types").AuditLog[]>(`/orgs/audit${qs}`, { token });
   },
+  orgMembers: (token: string | null | undefined, orgId: number) =>
+    apiRequest<import("./types").OrgMember[]>(`/orgs/${orgId}/members`, { token }),
+  assignOrgMember: (
+    token: string | null | undefined,
+    orgId: number,
+    email: string,
+  ) =>
+    apiRequest<null>(`/orgs/${orgId}/members`, {
+      method: "POST",
+      token,
+      body: { email },
+    }),
+  removeOrgMember: (token: string | null | undefined, orgId: number, userId: number) =>
+    apiRequest<null>(`/orgs/${orgId}/members/${userId}`, { method: "DELETE", token }),
 };
 
 export const DEMO_CREDENTIALS = {

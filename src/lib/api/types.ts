@@ -26,8 +26,18 @@ export type Organization = {
   name: string;
   slug: string;
   status: "active" | "suspended" | string;
+  billing_plan?: string | null;
+  stripe_customer_id?: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type OrgMember = {
+  user_id: number;
+  email: string;
+  name: string;
+  role: string;
+  created_at: string;
 };
 
 export type AuditLog = {

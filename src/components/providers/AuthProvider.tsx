@@ -1,8 +1,10 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import type { User } from "@/lib/api/types";
+import { registerUnauthorizedHandler } from "@/lib/api/unauthorized";
 import { authClient } from "@/lib/auth/client";
 import { clearSession, getCachedUser, getToken, isDemoSession, setCachedUser, setDemoSession, setToken } from "@/lib/auth/session";
 
@@ -45,6 +47,7 @@ function sessionUserToAppUser(sessionUser: {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [token, setTokenState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,6 +89,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setUser(null);
   }, []);
+
+  useEffect(() => {
+    registerUnauthorizedHandler(() => {
+      clearSession();
+      setUser(null);
+      setTokenState(null);
+      setDemoSessionState(false);
+      router.replace("/login");
+    });
+  }, [router]);
 
   useEffect(() => {
     let cancelled = false;

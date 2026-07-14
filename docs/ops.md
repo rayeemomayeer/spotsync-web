@@ -21,25 +21,38 @@ Render free sleeps. First hit after idle can take 30–90s. Web calls BFF **dire
 - Seeded: `admin@spotsync.com` (saas_admin), `demo_admin@spotsync.com` (org_admin), `alice@spotsync.com` (driver).
 - Prod/preview: `NEXT_PUBLIC_DEMO_MODE=true` + `NEXT_PUBLIC_DEMO_GHOST_GRID=true` so Demo Driver/Admin show on console.
 
+## Worker topology
+
+- **Production:** dedicated `spotsync-worker` on Render (`EMBED_WORKER=false` on API).
+- **Local single-process:** set `EMBED_WORKER=true` on Go API only.
+
 ## Outbox → email
 
-1. Go API has `EMBED_WORKER=true` (relay + expiry inside API process).
-2. `REDIS_URL` must match on **Go** and **notify**.
-3. Notify needs `RESEND_API_KEY` + `EMAIL_FROM`.
-4. Reserve → outbox → Redis `spotsync:notify` JSON → Resend.
+1. Worker (or `EMBED_WORKER=true` locally) relays outbox → Redis `spotsync:notify`.
+2. `REDIS_URL` must be the **same** on Go API, worker, and notify (Render internal URL in same region).
+3. Notify needs `RESEND_API_KEY` + verified `EMAIL_FROM`.
+4. Reserve as signed-in user with email on Go user row → confirm inbox + notify logs.
+
+**Verify email E2E:**
+
+```bash
+# After reserve on prod (alice or your account)
+curl -sS "https://spotsync-notify.onrender.com/healthz"
+# Check Render logs: spotsync-notify → "[notify] event" + Resend response
+```
 
 ## Stripe (test)
 
-- BFF: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`.
-- Web: `NEXT_PUBLIC_FEATURE_FLAGS=stripe_billing`.
-- Checkout: `POST /api/stripe/checkout` (saas_admin session) → Stripe Checkout.
-- Webhook: `POST /api/stripe/webhook` (logs event; plan persistence deferred).
+- BFF: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`, `GO_PLATFORM_USER_ID=1`.
+- Webhook `checkout.session.completed` → Go `PATCH /api/v1/orgs/:id/plan`.
 
 ## Observability
 
 - Web: `@sentry/nextjs` — set `NEXT_PUBLIC_SENTRY_DSN` (+ optional `SENTRY_DSN`) on Vercel.
 - BFF: `@sentry/node` — set `SENTRY_DSN` on Render.
-- Go: OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` set (optional).
+- Go: OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` set (Grafana Cloud / Jaeger).
+- Grafana dashboard as code: `SpotSync-server/deploy/grafana/dashboards/spotsync-api.json`.
+- Scrape `https://spotsync-ei6g.onrender.com/metrics` with `METRICS_TOKEN`.
 
 ## Smoke checks
 

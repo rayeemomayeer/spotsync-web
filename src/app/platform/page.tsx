@@ -112,6 +112,12 @@ export default function PlatformPage() {
                       </strong>
                       <p style={{ margin: "0.35rem 0" }}>
                         Status: <code>{org.status}</code>
+                        {org.billing_plan ? (
+                          <>
+                            {" "}
+                            · Plan: <code>{org.billing_plan}</code>
+                          </>
+                        ) : null}
                       </p>
                       <button
                         type="button"

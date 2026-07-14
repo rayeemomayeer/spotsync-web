@@ -7,12 +7,13 @@ import { AppHeader } from "@/components/AppHeader";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { isPlatformAdmin } from "@/lib/auth/roles";
 import { getBffUrl } from "@/lib/auth/client";
+import { isFeatureEnabled } from "@/lib/config/flags";
 
 function BillingInner() {
   const { user, loading } = useAuth();
   const search = useSearchParams();
   const allowed = user && isPlatformAdmin(user.role);
-  const stripeEnabled = process.env.NEXT_PUBLIC_FEATURE_FLAGS?.includes("stripe_billing") ?? false;
+  const stripeEnabled = isFeatureEnabled("stripe_billing");
   const checkoutState = search.get("checkout");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");

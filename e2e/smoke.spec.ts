@@ -42,22 +42,22 @@ test.describe("Auth + role shells", () => {
     await expect(page.getByRole("button", { name: "Demo Admin" })).toHaveCount(0);
   });
 
-  test("driver shell loads Live Console", async ({ page }) => {
+  test("driver shell loads map-first experience", async ({ page }) => {
     await page.goto("/driver");
-    await expect(page.getByText("Live Console")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Zones" })).toBeVisible();
+    await expect(page.getByTestId("driver-map")).toBeVisible();
+    await expect(page.getByPlaceholder("Where to park?")).toBeVisible();
   });
 
-  test("org shell asks for sign-in when anonymous", async ({ page }) => {
+  test("org shell redirects anonymous to login", async ({ page }) => {
     await page.goto("/org");
-    await expect(page.getByRole("heading", { name: "Org operations" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+    await page.waitForURL(/\/login/);
+    expect(page.url()).toContain("/login");
   });
 
-  test("platform shell asks for sign-in when anonymous", async ({ page }) => {
+  test("platform shell redirects anonymous to login", async ({ page }) => {
     await page.goto("/platform");
-    await expect(page.getByRole("heading", { name: "Platform admin" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+    await page.waitForURL(/\/login/);
+    expect(page.url()).toContain("/login");
   });
 
   test("billing page shows Stripe test surface", async ({ page }) => {

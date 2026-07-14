@@ -1193,3 +1193,209 @@ html.dark .console-toast {
   background: var(--bg);
   border-radius: 8px;
 }
+
+/* —— Driver map-first (mobility) —— */
+.driver-map {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.driver-map__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  z-index: 30;
+}
+
+.driver-map__brand {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: inherit;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.driver-map__search-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.driver-map__search {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.driver-map__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.driver-map__user,
+.driver-map__signin {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.driver-map__canvas {
+  position: relative;
+  flex: 1;
+  margin: 0.5rem;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(165deg, #c8e6e2 0%, #a8d4cf 35%, #8fc4be 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+html.dark .driver-map__canvas {
+  background: linear-gradient(165deg, #0f2a28 0%, #143532 40%, #1a4540 100%);
+}
+
+.driver-map__roads {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.5) 2px, transparent 2px),
+    linear-gradient(rgba(255, 255, 255, 0.5) 2px, transparent 2px);
+  background-size: 48px 48px;
+}
+
+.driver-map__pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  text-align: center;
+  z-index: 2;
+}
+
+.driver-map__pin-dot {
+  display: block;
+  width: 14px;
+  height: 14px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.driver-map__pin--selected .driver-map__pin-dot {
+  width: 18px;
+  height: 18px;
+  background: var(--ink);
+}
+
+.driver-map__pin--full .driver-map__pin-dot {
+  background: var(--busy);
+}
+
+.driver-map__pin-label {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+
+.driver-map__pin-name {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--ink);
+  max-width: 5.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 0.1rem;
+}
+
+.driver-map__offline,
+.driver-map__empty {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--surface);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow);
+}
+
+.driver-map__footer-hint {
+  text-align: center;
+  padding: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.driver-map__footer-hint a {
+  color: var(--muted);
+}
+
+.driver-map__sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 40;
+}
+
+.driver-map__sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  max-height: 72dvh;
+  overflow: auto;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 0.75rem 1rem 1.5rem;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.driver-map__sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  margin: 0 auto 0.75rem;
+}
+
+.driver-map__sheet-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+}
+
+.driver-map__sheet-meta {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.driver-map__sheet-auth {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
