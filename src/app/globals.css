@@ -4245,6 +4245,128 @@ html.dark .zone-detail-hero__media {
   }
 }
 
+.admin-dash__mobile-bar {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0 0 1rem;
+  position: sticky;
+  top: calc(4.25rem + var(--demo-bar-offset, 0px));
+  z-index: 20;
+  padding: 0.5rem 0 0.35rem;
+  background: linear-gradient(
+    to bottom,
+    var(--bg) 70%,
+    color-mix(in srgb, var(--bg) 0%, transparent)
+  );
+}
+
+@media (min-width: 960px) {
+  .admin-dash__mobile-bar {
+    display: none;
+  }
+
+  .admin-dash__sheet-root {
+    display: none;
+  }
+}
+
+.admin-dash__menu-btn {
+  justify-self: start;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-dash__menu-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.admin-dash__chips {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding: 0.15rem 0 0.35rem;
+  margin: 0 -0.15rem;
+  padding-inline: 0.15rem;
+}
+
+.admin-dash__chip {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-dash__chip--active {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: #fff;
+}
+
+.admin-dash__sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  align-items: end;
+}
+
+.admin-dash__sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: color-mix(in srgb, var(--ink) 45%, transparent);
+  cursor: pointer;
+}
+
+.admin-dash__sheet {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.35rem;
+  max-height: min(72vh, 32rem);
+  overflow: auto;
+  padding: 1.1rem 1rem calc(1.25rem + env(safe-area-inset-bottom));
+  border-radius: 1.25rem 1.25rem 0 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.admin-dash__sheet-link {
+  display: block;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.admin-dash__sheet-link--active {
+  background: var(--color-brand);
+  color: #fff;
+}
+
 .admin-dash__eyebrow {
   margin: 0 0 0.75rem;
   font-size: 0.68rem;
@@ -4815,7 +4937,7 @@ html.dark .zone-detail-hero__media {
   }
 }
 
-/* Mobile dashboard nav as horizontal chips */
+/* Mobile dashboard: hide duplicate eyebrow in hero; keep mobile nav visible */
 @media (max-width: 959px) {
   .admin-dash__hero .admin-dash__eyebrow {
     display: none;
