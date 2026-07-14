@@ -85,17 +85,22 @@ function ReservationsInner() {
                 <p>Payment received — confirming reservation (refresh in a moment)…</p>
               ) : null}
               {error ? <p className="auth-card__error">{error}</p> : null}
-              <ul className="console-zone-list">
+              <ul className="receipt-list">
                 {reservations.length === 0 ? (
-                  <li className="shell-card" style={{ boxShadow: "none" }}>
-                    <p style={{ margin: 0 }}>No reservations yet.</p>
+                  <li className="receipt-card receipt-card--empty">
+                    <p>No reservations yet.</p>
                   </li>
                 ) : (
                   reservations.map((r) => (
-                    <li key={r.id} className="shell-card" style={{ boxShadow: "none" }}>
-                      <strong>{r.zone?.name ?? `Zone #${r.zone_id}`}</strong>
-                      <p style={{ margin: "0.35rem 0" }}>
-                        {r.license_plate} · {r.status} · {paymentChip(r.payment_status)}
+                    <li key={r.id} className="receipt-card">
+                      <div className="receipt-card__head">
+                        <strong>{r.zone?.name ?? `Zone #${r.zone_id}`}</strong>
+                        <span className="receipt-card__status">{r.status}</span>
+                      </div>
+                      <p className="receipt-card__meta">
+                        <span className="font-mono">{r.license_plate}</span>
+                        {" · "}
+                        {paymentChip(r.payment_status)}
                       </p>
                       {r.status === "active" ? (
                         <button

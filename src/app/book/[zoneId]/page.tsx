@@ -205,7 +205,7 @@ function BookZoneInner() {
           <CheckoutStepper step={step} />
           <h1>Book {zoneName || `zone #${zoneId}`}</h1>
           {spotId ? (
-            <p style={{ marginTop: 0, opacity: 0.85 }}>
+            <p style={{ marginTop: 0, color: "var(--muted)" }}>
               Spot #{spotId} selected
             </p>
           ) : null}
@@ -216,48 +216,51 @@ function BookZoneInner() {
               Sign in to pay & reserve. <Link href="/login">Sign in</Link>
             </p>
           ) : (
-            <>
-              <label style={{ display: "grid", gap: "0.35rem", marginBottom: "0.75rem" }}>
-                License plate
-                <input value={plate} onChange={(e) => setPlate(e.target.value)} required minLength={1} />
-              </label>
-              <label style={{ display: "grid", gap: "0.35rem", marginBottom: "0.75rem" }}>
-                Duration (hours)
-                <input
-                  type="number"
-                  min={1}
-                  max={24}
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                />
-              </label>
-              {quote ? <PriceBreakdown quote={quote} /> : null}
-              {error ? <p className="auth-card__error">{error}</p> : null}
-
-              {!clientSecret ? (
-                <button
-                  type="button"
-                  className="console-btn console-btn--primary"
-                  disabled={busy || !quote || !stripePromise}
-                  onClick={() => void startPayment()}
-                >
-                  {busy ? "Preparing…" : isDemoModeActive() ? "Confirm demo booking" : "Continue to payment"}
-                </button>
-              ) : elementsOptions && stripePromise ? (
-                <Elements stripe={stripePromise} options={elementsOptions}>
-                  <CheckoutForm
-                    zoneId={zoneId}
-                    quote={quote!}
-                    clientSecret={clientSecret}
-                    onPaid={() => void onPaid()}
+            <div className="checkout-layout__grid">
+              <div>
+                <label style={{ display: "grid", gap: "0.35rem", marginBottom: "0.75rem" }}>
+                  License plate
+                  <input className="ui-input" value={plate} onChange={(e) => setPlate(e.target.value)} required minLength={1} />
+                </label>
+                <label style={{ display: "grid", gap: "0.35rem", marginBottom: "0.75rem" }}>
+                  Duration (hours)
+                  <input
+                    className="ui-input"
+                    type="number"
+                    min={1}
+                    max={24}
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
                   />
-                </Elements>
-              ) : null}
+                </label>
+                {error ? <p className="auth-card__error">{error}</p> : null}
 
-              <p style={{ marginTop: "1rem" }}>
-                <Link href="/driver">← Back to map</Link>
-              </p>
-            </>
+                {!clientSecret ? (
+                  <button
+                    type="button"
+                    className="console-btn console-btn--primary"
+                    disabled={busy || !quote || !stripePromise}
+                    onClick={() => void startPayment()}
+                  >
+                    {busy ? "Preparing…" : isDemoModeActive() ? "Confirm demo booking" : "Continue to payment"}
+                  </button>
+                ) : elementsOptions && stripePromise ? (
+                  <Elements stripe={stripePromise} options={elementsOptions}>
+                    <CheckoutForm
+                      zoneId={zoneId}
+                      quote={quote!}
+                      clientSecret={clientSecret}
+                      onPaid={() => void onPaid()}
+                    />
+                  </Elements>
+                ) : null}
+
+                <p style={{ marginTop: "1rem" }}>
+                  <Link href="/driver">← Back to map</Link>
+                </p>
+              </div>
+              {quote ? <PriceBreakdown quote={quote} /> : null}
+            </div>
           )}
         </div>
       </main>

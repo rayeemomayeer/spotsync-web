@@ -1,15 +1,19 @@
 # SpotSync UI — Live Operations Console (v2)
 
+**Global tokens, marketing, auth, checkout:** see [design-system.md](./design-system.md).
+
 **Design note:** Replaces the illustrated map-first design. The raster-map + polygon calibration approach was retired in favor of a label-driven spot grid.
 
 ## Visual identity
 
-- **Layout:** Three-column desktop console on warm off-white `#F7F5F2`
-- **Accent:** Sky blue `#7EC8E3` — CTAs, selected stall, live SSE indicator
-- **Available:** Soft green `#6B9E6B`
-- **Occupied:** Warm grey `#5E5E5C`
-- **Unavailable:** Muted tan `#D4C4A8` at 50% opacity
-- **Text:** Warm dark `#2D2A26` on white card surfaces
+Console uses global tokens from [design-system.md](./design-system.md). Console-specific:
+
+- **Layout:** Three-column desktop console on warm off-white (uses `--color-bg`)
+- **Accent:** Brand coral for CTAs, selected stall, live SSE indicator
+- **Available:** `--color-success`
+- **Occupied:** `#5E5E5C`
+- **Unavailable:** `#D4C4A8` at 50% opacity
+- **Text:** `--color-ink` on `--color-surface` cards
 
 ## Layout
 

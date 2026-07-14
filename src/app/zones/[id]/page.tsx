@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { SpotGrid } from "@/components/console/SpotGrid";
+import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api } from "@/lib/api/client";
 import { useZoneSpots } from "@/lib/hooks/useZoneSpots";
@@ -43,11 +44,21 @@ export default function ZoneDetailPage() {
             <p>Zone not found.</p>
           ) : (
             <>
-              <h1>{zone.name}</h1>
-              <p>
-                {zone.available_spots}/{zone.total_capacity} spots free · ${zone.price_per_hour.toFixed(2)}/hr ·{" "}
-                {zone.type}
-              </p>
+              <div className="zone-detail-hero">
+                <div className="zone-detail-hero__media" aria-hidden />
+                <div className="zone-detail-hero__body">
+                  <h1>{zone.name}</h1>
+                  <p>
+                    <Badge tone={zone.available_spots > 0 ? "success" : "muted"}>
+                      {zone.available_spots}/{zone.total_capacity} free
+                    </Badge>
+                    {" · "}
+                    <span className="font-mono">${zone.price_per_hour.toFixed(2)}/hr</span>
+                    {" · "}
+                    {zone.type.replace("_", " ")}
+                  </p>
+                </div>
+              </div>
               <SpotGrid
                 spots={displaySpots}
                 ghostIds={new Set()}

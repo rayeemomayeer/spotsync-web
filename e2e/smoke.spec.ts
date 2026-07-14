@@ -3,10 +3,21 @@ import { test, expect } from "@playwright/test";
 test.describe("Marketing + theme", () => {
   test("landing shows SpotSync brand and CTA", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "SpotSync" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "SpotSync" }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Know before you go/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Get started/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /^Sign in$/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Find parking/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Search/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Explore/i })).toBeVisible();
+  });
+
+  test("explore dropdown lists public routes", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: /Explore/i }).click();
+    await expect(page.getByRole("menuitem", { name: /Find parking/i })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: /Driver map/i })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: /Pricing/i })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: /Create account/i })).toBeVisible();
   });
 
   test("theme toggle flips html dark class", async ({ page }) => {

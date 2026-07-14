@@ -6,6 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { SearchMapView } from "@/components/search/SearchMapView";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { SearchPill } from "@/components/ui/SearchPill";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useZones, zonesOrOffline } from "@/lib/hooks/useZones";
 import { useZonesStream } from "@/lib/realtime/useZonesStream";
@@ -17,6 +20,46 @@ function bookHref(zoneId: number, when: string) {
   if (when) params.set("when", when);
   const qs = params.toString();
   return `/book/${zoneId}${qs ? `?${qs}` : ""}`;
+}
+
+function ZoneCard({
+  zone,
+  when,
+  onPreview,
+}: {
+  zone: Zone;
+  when: string;
+  onPreview: () => void;
+}) {
+  const full = zone.available_spots <= 0;
+
+  return (
+    <li className="zone-card">
+      <div className="zone-card__media">
+        <span className={`zone-card__badge${full ? " zone-card__badge--full" : ""}`}>
+          {full ? "Full" : `${zone.available_spots} spots left`}
+        </span>
+      </div>
+      <div className="zone-card__body">
+        <h3 className="zone-card__name">{zone.name}</h3>
+        <p className="zone-card__meta">
+          {zone.type.replace("_", " ")} · {zone.total_capacity} total
+        </p>
+        <p className="zone-card__price">${zone.price_per_hour.toFixed(2)}/hr</p>
+        <div className="zone-card__actions">
+          <Button type="button" variant="ghost" onClick={onPreview}>
+            Preview
+          </Button>
+          <Link href={`/zones/${zone.id}`} className="console-btn console-btn--ghost">
+            Details
+          </Link>
+          <Link href={bookHref(zone.id, when)} className="console-btn console-btn--primary">
+            Book
+          </Link>
+        </div>
+      </div>
+    </li>
+  );
 }
 
 function SearchInner() {
@@ -48,31 +91,29 @@ function SearchInner() {
 
   return (
     <>
-      <form className="landing-search landing-search--inline" action="/search" method="get" role="search">
-        <div className="landing-search__row">
-          <input
-            type="search"
-            name="q"
-            className="landing-search__input"
-            placeholder="City, garage, or neighborhood"
-            defaultValue={q}
-            aria-label="Search location"
-          />
-          <input
-            type="datetime-local"
-            name="when"
-            className="landing-search__input landing-search__when"
-            defaultValue={when}
-            aria-label="Arrival time"
-          />
-          <button type="submit" className="console-btn console-btn--primary landing-search__btn">
-            Search
-          </button>
-        </div>
-      </form>
+      <SearchPill action="/search" method="get" role="search">
+        <input
+          type="search"
+          name="q"
+          className="landing-search__input"
+          placeholder="City, garage, or neighborhood"
+          defaultValue={q}
+          aria-label="Search location"
+        />
+        <input
+          type="datetime-local"
+          name="when"
+          className="landing-search__input landing-search__when"
+          defaultValue={when}
+          aria-label="Arrival time"
+        />
+        <Button type="submit" pill className="landing-search__btn">
+          Search
+        </Button>
+      </SearchPill>
 
       <div className="search-toolbar">
-        <h2 style={{ margin: 0, fontSize: "1.15rem" }}>{title}</h2>
+        <h2 className="search-toolbar__title">{title}</h2>
         <div className="search-toolbar__toggle" role="tablist" aria-label="Results view">
           <button
             type="button"
@@ -103,34 +144,14 @@ function SearchInner() {
       {view === "map" ? (
         <SearchMapView zones={zones} selectedId={selectedId} onSelect={onSelectZone} />
       ) : (
-        <ul className="console-zone-list">
+        <ul className="zone-card-grid">
           {zones.length === 0 && !zonesQuery.isLoading ? (
-            <li className="shell-card" style={{ boxShadow: "none" }}>
+            <li className="shell-card" style={{ boxShadow: "none", gridColumn: "1 / -1" }}>
               <p style={{ margin: 0 }}>No zones found.</p>
             </li>
           ) : (
             zones.map((z) => (
-              <li key={z.id} className="shell-card" style={{ boxShadow: "none" }}>
-                <strong>{z.name}</strong>
-                <p style={{ margin: "0.35rem 0" }}>
-                  {z.available_spots}/{z.total_capacity} free · ${z.price_per_hour.toFixed(2)}/hr · {z.type}
-                </p>
-                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    className="console-btn console-btn--ghost"
-                    onClick={() => setSelectedId(z.id)}
-                  >
-                    Preview
-                  </button>
-                  <Link href={`/zones/${z.id}`} className="console-btn console-btn--ghost">
-                    Details
-                  </Link>
-                  <Link href={bookHref(z.id, when)} className="console-btn console-btn--primary">
-                    Book
-                  </Link>
-                </div>
-              </li>
+              <ZoneCard key={z.id} zone={z} when={when} onPreview={() => setSelectedId(z.id)} />
             ))
           )}
         </ul>
@@ -143,10 +164,13 @@ function SearchInner() {
             <div className="search-sheet__handle" />
             <h3 className="search-sheet__title">{selectedZone.name}</h3>
             <p className="search-sheet__meta">
-              {selectedZone.available_spots}/{selectedZone.total_capacity} free · $
-              {selectedZone.price_per_hour.toFixed(2)}/hr
+              <Badge tone={selectedZone.available_spots > 0 ? "success" : "muted"}>
+                {selectedZone.available_spots}/{selectedZone.total_capacity} free
+              </Badge>
+              {" · "}
+              <span className="font-mono">${selectedZone.price_per_hour.toFixed(2)}/hr</span>
             </p>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <div className="zone-card__actions">
               <Link href={`/zones/${selectedZone.id}`} className="console-btn console-btn--ghost">
                 Details
               </Link>
@@ -158,7 +182,7 @@ function SearchInner() {
         </>
       ) : null}
 
-      <p>
+      <p style={{ marginTop: "1.5rem" }}>
         <Link href="/driver">Map-first driver view →</Link>
       </p>
     </>

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { AppHeader } from "@/components/AppHeader";
 import { HeroSearch } from "@/components/marketing/HeroSearch";
-import { LandingFaq, LandingTestimonials } from "@/components/marketing/LandingFaq";
 import { LandingSections } from "@/components/marketing/LandingSections";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { organizationJsonLd, siteConfig, webSiteJsonLd } from "@/lib/seo/site";
@@ -35,12 +34,10 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <AppHeader showAuthCta={false} />
+      <AppHeader />
       <main>
         <HeroSearch />
         <LandingSections />
-        <LandingTestimonials />
-        <LandingFaq />
       </main>
       <MarketingFooter />
     </div>

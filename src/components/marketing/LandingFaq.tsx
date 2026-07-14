@@ -17,43 +17,10 @@ const faqs = [
   },
 ];
 
-const testimonials = [
-  {
-    quote: "We cut no-shows by showing live capacity before drivers leave home.",
-    name: "Maya R.",
-    role: "Ops lead, demo garage",
-  },
-  {
-    quote: "Pay-then-reserve finally matches how riders expect mobility apps to work.",
-    name: "James T.",
-    role: "Driver, portfolio walkthrough",
-  },
-];
-
-export function LandingTestimonials() {
-  return (
-    <section className="landing-section" aria-labelledby="testimonials-heading">
-      <h2 id="testimonials-heading" className="landing-section__title">
-        Trusted in demos
-      </h2>
-      <ul className="landing-testimonials">
-        {testimonials.map((t) => (
-          <li key={t.name} className="landing-testimonials__card">
-            <blockquote>&ldquo;{t.quote}&rdquo;</blockquote>
-            <footer>
-              <cite>{t.name}</cite> — {t.role}
-            </footer>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 export function LandingFaq() {
   return (
-    <section className="landing-section" aria-labelledby="faq-heading">
-      <h2 id="faq-heading" className="landing-section__title">
+    <section className="landing-faq-section" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" className="landing-faq-section__title">
         FAQ
       </h2>
       <div className="landing-faq">

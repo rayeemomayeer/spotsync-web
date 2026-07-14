@@ -30,6 +30,8 @@ Marketplace parking product UI for SpotSync — drivers book across org zones, o
 
 Dark / light theme supported (system preference + toggle). Optional client observability via `NEXT_PUBLIC_SENTRY_DSN` (stub until full Sentry SDK wired).
 
+**Design system:** [docs/design-system.md](./docs/design-system.md) — warm minimal tokens (Stripe + Airbnb inspired). Console grid spec in [docs/design.md](./docs/design.md).
+
 ## Local development
 
 1. Start Go API (+ Redis recommended) from SpotSync-server compose.
