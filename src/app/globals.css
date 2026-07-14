@@ -418,6 +418,7 @@ html.dark .app-header__glass {
     max-width: 100%;
     gap: 0.35rem;
     padding: 0.4rem 0.4rem 0.4rem 0.7rem;
+    overflow: visible;
   }
 
   .app-header__logo {
@@ -431,6 +432,11 @@ html.dark .app-header__glass {
 
   .app-header__actions {
     gap: 0.2rem;
+    position: static;
+  }
+
+  .app-header__mobile-menu {
+    position: static;
   }
 
   .theme-toggle {
@@ -449,10 +455,17 @@ html.dark .app-header__glass {
     font-size: 0.75rem;
   }
 
-  .app-header__actions .nav-dd__panel {
-    right: 0;
-    left: auto;
-    width: min(calc(100vw - 1.5rem), 22rem);
+  /* Fixed full-bleed sheet so menu never clips off-screen on narrow phones. */
+  .app-header__actions .nav-dd__panel,
+  .app-header__mobile-menu .nav-dd__panel {
+    position: fixed;
+    left: max(0.75rem, env(safe-area-inset-left, 0px));
+    right: max(0.75rem, env(safe-area-inset-right, 0px));
+    top: calc(3.85rem + var(--demo-bar-offset));
+    width: auto;
+    max-width: none;
+    transform: none;
+    max-height: min(72vh, calc(100dvh - 4.75rem - var(--demo-bar-offset)));
   }
 }
 
@@ -567,10 +580,20 @@ html.dark .app-header__glass {
   gap: 0.85rem;
 }
 
+/* Desktop/tablet actions: keep panel inside viewport (don’t center under trigger). */
 .app-header__actions .nav-dd__panel {
   left: auto;
   right: 0;
   transform: none;
+  width: min(22rem, calc(100vw - 1.5rem));
+}
+
+/* Mid breakpoints: Explore in the center nav can sit near an edge. */
+.app-header__nav .nav-dd__panel {
+  left: auto;
+  right: 0;
+  transform: none;
+  width: min(22rem, calc(100vw - 2rem));
 }
 
 .nav-dd__panel[hidden] {
