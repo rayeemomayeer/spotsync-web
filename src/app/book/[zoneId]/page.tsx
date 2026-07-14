@@ -16,6 +16,7 @@ import {
 } from "@/lib/checkout/client";
 import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { PriceBreakdown } from "@/components/checkout/PriceBreakdown";
+import { isFeatureEnabled } from "@/lib/config/flags";
 import { getToken } from "@/lib/auth/session";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
