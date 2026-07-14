@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { authClient, getBffUrl } from "@/lib/auth/client";
+import { authClient } from "@/lib/auth/client";
 import { isFeatureEnabled } from "@/lib/config/flags";
 import { Button } from "@/components/ui/Button";
 
@@ -17,11 +17,13 @@ export function GoogleAuthButton({ label = "Continue with Google" }: { label?: s
     setBusy(true);
     setError("");
     try {
-      const callbackURL =
-        typeof window !== "undefined" ? `${window.location.origin}/` : getBffUrl();
+      // Frontend origin only — never the BFF. Google redirects to BFF callback;
+      // Better Auth then sends the browser here.
+      const origin = window.location.origin;
       await authClient.signIn.social({
         provider: "google",
-        callbackURL,
+        callbackURL: `${origin}/driver`,
+        errorCallbackURL: `${origin}/login?error=google`,
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Google sign-in failed");
