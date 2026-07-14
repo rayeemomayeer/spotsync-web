@@ -47,6 +47,12 @@
   --toast-bg: rgba(34, 34, 34, 0.92);
   --shadow: var(--shadow-md);
   --hero-glow: rgba(224, 86, 91, 0.08);
+  /* Space for fixed .demo-bar when present (set on html:has) */
+  --demo-bar-offset: 0px;
+}
+
+html:has(.demo-bar) {
+  --demo-bar-offset: 2.5rem;
 }
 
 html.dark {
@@ -163,7 +169,7 @@ body {
 
 /* Compact demo strip sits above glass nav */
 html:has(.demo-bar) .app-header {
-  top: 2.45rem;
+  top: var(--demo-bar-offset);
 }
 
 .app-header__bar,
@@ -1848,9 +1854,11 @@ html.dark .audience-split__panel--ops {
 
 .role-gate {
   max-width: 28rem;
-  margin: 4rem auto;
-  padding: 1.5rem;
+  margin: 0 auto;
+  padding: calc(4.5rem + var(--demo-bar-offset)) 1.5rem 2rem;
+  box-sizing: border-box;
   text-align: center;
+  color: var(--ink);
 }
 
 .role-gate p {
@@ -2162,13 +2170,9 @@ html.dark .audience-split__panel--ops {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 4.5rem;
+  padding-top: calc(4.5rem + var(--demo-bar-offset));
   background: var(--bg);
   color: var(--ink);
-}
-
-html:has(.demo-bar) .shell {
-  padding-top: 6.75rem;
 }
 
 .shell-main {
@@ -2238,7 +2242,7 @@ html:has(.demo-bar) .shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 4.5rem;
+  padding-top: calc(4.5rem + var(--demo-bar-offset));
   background: var(--bg);
 }
 
@@ -2371,6 +2375,9 @@ html:has(.demo-bar) .shell {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: var(--demo-bar-offset);
+  box-sizing: border-box;
   background: var(--bg);
 }
 
@@ -3349,6 +3356,9 @@ html.dark .console-toast {
   display: flex;
   flex-direction: column;
   height: 100dvh;
+  height: calc(100dvh - var(--demo-bar-offset));
+  margin-top: var(--demo-bar-offset);
+  box-sizing: border-box;
   background: var(--bg);
   overflow: hidden;
 }
@@ -4148,7 +4158,7 @@ html.dark .zone-detail-hero__media {
   .admin-dash__rail {
     display: block;
     position: sticky;
-    top: 5.5rem;
+    top: calc(5.5rem + var(--demo-bar-offset));
     padding: 1rem 0.85rem;
     border-radius: 1.25rem;
     border: 1px solid var(--border);
