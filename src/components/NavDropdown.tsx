@@ -28,15 +28,16 @@ function publicExploreGroups(): NavMenuGroup[] {
       title: "Discover",
       items: [
         { href: "/search", label: "Find parking", description: "Live zone list + map" },
-        { href: "/driver", label: "Driver map", description: "Map-first booking" },
         { href: "/how-it-works", label: "How it works", description: "Trip + operator flow" },
+        { href: "/pricing", label: "Pricing", description: "Starter / Growth slider" },
       ],
     },
     {
-      title: "Operators",
+      title: "Builders",
       items: [
-        { href: "/pricing", label: "Pricing", description: "Starter / Growth slider" },
-        { href: "/developers", label: "API surface", description: "Graded endpoints" },
+        { href: "/developers", label: "Developers", description: "API surface" },
+        { href: "/legal/privacy", label: "Privacy", description: "Data practices" },
+        { href: "/legal/terms", label: "Terms", description: "Demo terms" },
       ],
     },
     {
@@ -51,44 +52,79 @@ function publicExploreGroups(): NavMenuGroup[] {
 
 function workspaceGroups(user: User): NavMenuGroup[] {
   const role = normalizeRole(user.role);
-  const items: NavMenuItem[] = [
-    { href: homePathForRole(user.role), label: "Home for role", description: role ?? "driver" },
-    { href: "/driver", label: "Driver map", description: "Book with live grid" },
+  const shared: NavMenuItem[] = [
+    { href: homePathForRole(user.role), label: "Role home", description: role ?? "driver" },
     { href: "/search", label: "Search zones", description: "List + map browse" },
-    { href: "/reservations", label: "My reservations", description: "Cancel / refund" },
     { href: "/account", label: "Account", description: "Profile + payments" },
-    { href: "/console", label: "Live console", description: "Ops three-column UI" },
   ];
 
+  if (role === "driver") {
+    return [
+      {
+        title: "Driver",
+        items: [
+          ...shared,
+          { href: "/driver", label: "Driver map", description: "Map-first booking" },
+          { href: "/reservations", label: "My reservations", description: "Cancel / refund" },
+          { href: "/console", label: "Live console", description: "Ops three-column UI" },
+        ],
+      },
+      {
+        title: "Resources",
+        items: [
+          { href: "/how-it-works", label: "How it works", description: "Product guide" },
+          { href: "/pricing", label: "Pricing", description: "Operator plans" },
+        ],
+      },
+    ];
+  }
+
   if (isOrgAdmin(user.role)) {
-    items.push(
-      { href: "/org", label: "Org dashboard", description: "Zones & members" },
-      { href: "/org/billing", label: "Org billing", description: "Stripe test subscribe" },
-    );
+    return [
+      {
+        title: "Organization",
+        items: [
+          ...shared,
+          { href: "/org", label: "Org dashboard", description: "Zones & members" },
+          { href: "/org/billing", label: "Org billing", description: "Stripe test" },
+          { href: "/console", label: "Live console", description: "Ops grid" },
+        ],
+      },
+      {
+        title: "Resources",
+        items: [
+          { href: "/pricing", label: "Pricing", description: "Plans" },
+          { href: "/developers", label: "Developers", description: "API notes" },
+        ],
+      },
+    ];
   }
 
   if (isPlatformAdmin(user.role)) {
-    items.push(
-      { href: "/platform", label: "Platform", description: "Marketplace KPIs" },
-      { href: "/platform/orgs", label: "Organizations", description: "Approve orgs" },
-      { href: "/platform/health", label: "Health", description: "BFF + Go probes" },
-    );
+    return [
+      {
+        title: "Platform",
+        items: [
+          ...shared,
+          { href: "/platform", label: "Overview", description: "Marketplace KPIs" },
+          { href: "/platform/orgs", label: "Organizations", description: "Approve orgs" },
+          { href: "/platform/audit", label: "Audit", description: "Org audit log" },
+          { href: "/platform/health", label: "Health", description: "BFF + Go probes" },
+          { href: "/platform/billing", label: "Billing", description: "Stripe test" },
+        ],
+      },
+      {
+        title: "Ops",
+        items: [
+          { href: "/console", label: "Live console", description: "Spot grid" },
+          { href: "/driver", label: "Driver map", description: "Preview driver UX" },
+          { href: "/developers", label: "Developers", description: "API notes" },
+        ],
+      },
+    ];
   }
 
-  return [
-    {
-      title: "Workspace",
-      items,
-    },
-    {
-      title: "Resources",
-      items: [
-        { href: "/pricing", label: "Pricing", description: "Operator plans" },
-        { href: "/developers", label: "Developers", description: "API notes" },
-        { href: "/how-it-works", label: "How it works", description: "Product guide" },
-      ],
-    },
-  ];
+  return [{ title: "Workspace", items: shared }];
 }
 
 export function NavDropdown({
@@ -156,7 +192,7 @@ export function NavDropdown({
               {group.items.map((item) => {
                 const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
-                  <li key={item.href}>
+                  <li key={`${group.title}-${item.href}`}>
                     <Link
                       href={item.href}
                       role="menuitem"
@@ -181,7 +217,10 @@ export function NavDropdown({
 
 export function NavExploreMenu({ user }: { user: User | null }) {
   if (user) {
-    return <NavDropdown label="Workspace" groups={workspaceGroups(user)} />;
+    const role = normalizeRole(user.role);
+    const label =
+      role === "saas_admin" ? "Platform menu" : role === "org_admin" ? "Org menu" : "More";
+    return <NavDropdown label={label} groups={workspaceGroups(user)} />;
   }
   return <NavDropdown label="Explore" groups={publicExploreGroups()} />;
 }

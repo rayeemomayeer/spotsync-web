@@ -1,66 +1,90 @@
 import Link from "next/link";
 
+const productLinks = [
+  { href: "/search", label: "Find parking" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/developers", label: "Developers" },
+];
+
+const companyLinks = [
+  { href: "/legal/privacy", label: "Privacy" },
+  { href: "/legal/terms", label: "Terms" },
+  { href: "https://github.com/rayeemomayeer", label: "GitHub", external: true },
+];
+
+const workspaceLinks = [
+  { href: "/driver", label: "Driver map" },
+  { href: "/console", label: "Live console" },
+  { href: "/login", label: "Sign in" },
+  { href: "/signup", label: "Create account" },
+];
+
 export function MarketingFooter() {
   const year = new Date().getFullYear();
 
   return (
     <footer className="landing-footer">
-      <div className="landing-footer__grid">
-        <div>
-          <strong className="landing-footer__brand">SpotSync</strong>
-          <p className="landing-footer__tagline">Real-time parking marketplace.</p>
+      <div className="landing-footer__inner">
+        <div className="landing-footer__top">
+          <div className="landing-footer__brand-block">
+            <Link href="/" className="landing-footer__brand">
+              <span className="landing-footer__mark" aria-hidden />
+              SpotSync
+            </Link>
+            <p className="landing-footer__tagline">
+              Real-time parking inventory with pay-before-reserve checkout — built for demo
+              crowds, not chaos.
+            </p>
+          </div>
+
+          <div className="landing-footer__columns">
+            <nav aria-label="Product">
+              <h3>Product</h3>
+              <ul>
+                {productLinks.map((l) => (
+                  <li key={l.href}>
+                    <Link href={l.href}>{l.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <nav aria-label="Workspace">
+              <h3>Workspace</h3>
+              <ul>
+                {workspaceLinks.map((l) => (
+                  <li key={l.href}>
+                    <Link href={l.href}>{l.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <nav aria-label="Company">
+              <h3>Legal</h3>
+              <ul>
+                {companyLinks.map((l) => (
+                  <li key={l.href}>
+                    {"external" in l && l.external ? (
+                      <a href={l.href} rel="noopener noreferrer" target="_blank">
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link href={l.href}>{l.label}</Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
         </div>
-        <nav aria-label="Product">
-          <h3>Product</h3>
-          <ul>
-            <li>
-              <Link href="/search">Find parking</Link>
-            </li>
-            <li>
-              <Link href="/pricing">Pricing</Link>
-            </li>
-            <li>
-              <Link href="/how-it-works">How it works</Link>
-            </li>
-            <li>
-              <Link href="/developers">Developers</Link>
-            </li>
-          </ul>
-        </nav>
-        <nav aria-label="Company">
-          <h3>Company</h3>
-          <ul>
-            <li>
-              <Link href="/legal/privacy">Privacy</Link>
-            </li>
-            <li>
-              <Link href="/legal/terms">Terms</Link>
-            </li>
-            <li>
-              <a href="https://github.com/rayeemomayeer" rel="noopener noreferrer">
-                GitHub
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <div>
-          <h3>Stay in the loop</h3>
-          <p className="landing-footer__newsletter">Newsletter coming soon — portfolio stub.</p>
-          <form className="landing-footer__form" action="#" method="post">
-            <input
-              type="email"
-              className="ui-input"
-              placeholder="you@example.com"
-              aria-label="Email for newsletter"
-              disabled
-            />
-            <button type="submit" className="console-btn console-btn--ghost console-btn--pill" disabled>
-              Notify me
-            </button>
-          </form>
+
+        <div className="landing-footer__bottom">
+          <p className="landing-footer__copy">© {year} SpotSync · Portfolio demonstration</p>
+          <p className="landing-footer__meta">
+            Go reservation engine · Express BFF · Next.js web
+          </p>
         </div>
       </div>
-      <p className="landing-footer__copy">© {year} SpotSync. Portfolio demonstration.</p>
     </footer>
   );
 }

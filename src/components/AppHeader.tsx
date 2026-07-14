@@ -6,11 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { NavExploreMenu } from "@/components/NavDropdown";
 import { useAuth } from "@/components/providers/AuthProvider";
-
-const quickLinks = [
-  { href: "/search", label: "Find parking" },
-  { href: "/pricing", label: "Pricing" },
-];
+import { homePathForRole, primaryNavLinks } from "@/lib/auth/roles";
 
 export function AppHeader({
   tag,
@@ -21,11 +17,12 @@ export function AppHeader({
 }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
+  const links = primaryNavLinks(user?.role);
 
   return (
     <header className="app-header">
-      <div className="app-header__glass">
-        <Link href="/" className="app-header__brand">
+      <div className="app-header__bar">
+        <Link href={user ? homePathForRole(user.role) : "/"} className="app-header__brand">
           <span className="app-header__mark" aria-hidden>
             <span className="app-header__mark-pulse" />
           </span>
@@ -34,8 +31,10 @@ export function AppHeader({
         </Link>
 
         <nav className="app-header__nav" aria-label="Main">
-          {quickLinks.map((link) => {
-            const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+          {links.map((link) => {
+            const active =
+              pathname === link.href ||
+              (link.href !== "/" && pathname.startsWith(`${link.href}/`));
             return (
               <Link
                 key={link.href}
