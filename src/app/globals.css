@@ -3662,13 +3662,7 @@ html.dark .driver-map__canvas {
 .zone-card__media {
   aspect-ratio: 16 / 10;
   background:
-    repeating-linear-gradient(
-      90deg,
-      transparent 0,
-      transparent 18px,
-      color-mix(in srgb, #fff 35%, transparent) 18px,
-      color-mix(in srgb, #fff 35%, transparent) 20px
-    ),
+    radial-gradient(ellipse 80% 60% at 50% 110%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 70%),
     linear-gradient(145deg, #f0e4d4 0%, #e5d2bf 42%, #c9b49a 100%);
   position: relative;
 }
@@ -3676,15 +3670,29 @@ html.dark .driver-map__canvas {
 .zone-card__media::after {
   content: "";
   position: absolute;
-  inset: auto 12% 18% 12%;
-  height: 38%;
-  border: 2px dashed color-mix(in srgb, #fff 55%, transparent);
-  border-radius: 0.35rem;
-  opacity: 0.7;
+  left: 18%;
+  right: 18%;
+  bottom: 22%;
+  height: 28%;
+  border-radius: 0.2rem 0.2rem 0.15rem 0.15rem;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+  box-shadow:
+    0 -0.55rem 0 -0.12rem color-mix(in srgb, var(--ink) 8%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, #fff 25%, transparent);
+  opacity: 0.85;
 }
 
 html.dark .zone-card__media {
-  background: linear-gradient(135deg, #3a3530 0%, #2a2622 50%, #1f1c19 100%);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 110%, color-mix(in srgb, var(--brand) 18%, transparent), transparent 70%),
+    linear-gradient(135deg, #3a3530 0%, #2a2622 50%, #1f1c19 100%);
+}
+
+html.dark .zone-card__media::after {
+  background: color-mix(in srgb, #fff 8%, transparent);
+  box-shadow:
+    0 -0.55rem 0 -0.12rem color-mix(in srgb, #fff 5%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, #fff 12%, transparent);
 }
 
 .zone-card__badge {
