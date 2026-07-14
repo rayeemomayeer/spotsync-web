@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
+import { AdminShell, ORG_NAV } from "@/components/dashboard/AdminShell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api, ApiError } from "@/lib/api/client";
 import type { Organization } from "@/lib/api/types";
@@ -91,8 +92,13 @@ function OrgBillingInner() {
   return (
     <div className="shell">
       <AppHeader tag="Org billing" showAuthCta={!user} />
-      <main className="shell-main page-surface">
-        <h1>Org billing</h1>
+      <main className="shell-main shell-main--wide">
+        <AdminShell
+          eyebrow="Organization"
+          title="Billing"
+          subtitle="Stripe test subscriptions for org capacity."
+          nav={ORG_NAV}
+        >
         {loading ? (
           <p>Loading…</p>
         ) : !user ? (
@@ -167,6 +173,7 @@ function OrgBillingInner() {
             </p>
           </>
         )}
+        </AdminShell>
       </main>
     </div>
   );

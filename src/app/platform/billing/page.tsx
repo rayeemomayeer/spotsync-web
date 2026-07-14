@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
+import { AdminShell, PLATFORM_NAV } from "@/components/dashboard/AdminShell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { isPlatformAdmin } from "@/lib/auth/roles";
 import { getBffUrl } from "@/lib/auth/client";
@@ -46,8 +47,13 @@ function BillingInner() {
   return (
     <div className="shell">
       <AppHeader tag="Billing" showAuthCta={!user} />
-      <main className="shell-main page-surface">
-        <h1>Billing (Stripe test)</h1>
+      <main className="shell-main shell-main--wide">
+        <AdminShell
+          eyebrow="Platform"
+          title="Billing"
+          subtitle="Stripe test mode — portfolio checkout only."
+          nav={PLATFORM_NAV}
+        >
         {loading ? (
           <p>Loading…</p>
         ) : !user ? (
@@ -105,6 +111,7 @@ function BillingInner() {
             <Link href="/platform">← Platform</Link>
           </>
         )}
+        </AdminShell>
       </main>
     </div>
   );

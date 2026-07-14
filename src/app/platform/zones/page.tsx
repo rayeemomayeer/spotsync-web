@@ -2,23 +2,23 @@
 
 import { AppHeader } from "@/components/AppHeader";
 import { AdminShell, PLATFORM_NAV } from "@/components/dashboard/AdminShell";
-import { AuditTrail } from "@/components/dashboard/AuditTrail";
+import { ZoneManager } from "@/components/dashboard/ZoneManager";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-export default function PlatformAuditPage() {
+export default function PlatformZonesPage() {
   const { token } = useAuth();
 
   return (
     <div className="shell">
-      <AppHeader tag="Audit" />
+      <AppHeader tag="Zones" />
       <main className="shell-main shell-main--wide">
         <AdminShell
           eyebrow="Platform"
-          title="Audit"
-          subtitle="Cross-org mutation trail."
+          title="Zones"
+          subtitle="Marketplace inventory — platform creates are global unless assigned via org admin flow."
           nav={PLATFORM_NAV}
         >
-          <AuditTrail token={token} />
+          <ZoneManager token={token} title="All zones" />
         </AdminShell>
       </main>
     </div>

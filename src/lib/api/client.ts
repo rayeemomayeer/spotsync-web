@@ -117,6 +117,37 @@ export const api = {
     return apiRequest<import("./types").Zone[]>(`/zones${query ? `?${query}` : ""}`);
   },
   zone: (id: number) => apiRequest<import("./types").Zone>(`/zones/${id}`),
+  createZone: (
+    token: string | null | undefined,
+    body: {
+      name: string;
+      type: "general" | "ev_charging" | "covered";
+      total_capacity: number;
+      price_per_hour: number;
+    },
+  ) =>
+    apiRequest<import("./types").Zone>("/zones", {
+      method: "POST",
+      token,
+      body,
+    }),
+  updateZone: (
+    token: string | null | undefined,
+    id: number,
+    body: {
+      name: string;
+      type: "general" | "ev_charging" | "covered";
+      total_capacity: number;
+      price_per_hour: number;
+    },
+  ) =>
+    apiRequest<import("./types").Zone>(`/zones/${id}`, {
+      method: "PUT",
+      token,
+      body,
+    }),
+  deleteZone: (token: string | null | undefined, id: number) =>
+    apiRequest<null>(`/zones/${id}`, { method: "DELETE", token }),
   spots: (zoneId: number) => apiRequest<import("./types").Spot[]>(`/zones/${zoneId}/spots`),
   reserve: (
     token: string,

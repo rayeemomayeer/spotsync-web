@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
-import { PlatformShell } from "@/components/platform/PlatformShell";
+import { AdminShell, PLATFORM_NAV } from "@/components/dashboard/AdminShell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api, ApiError } from "@/lib/api/client";
 import type { Organization } from "@/lib/api/types";
@@ -95,8 +95,13 @@ export default function PlatformOrgsPage() {
   return (
     <div className="shell">
       <AppHeader tag="Orgs" />
-      <main className="shell-main page-surface">
-        <PlatformShell title="Organizations">
+      <main className="shell-main shell-main--wide">
+        <AdminShell
+          eyebrow="Platform"
+          title="Organizations"
+          subtitle="Approve operators, suspend abuse, create orgs."
+          nav={PLATFORM_NAV}
+        >
           {error ? <p className="auth-card__error">{error}</p> : null}
 
           {pendingOrgs.length > 0 ? (
@@ -202,7 +207,7 @@ export default function PlatformOrgsPage() {
           <p>
             <Link href="/platform">← Overview</Link>
           </p>
-        </PlatformShell>
+        </AdminShell>
       </main>
     </div>
   );

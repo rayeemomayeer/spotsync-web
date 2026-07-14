@@ -63,6 +63,7 @@ describe("primaryNavLinks", () => {
   it("shows role homes for signed-in users", () => {
     expect(primaryNavLinks("saas_admin").some((l) => l.href === "/platform")).toBe(true);
     expect(primaryNavLinks("org_admin").some((l) => l.href === "/org")).toBe(true);
+    expect(primaryNavLinks("org_admin").some((l) => l.href === "/org/members")).toBe(true);
     expect(primaryNavLinks("driver").some((l) => l.href === "/driver")).toBe(true);
   });
 });

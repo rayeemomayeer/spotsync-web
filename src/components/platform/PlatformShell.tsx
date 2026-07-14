@@ -4,20 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isPlatformAdmin } from "@/lib/auth/roles";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { AdminShell, PLATFORM_NAV } from "@/components/dashboard/AdminShell";
 
-const links = [
-  { href: "/platform", label: "Overview" },
-  { href: "/platform/orgs", label: "Organizations" },
-  { href: "/platform/audit", label: "Audit" },
-  { href: "/platform/health", label: "Health" },
-  { href: "/platform/billing", label: "Billing" },
-];
-
+/** @deprecated Prefer AdminShell + PLATFORM_NAV directly. */
 export function PlatformNav() {
   const pathname = usePathname();
   return (
     <nav className="platform-nav" aria-label="Platform">
-      {links.map((l) => (
+      {PLATFORM_NAV.map((l) => (
         <Link
           key={l.href}
           href={l.href}
@@ -57,9 +51,9 @@ export function PlatformShell({
 }) {
   return (
     <PlatformGate>
-      <PlatformNav />
-      <h1 className="page-surface__title">{title}</h1>
-      {children}
+      <AdminShell title={title} nav={PLATFORM_NAV} eyebrow="Platform">
+        {children}
+      </AdminShell>
     </PlatformGate>
   );
 }

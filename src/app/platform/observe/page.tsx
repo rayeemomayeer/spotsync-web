@@ -2,23 +2,20 @@
 
 import { AppHeader } from "@/components/AppHeader";
 import { AdminShell, PLATFORM_NAV } from "@/components/dashboard/AdminShell";
-import { AuditTrail } from "@/components/dashboard/AuditTrail";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { ObserveBoard } from "@/components/dashboard/ObserveBoard";
 
-export default function PlatformAuditPage() {
-  const { token } = useAuth();
-
+export default function PlatformObservePage() {
   return (
     <div className="shell">
-      <AppHeader tag="Audit" />
+      <AppHeader tag="Observe" />
       <main className="shell-main shell-main--wide">
         <AdminShell
           eyebrow="Platform"
-          title="Audit"
-          subtitle="Cross-org mutation trail."
+          title="Observe"
+          subtitle="Health probes, cold-start signals, Grafana observability."
           nav={PLATFORM_NAV}
         >
-          <AuditTrail token={token} />
+          <ObserveBoard showGrafana />
         </AdminShell>
       </main>
     </div>

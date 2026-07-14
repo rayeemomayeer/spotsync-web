@@ -80,17 +80,17 @@ export function primaryNavLinks(role: string | undefined | null): NavLink[] {
     return [
       { href: "/platform", label: "Platform" },
       { href: "/platform/orgs", label: "Orgs" },
-      { href: "/platform/health", label: "Health" },
-      { href: "/search", label: "Search" },
+      { href: "/platform/observe", label: "Observe" },
+      { href: "/platform/zones", label: "Zones" },
     ];
   }
 
   if (n === "org_admin") {
     return [
       { href: "/org", label: "Org" },
-      { href: "/org/billing", label: "Billing" },
-      { href: "/console", label: "Console" },
-      { href: "/search", label: "Search" },
+      { href: "/org/zones", label: "Zones" },
+      { href: "/org/members", label: "Members" },
+      { href: "/org/observe", label: "Observe" },
     ];
   }
 
