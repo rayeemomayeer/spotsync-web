@@ -58,7 +58,9 @@ function OrgBillingInner() {
         data?: { url?: string };
       };
       if (!res.ok || !json.success || !json.data?.url) {
-        throw new Error(json.errors?.stripe ?? json.message ?? "Checkout failed");
+        throw new Error(
+          json.errors?.plan ?? json.errors?.stripe ?? json.message ?? "Checkout failed",
+        );
       }
       window.location.href = json.data.url;
     } catch (e) {
@@ -159,6 +161,12 @@ function OrgBillingInner() {
                 approve first.
               </p>
             ) : null}
+            {org?.billing_plan ? (
+              <p className="dash-table__meta">
+                Same-plan re-checkout blocked. Use portal to cancel or change seats; pick the other
+                plan to upgrade/downgrade via Checkout.
+              </p>
+            ) : null}
             <ul className="receipt-list">
               <li className="receipt-card">
                 <div className="receipt-card__head">
@@ -169,10 +177,19 @@ function OrgBillingInner() {
                 <button
                   type="button"
                   className="console-btn console-btn--primary console-btn--pill"
-                  disabled={!stripeEnabled || !canSubscribe || busy != null}
+                  disabled={
+                    !stripeEnabled ||
+                    !canSubscribe ||
+                    busy != null ||
+                    org?.billing_plan === "starter"
+                  }
                   onClick={() => void startCheckout("starter")}
                 >
-                  {busy === "starter" ? "Redirecting…" : "Subscribe (test)"}
+                  {busy === "starter"
+                    ? "Redirecting…"
+                    : org?.billing_plan === "starter"
+                      ? "Already on Starter"
+                      : "Subscribe (test)"}
                 </button>
               </li>
               <li className="receipt-card">
@@ -184,10 +201,19 @@ function OrgBillingInner() {
                 <button
                   type="button"
                   className="console-btn console-btn--primary console-btn--pill"
-                  disabled={!stripeEnabled || !canSubscribe || busy != null}
+                  disabled={
+                    !stripeEnabled ||
+                    !canSubscribe ||
+                    busy != null ||
+                    org?.billing_plan === "growth"
+                  }
                   onClick={() => void startCheckout("growth")}
                 >
-                  {busy === "growth" ? "Redirecting…" : "Subscribe (test)"}
+                  {busy === "growth"
+                    ? "Redirecting…"
+                    : org?.billing_plan === "growth"
+                      ? "Already on Growth"
+                      : "Subscribe (test)"}
                 </button>
               </li>
             </ul>

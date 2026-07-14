@@ -54,7 +54,12 @@ export default function OrgOverviewPage() {
 
   const capacity = zones.reduce((s, z) => s + z.total_capacity, 0);
   const available = zones.reduce((s, z) => s + z.available_spots, 0);
-  const reservations = resQuery.data?.items ?? [];
+  const zoneIds = useMemo(() => new Set(zones.map((z) => z.id)), [zones]);
+  // Scope to this org's zones — ListAll is network-wide for admins.
+  const reservations = useMemo(
+    () => (resQuery.data?.items ?? []).filter((r) => zoneIds.has(r.zone_id)),
+    [resQuery.data?.items, zoneIds],
+  );
   const active = reservations.filter((r) => r.status === "active").length;
   const spark = bucketByHour(reservations.map((r) => r.created_at));
 
