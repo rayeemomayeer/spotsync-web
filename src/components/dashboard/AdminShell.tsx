@@ -172,8 +172,7 @@ export const PLATFORM_NAV: AdminNavItem[] = [
   { href: "/platform/orgs", label: "Organizations", hint: "Approve" },
   { href: "/platform/users", label: "Users", hint: "Accounts" },
   { href: "/platform/zones", label: "Zones", hint: "Create" },
-  { href: "/platform/observe", label: "Observe", hint: "Health" },
-  { href: "/platform/grafana", label: "Grafana", hint: "Metrics" },
+  { href: "/platform/observe", label: "Observe", hint: "Health + metrics" },
   { href: "/platform/audit", label: "Audit", hint: "Trail" },
   { href: "/platform/billing", label: "Billing", hint: "Stripe test" },
 ];
@@ -182,7 +181,7 @@ export const ORG_NAV: AdminNavItem[] = [
   { href: "/org", label: "Overview", hint: "Capacity" },
   { href: "/org/zones", label: "Zones", hint: "Create" },
   { href: "/org/members", label: "Members", hint: "Users" },
-  { href: "/org/observe", label: "Observe", hint: "Health" },
+  { href: "/org/observe", label: "Observe", hint: "Org metrics" },
   { href: "/org/audit", label: "Audit", hint: "Trail" },
   { href: "/org/billing", label: "Billing", hint: "Plan" },
 ];

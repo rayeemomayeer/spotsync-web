@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -10,14 +12,26 @@ import { formatCents } from "@/lib/checkout/client";
 import { getToken } from "@/lib/auth/session";
 
 export default function AccountPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
   const token = getToken();
+  const [signingOut, setSigningOut] = useState(false);
 
   const paymentsQuery = useQuery({
     queryKey: ["my-payments"],
     queryFn: () => api.myPayments(token ?? ""),
     enabled: !!user && !!token,
   });
+
+  async function onSignOut() {
+    setSigningOut(true);
+    try {
+      await logout();
+      router.replace("/login");
+    } finally {
+      setSigningOut(false);
+    }
+  }
 
   return (
     <div className="shell">
@@ -41,6 +55,14 @@ export default function AccountPage() {
                 <br />
                 Role: <Badge tone="muted">{user.role}</Badge>
               </p>
+              <button
+                type="button"
+                className="console-btn console-btn--ghost console-btn--pill"
+                disabled={signingOut}
+                onClick={() => void onSignOut()}
+              >
+                {signingOut ? "Signing out…" : "Sign out"}
+              </button>
             </section>
 
             <section className="account-section">

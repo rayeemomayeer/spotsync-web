@@ -111,8 +111,11 @@ export default function OrgOverviewPage() {
             <Link href="/org/members" className="console-btn console-btn--ghost console-btn--pill">
               Members
             </Link>
-            <Link href="/console" className="console-btn console-btn--ghost console-btn--pill">
-              Live console
+            <Link href="/org/observe" className="console-btn console-btn--ghost console-btn--pill">
+              Observe
+            </Link>
+            <Link href="/org/billing" className="console-btn console-btn--ghost console-btn--pill">
+              Billing
             </Link>
           </div>
         </AdminShell>

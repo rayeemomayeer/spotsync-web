@@ -67,7 +67,7 @@ export function StackPulse() {
         </h2>
         <p className="stack-pulse__lede">
           Live probes against the Go reservation engine and Express BFF — same checks platform
-          admins see on <code>/platform/health</code>.
+          admins see on <code>/platform/observe</code>.
         </p>
       </div>
 

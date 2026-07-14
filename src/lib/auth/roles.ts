@@ -9,7 +9,7 @@ export type NavLink = {
 const PROTECTED_ROUTES: { prefix: string; roles: AppRole[] }[] = [
   { prefix: "/platform", roles: ["saas_admin"] },
   { prefix: "/org", roles: ["org_admin", "saas_admin"] },
-  { prefix: "/console", roles: ["driver", "org_admin", "saas_admin"] },
+  { prefix: "/console", roles: ["driver", "saas_admin"] },
   { prefix: "/driver", roles: ["driver", "org_admin", "saas_admin"] },
   { prefix: "/reservations", roles: ["driver", "org_admin", "saas_admin"] },
   { prefix: "/account", roles: ["driver", "org_admin", "saas_admin"] },
@@ -99,8 +99,8 @@ export function primaryNavLinks(role: string | undefined | null): NavLink[] {
     return [
       { href: "/platform", label: "Platform" },
       { href: "/platform/orgs", label: "Orgs" },
+      { href: "/platform/users", label: "Users" },
       { href: "/platform/observe", label: "Observe" },
-      { href: "/platform/grafana", label: "Grafana" },
       { href: "/platform/zones", label: "Zones" },
     ];
   }

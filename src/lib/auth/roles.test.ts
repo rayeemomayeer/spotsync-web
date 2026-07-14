@@ -66,6 +66,12 @@ describe("canAccessPath", () => {
     expect(canAccessPath("driver", "/org")).toBe(false);
   });
 
+  it("gates console away from org_admin", () => {
+    expect(canAccessPath("org_admin", "/console")).toBe(false);
+    expect(canAccessPath("driver", "/console")).toBe(true);
+    expect(canAccessPath("saas_admin", "/console")).toBe(true);
+  });
+
   it("requires auth for driver surfaces", () => {
     expect(canAccessPath(null, "/driver")).toBe(false);
     expect(canAccessPath("driver", "/reservations")).toBe(true);
@@ -75,6 +81,8 @@ describe("canAccessPath", () => {
 describe("primaryNavLinks", () => {
   it("shows role homes for signed-in users", () => {
     expect(primaryNavLinks("saas_admin").some((l) => l.href === "/platform")).toBe(true);
+    expect(primaryNavLinks("saas_admin").some((l) => l.href === "/platform/users")).toBe(true);
+    expect(primaryNavLinks("saas_admin").every((l) => l.href !== "/platform/grafana")).toBe(true);
     expect(primaryNavLinks("org_admin").some((l) => l.href === "/org")).toBe(true);
     expect(primaryNavLinks("org_admin").some((l) => l.href === "/org/members")).toBe(true);
     expect(primaryNavLinks("driver").some((l) => l.href === "/driver")).toBe(true);

@@ -14,6 +14,27 @@ import { StatGrid } from "@/components/dashboard/StatGrid";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api } from "@/lib/api/client";
 import { formatCents } from "@/lib/checkout/client";
+import { getBffUrl } from "@/lib/auth/client";
+
+async function fetchStripeMrr(): Promise<{
+  mrr_cents: number;
+  subscription_count: number;
+  source: string;
+}> {
+  const res = await fetch(`${getBffUrl()}/api/stripe/mrr`, {
+    credentials: "include",
+    cache: "no-store",
+  });
+  const json = (await res.json()) as {
+    success?: boolean;
+    message?: string;
+    data?: { mrr_cents: number; subscription_count: number; source: string };
+  };
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error(json.message ?? "MRR unavailable");
+  }
+  return json.data;
+}
 
 export default function PlatformOverviewPage() {
   const { user, token } = useAuth();
@@ -33,6 +54,12 @@ export default function PlatformOverviewPage() {
     queryFn: () => api.allReservations(token ?? "", 1, 100),
     enabled: !!user,
   });
+  const mrrQuery = useQuery({
+    queryKey: ["stripe-mrr"],
+    queryFn: fetchStripeMrr,
+    enabled: !!user,
+    retry: 1,
+  });
 
   const orgs = orgsQuery.data ?? [];
   const pending = orgs.filter((o) => o.status === "pending").length;
@@ -42,12 +69,18 @@ export default function PlatformOverviewPage() {
   const activeRes = reservations.filter((r) => r.status === "active").length;
   const capacity = zones.reduce((s, z) => s + z.total_capacity, 0);
   const available = zones.reduce((s, z) => s + z.available_spots, 0);
-  const testMrrCents = orgs.reduce((sum, o) => {
-    if (o.billing_plan === "growth") return sum + 14900;
-    if (o.billing_plan === "starter") return sum + 4900;
-    return sum;
-  }, 0);
   const spark = bucketByHour(reservations.map((r) => r.created_at));
+
+  const mrrLabel = mrrQuery.isLoading
+    ? "…"
+    : mrrQuery.isError
+      ? "—"
+      : formatCents(mrrQuery.data?.mrr_cents ?? 0);
+  const mrrHint = mrrQuery.data
+    ? `${mrrQuery.data.subscription_count} Stripe sub${mrrQuery.data.subscription_count === 1 ? "" : "s"}`
+    : mrrQuery.isError
+      ? "Stripe"
+      : "live";
 
   const statusBars = [
     { name: "Active orgs", capacity: Math.max(orgs.length, 1), available: orgs.filter((o) => o.status === "active").length },
@@ -72,7 +105,7 @@ export default function PlatformOverviewPage() {
               { label: "Subscribed", value: subscribed, tone: "success" },
               { label: "Zones", value: zones.length },
               { label: "Active reservations", value: activeRes },
-              { label: "Test MRR", value: formatCents(testMrrCents), hint: "demo" },
+              { label: "MRR", value: mrrLabel, hint: mrrHint, tone: "success" },
             ]}
           />
 
@@ -107,14 +140,14 @@ export default function PlatformOverviewPage() {
                 Organizations
               </Link>
             )}
+            <Link href="/platform/users" className="console-btn console-btn--ghost console-btn--pill">
+              Users
+            </Link>
             <Link href="/platform/zones" className="console-btn console-btn--ghost console-btn--pill">
               Create zone
             </Link>
             <Link href="/platform/observe" className="console-btn console-btn--ghost console-btn--pill">
-              Observe stack
-            </Link>
-            <Link href="/platform/grafana" className="console-btn console-btn--ghost console-btn--pill">
-              Grafana metrics
+              Observe
             </Link>
             <Link href="/console" className="console-btn console-btn--ghost console-btn--pill">
               Console
