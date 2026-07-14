@@ -17,18 +17,12 @@ import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { PriceBreakdown } from "@/components/checkout/PriceBreakdown";
 import { isFeatureEnabled } from "@/lib/config/flags";
 import { getToken, isDemoModeActive } from "@/lib/auth/session";
+import { toast } from "@/lib/toast";
+import { AppPageLoader } from "@/components/ui/AppPageLoader";
 
 export default function BookZonePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="shell">
-          <main className="shell-main">
-            <p>Loading…</p>
-          </main>
-        </div>
-      }
-    >
+    <Suspense fallback={<AppPageLoader label="Loading checkout" />}>
       <BookZoneInner />
     </Suspense>
   );
@@ -91,7 +85,9 @@ function BookZoneInner() {
       });
       window.location.assign(session.url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Checkout failed");
+      const msg = e instanceof Error ? e.message : "Checkout failed";
+      setError(msg);
+      toast.error("Checkout failed", msg);
       setBusy(false);
     }
   }
@@ -106,9 +102,12 @@ function BookZoneInner() {
         license_plate: plate.trim(),
         spot_id: spotId,
       });
+      toast.success("Booking confirmed");
       await onPaid();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Demo booking failed");
+      const msg = e instanceof Error ? e.message : "Demo booking failed";
+      setError(msg);
+      toast.error("Booking failed", msg);
       setBusy(false);
     }
   }

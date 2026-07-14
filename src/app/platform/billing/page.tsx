@@ -11,6 +11,8 @@ import type { Organization } from "@/lib/api/types";
 import { isPlatformAdmin } from "@/lib/auth/roles";
 import { getBffUrl } from "@/lib/auth/client";
 import { isFeatureEnabled } from "@/lib/config/flags";
+import { toast } from "@/lib/toast";
+import { AppPageLoader } from "@/components/ui/AppPageLoader";
 
 function BillingInner() {
   const { user, token, loading } = useAuth();
@@ -36,6 +38,11 @@ function BillingInner() {
   useEffect(() => {
     void loadOrgs();
   }, [loadOrgs]);
+
+  useEffect(() => {
+    if (checkoutState === "success") toast.success("Subscription updated");
+    if (checkoutState === "cancel") toast.info("Checkout cancelled");
+  }, [checkoutState]);
 
   const selected = useMemo(
     () => (orgId === "" ? null : orgs.find((o) => o.id === orgId) ?? null),
@@ -67,9 +74,12 @@ function BillingInner() {
           json.errors?.plan ?? json.errors?.organization_id ?? json.errors?.stripe ?? json.message ?? "Checkout failed",
         );
       }
+      toast.info("Redirecting to Stripe…");
       window.location.href = json.data.url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Checkout failed");
+      const msg = e instanceof Error ? e.message : "Checkout failed";
+      setError(msg);
+      toast.error("Checkout failed", msg);
       setBusy(null);
     }
   }
@@ -97,9 +107,12 @@ function BillingInner() {
       if (!res.ok || !json.success || !json.data?.url) {
         throw new Error(json.errors?.stripe ?? json.message ?? "Portal failed");
       }
+      toast.info("Opening billing portal…");
       window.location.href = json.data.url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Portal failed");
+      const msg = e instanceof Error ? e.message : "Portal failed";
+      setError(msg);
+      toast.error("Portal failed", msg);
       setBusy(null);
     }
   }
@@ -235,15 +248,7 @@ function BillingInner() {
 /** Stripe test-mode billing surface (portfolio). Checkout via BFF when prices configured. */
 export default function BillingPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="shell">
-          <main className="shell-main">
-            <p>Loading…</p>
-          </main>
-        </div>
-      }
-    >
+    <Suspense fallback={<AppPageLoader label="Loading billing" />}>
       <BillingInner />
     </Suspense>
   );

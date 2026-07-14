@@ -9,6 +9,7 @@ import { AdminShell, PLATFORM_NAV } from "@/components/dashboard/AdminShell";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api, ApiError } from "@/lib/api/client";
 import type { Organization } from "@/lib/api/types";
+import { toast } from "@/lib/toast";
 
 export default function PlatformOrgsPage() {
   const { token } = useAuth();
@@ -44,8 +45,11 @@ export default function PlatformOrgsPage() {
       setName("");
       setSlug("");
       await load();
+      toast.success("Organization created", name.trim());
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Create failed");
+      const msg = err instanceof ApiError ? err.message : "Create failed";
+      setError(msg);
+      toast.error("Create failed", msg);
     } finally {
       setBusy(false);
     }
@@ -56,8 +60,11 @@ export default function PlatformOrgsPage() {
     try {
       await api.approveOrg(token, org.id);
       await load();
+      toast.success("Organization approved", org.name);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Approve failed");
+      const msg = err instanceof ApiError ? err.message : "Approve failed";
+      setError(msg);
+      toast.error("Approve failed", msg);
     } finally {
       setBusy(false);
     }
@@ -68,8 +75,11 @@ export default function PlatformOrgsPage() {
     try {
       await api.rejectOrg(token, org.id);
       await load();
+      toast.info("Organization rejected", org.name);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Reject failed");
+      const msg = err instanceof ApiError ? err.message : "Reject failed";
+      setError(msg);
+      toast.error("Reject failed", msg);
     } finally {
       setBusy(false);
     }
@@ -82,8 +92,11 @@ export default function PlatformOrgsPage() {
     try {
       await api.setOrgStatus(token, org.id, next);
       await load();
+      toast.success(next === "active" ? "Organization activated" : "Organization suspended", org.name);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Status update failed");
+      const msg = err instanceof ApiError ? err.message : "Status update failed";
+      setError(msg);
+      toast.error("Status update failed", msg);
     } finally {
       setBusy(false);
     }

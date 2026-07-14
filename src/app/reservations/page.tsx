@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +11,8 @@ import { api, ApiError } from "@/lib/api/client";
 import { refundPayment } from "@/lib/checkout/client";
 import { isFeatureEnabled } from "@/lib/config/flags";
 import { getToken } from "@/lib/auth/session";
+import { toast } from "@/lib/toast";
+import { AppPageLoader } from "@/components/ui/AppPageLoader";
 
 function paymentChip(status?: string | null) {
   if (!status) return <Badge tone="muted">unpaid</Badge>;
@@ -29,6 +31,11 @@ function ReservationsInner() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (booked === "1") toast.success("Reservation confirmed");
+    if (booked === "pending") toast.info("Confirming reservation…");
+  }, [booked]);
+
   const { data: reservations = [], isLoading } = useQuery({
     queryKey: ["my-reservations"],
     queryFn: () => api.myReservations(authToken ?? ""),
@@ -43,8 +50,11 @@ function ReservationsInner() {
         try {
           await api.cancelReservation(authToken ?? "", reservationId);
           await qc.invalidateQueries({ queryKey: ["my-reservations"] });
+          toast.success("Reservation cancelled");
         } catch (e) {
-          setError(e instanceof ApiError ? e.message : "Cancel failed");
+          const msg = e instanceof ApiError ? e.message : "Cancel failed";
+          setError(msg);
+          toast.error("Cancel failed", msg);
         } finally {
           setBusyId(null);
         }
@@ -56,8 +66,11 @@ function ReservationsInner() {
       try {
         await refundPayment(paymentId);
         await qc.invalidateQueries({ queryKey: ["my-reservations"] });
+        toast.success("Refunded & cancelled");
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Refund failed");
+        const msg = e instanceof Error ? e.message : "Refund failed";
+        setError(msg);
+        toast.error("Refund failed", msg);
       } finally {
         setBusyId(null);
       }
@@ -130,15 +143,7 @@ function ReservationsInner() {
 
 export default function ReservationsPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="shell">
-          <main className="shell-main">
-            <p>Loading…</p>
-          </main>
-        </div>
-      }
-    >
+    <Suspense fallback={<AppPageLoader label="Loading reservations" />}>
       <ReservationsInner />
     </Suspense>
   );

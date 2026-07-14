@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { api, ApiError } from "@/lib/api/client";
+import { toast } from "@/lib/toast";
 
 export function MembersManager({
   orgId,
@@ -25,20 +26,31 @@ export function MembersManager({
 
   const assign = useMutation({
     mutationFn: () => api.assignOrgMember(token, orgId, email.trim()),
-    onSuccess: async () => {
+    onSuccess: async (_data, _vars, _ctx) => {
+      const added = email.trim();
       setEmail("");
       setError("");
       await qc.invalidateQueries({ queryKey: ["org-members", orgId] });
+      toast.success("Member added", added);
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Assign failed"),
+    onError: (e) => {
+      const msg = e instanceof ApiError ? e.message : "Assign failed";
+      setError(msg);
+      toast.error("Add member failed", msg);
+    },
   });
 
   const remove = useMutation({
     mutationFn: (userId: number) => api.removeOrgMember(token, orgId, userId),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["org-members", orgId] });
+      toast.success("Member removed");
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Remove failed"),
+    onError: (e) => {
+      const msg = e instanceof ApiError ? e.message : "Remove failed";
+      setError(msg);
+      toast.error("Remove member failed", msg);
+    },
   });
 
   function onSubmit(e: FormEvent) {

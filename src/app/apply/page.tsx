@@ -10,6 +10,7 @@ import { api } from "@/lib/api/client";
 import { getBffUrl } from "@/lib/auth/client";
 import { clearToken } from "@/lib/auth/session";
 import { homePathForRole, isOrgAdmin, isPlatformAdmin } from "@/lib/auth/roles";
+import { toast } from "@/lib/toast";
 
 function slugify(name: string): string {
   return name
@@ -84,9 +85,12 @@ export default function ApplyOrgPage() {
       clearToken();
       await refresh();
       setDone(true);
+      toast.success("Application submitted", "Pending platform approval");
       router.replace("/org");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Application failed");
+      const msg = err instanceof Error ? err.message : "Application failed";
+      setError(msg);
+      toast.error("Application failed", msg);
       setBusy(false);
     }
   }

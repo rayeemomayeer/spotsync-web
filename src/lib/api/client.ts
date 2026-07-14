@@ -55,7 +55,7 @@ export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Pr
   const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;
 
   if (res.status === 401) {
-    notifyUnauthorized();
+    notifyUnauthorized({ hadBearer: Boolean(opts.token) });
   }
 
   if (!res.ok || !json.success) {
@@ -86,7 +86,7 @@ async function apiRequestPaginated<T>(
   });
   const json = (await res.json()) as SuccessEnvelope<T> | ErrorEnvelope;
   if (res.status === 401) {
-    notifyUnauthorized();
+    notifyUnauthorized({ hadBearer: Boolean(token) });
   }
   if (!res.ok || !json.success) {
     const err = json as ErrorEnvelope;

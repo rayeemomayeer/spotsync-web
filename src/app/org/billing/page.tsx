@@ -13,6 +13,8 @@ import { getBffUrl } from "@/lib/auth/client";
 import { isFeatureEnabled, usesHostedCheckout } from "@/lib/config/flags";
 import { EntitlementBanner } from "@/components/dashboard/EntitlementBanner";
 import { orgEntitlement } from "@/lib/org/entitlement";
+import { toast } from "@/lib/toast";
+import { AppPageLoader } from "@/components/ui/AppPageLoader";
 
 function OrgBillingInner() {
   const { user, token, loading } = useAuth();
@@ -41,6 +43,11 @@ function OrgBillingInner() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (checkoutState === "success") toast.success("Subscription updated");
+    if (checkoutState === "cancel") toast.info("Checkout cancelled");
+  }, [checkoutState]);
+
   async function startCheckout(plan: "starter" | "growth") {
     setBusy(plan);
     setError("");
@@ -62,9 +69,12 @@ function OrgBillingInner() {
           json.errors?.plan ?? json.errors?.stripe ?? json.message ?? "Checkout failed",
         );
       }
+      toast.info("Redirecting to Stripe…");
       window.location.href = json.data.url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Checkout failed");
+      const msg = e instanceof Error ? e.message : "Checkout failed";
+      setError(msg);
+      toast.error("Checkout failed", msg);
       setBusy(null);
     }
   }
@@ -87,9 +97,12 @@ function OrgBillingInner() {
       if (!res.ok || !json.success || !json.data?.url) {
         throw new Error(json.message ?? "Portal failed");
       }
+      toast.info("Opening billing portal…");
       window.location.href = json.data.url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Portal failed");
+      const msg = e instanceof Error ? e.message : "Portal failed";
+      setError(msg);
+      toast.error("Portal failed", msg);
       setBusy(null);
     }
   }
@@ -240,15 +253,7 @@ function OrgBillingInner() {
 
 export default function OrgBillingPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="shell">
-          <main className="shell-main">
-            <p>Loading…</p>
-          </main>
-        </div>
-      }
-    >
+    <Suspense fallback={<AppPageLoader label="Loading billing" />}>
       <OrgBillingInner />
     </Suspense>
   );

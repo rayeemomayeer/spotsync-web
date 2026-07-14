@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type { Reservation, Spot, Zone } from "@/lib/api/types";
+import { toast } from "@/lib/toast";
 
 type Tab = "reservations" | "spots" | "admin";
 
@@ -97,9 +98,17 @@ export function AdminSlideOver({
                     type="button"
                     className="console-btn console-btn--danger-text"
                     onClick={async () => {
-                      await api.cancelReservation(token, r.id);
-                      onCancel?.(r);
-                      onRefresh();
+                      try {
+                        await api.cancelReservation(token, r.id);
+                        onCancel?.(r);
+                        onRefresh();
+                        toast.success("Reservation cancelled");
+                      } catch (e) {
+                        toast.error(
+                          "Cancel failed",
+                          e instanceof Error ? e.message : undefined,
+                        );
+                      }
                     }}
                   >
                     Cancel

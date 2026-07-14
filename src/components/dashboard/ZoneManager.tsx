@@ -9,6 +9,7 @@ import { EntitlementBanner } from "@/components/dashboard/EntitlementBanner";
 import { api, ApiError } from "@/lib/api/client";
 import type { Organization, Zone } from "@/lib/api/types";
 import { isEntitlementApiError, orgEntitlement } from "@/lib/org/entitlement";
+import { toast } from "@/lib/toast";
 
 const ZONE_TYPES = [
   { value: "general", label: "General" },
@@ -83,8 +84,13 @@ export function ZoneManager({
       setName("");
       setError("");
       await qc.invalidateQueries({ queryKey: ["admin-zones"] });
+      toast.success("Zone created");
     },
-    onError: (e) => setError(mapMutationError(e, "Create failed")),
+    onError: (e) => {
+      const msg = mapMutationError(e, "Create failed");
+      setError(msg);
+      toast.error("Zone create failed", msg);
+    },
   });
 
   const update = useMutation({
@@ -102,16 +108,26 @@ export function ZoneManager({
       setName("");
       setError("");
       await qc.invalidateQueries({ queryKey: ["admin-zones"] });
+      toast.success("Zone updated");
     },
-    onError: (e) => setError(mapMutationError(e, "Update failed")),
+    onError: (e) => {
+      const msg = mapMutationError(e, "Update failed");
+      setError(msg);
+      toast.error("Zone update failed", msg);
+    },
   });
 
   const remove = useMutation({
     mutationFn: (id: number) => api.deleteZone(token, id),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["admin-zones"] });
+      toast.success("Zone deleted");
     },
-    onError: (e) => setError(mapMutationError(e, "Delete failed")),
+    onError: (e) => {
+      const msg = mapMutationError(e, "Delete failed");
+      setError(msg);
+      toast.error("Zone delete failed", msg);
+    },
   });
 
   function startEdit(z: Zone) {

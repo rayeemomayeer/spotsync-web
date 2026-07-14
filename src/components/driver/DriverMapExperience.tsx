@@ -57,9 +57,9 @@ export function DriverMapExperience() {
   const { displaySpots, showSkeleton: showSpotSkeleton } = useZoneSpots(activeZone, apiOnline);
 
   const { data: myReservations = [] } = useQuery({
-    queryKey: ["my-reservations"],
+    queryKey: ["my-reservations", authToken ?? "anon"],
     queryFn: () => api.myReservations(authToken ?? ""),
-    enabled: isAuthed,
+    enabled: isAuthed && !!authToken,
   });
 
   const defaultSpot = useMemo(() => nextAvailableSpot(displaySpots), [displaySpots]);

@@ -82,7 +82,7 @@ export function LiveConsole() {
   const { data: myReservations = [] } = useQuery({
     queryKey: ["my-reservations"],
     queryFn: () => api.myReservations(authToken ?? ""),
-    enabled: isAuthed,
+    enabled: isAuthed && !!authToken,
   });
 
   const ownedSpotIds = useMemo(() => {

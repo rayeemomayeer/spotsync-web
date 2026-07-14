@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api } from "@/lib/api/client";
@@ -18,8 +18,16 @@ export function NotificationBell() {
     queryKey: ["notifications"],
     queryFn: () => api.notifications(token ?? ""),
     enabled: !!user && !!token,
-    refetchInterval: 30_000,
+    refetchInterval: 15_000,
   });
+
+  useEffect(() => {
+    const onToast = () => {
+      void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    };
+    window.addEventListener("spotsync:toast", onToast);
+    return () => window.removeEventListener("spotsync:toast", onToast);
+  }, [queryClient]);
 
   const markRead = useMutation({
     mutationFn: (id: number) => api.markNotificationRead(token ?? "", id),

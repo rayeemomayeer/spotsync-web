@@ -8,6 +8,8 @@ import { DemoModeProvider } from "@/components/providers/DemoModeProvider";
 import { SoftWarm } from "@/components/providers/SoftWarm";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ObservabilityProvider } from "@/components/providers/ObservabilityProvider";
+import { ToastProvider } from "@/components/providers/ToastProvider";
+import { NavigationProgress } from "@/components/providers/NavigationProgress";
 import { siteConfig } from "@/lib/seo/site";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -69,12 +71,15 @@ export default function RootLayout({
         <ThemeProvider>
           <ObservabilityProvider>
             <QueryProvider>
-              <AuthProvider>
-                <DemoModeProvider>
-                  <SoftWarm />
-                  {children}
-                </DemoModeProvider>
-              </AuthProvider>
+              <ToastProvider>
+                <AuthProvider>
+                  <DemoModeProvider>
+                    <SoftWarm />
+                    <NavigationProgress />
+                    {children}
+                  </DemoModeProvider>
+                </AuthProvider>
+              </ToastProvider>
             </QueryProvider>
           </ObservabilityProvider>
         </ThemeProvider>

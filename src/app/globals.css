@@ -4948,3 +4948,198 @@ html.dark .zone-detail-hero__media {
   }
 }
 
+/* ── Page loader + nav progress + instant toasts ── */
+.app-loader {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.65rem;
+  min-height: min(70vh, 28rem);
+  padding: 2.5rem 1.25rem;
+}
+
+.app-loader__mark {
+  position: relative;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--color-brand) 88%, #fff), var(--color-brand));
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--color-brand) 28%, transparent);
+}
+
+.app-loader__pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 1.15rem;
+  border: 2px solid color-mix(in srgb, var(--color-brand) 45%, transparent);
+  opacity: 0.55;
+}
+
+.app-loader__brand {
+  margin: 0;
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.app-loader__bar {
+  position: relative;
+  width: min(12rem, 70vw);
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+.app-loader__bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-brand),
+    color-mix(in srgb, var(--color-brand) 40%, #fff),
+    transparent
+  );
+}
+
+.app-loader__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.nav-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-brand) 40%, transparent),
+    var(--color-brand),
+    color-mix(in srgb, var(--color-brand) 55%, #fff)
+  );
+  transition: opacity 0.18s ease, transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-progress--active {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.app-toast-host {
+  position: fixed;
+  z-index: 220;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(22rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.app-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--ink);
+  box-shadow: 0 12px 36px rgba(12, 18, 28, 0.14);
+  backdrop-filter: blur(10px);
+}
+
+.app-toast--success {
+  border-color: color-mix(in srgb, #1f9d55 35%, var(--border));
+  box-shadow:
+    0 12px 36px rgba(12, 18, 28, 0.12),
+    inset 3px 0 0 #1f9d55;
+}
+
+.app-toast--error {
+  border-color: color-mix(in srgb, #d64545 40%, var(--border));
+  box-shadow:
+    0 12px 36px rgba(12, 18, 28, 0.12),
+    inset 3px 0 0 #d64545;
+}
+
+.app-toast--info {
+  border-color: color-mix(in srgb, var(--color-brand) 40%, var(--border));
+  box-shadow:
+    0 12px 36px rgba(12, 18, 28, 0.12),
+    inset 3px 0 0 var(--color-brand);
+}
+
+.app-toast__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-toast__title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.app-toast__desc {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.app-toast__close {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.app-toast__close:hover {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  color: var(--ink);
+}
+
+html.dark .app-toast {
+  background: color-mix(in srgb, var(--surface) 88%, #000);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loader__mark,
+  .app-loader__bar-fill,
+  .nav-progress {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .nav-progress--active {
+    transform: scaleX(1);
+  }
+}
+
