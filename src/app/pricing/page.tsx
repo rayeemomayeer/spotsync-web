@@ -6,7 +6,7 @@ import { PricingSlider } from "@/components/marketing/PricingSlider";
 import { siteConfig } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: `Pricing — ${siteConfig.name}`,
+  title: "Pricing",
   description: "SpotSync org subscriptions: scale zones with an interactive plan slider (Stripe test mode).",
 };
 

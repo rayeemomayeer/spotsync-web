@@ -5,7 +5,7 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { siteConfig } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: `How it works — ${siteConfig.name}`,
+  title: "How it works",
   description: "Learn how SpotSync connects drivers and parking operators with live availability and pay-then-reserve.",
 };
 

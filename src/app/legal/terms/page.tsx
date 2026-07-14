@@ -5,7 +5,7 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { siteConfig } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: `Terms of Service — ${siteConfig.name}`,
+  title: "Terms of Service",
   description: "SpotSync terms of service for the portfolio demonstration.",
 };
 

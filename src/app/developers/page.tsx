@@ -5,7 +5,7 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { siteConfig } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: `Developers — ${siteConfig.name}`,
+  title: "Developers",
   description: "SpotSync API documentation, OpenAPI spec, and integration surface.",
 };
 

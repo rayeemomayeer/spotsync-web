@@ -5,7 +5,7 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { siteConfig } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: `Privacy Policy — ${siteConfig.name}`,
+  title: "Privacy Policy",
   description: "SpotSync privacy policy for the portfolio demonstration.",
 };
 
