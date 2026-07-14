@@ -52,6 +52,7 @@ export function LiveConsole() {
 
   const debouncedSearch = useDebounce(zoneSearch, 300);
   const authToken = token ?? getToken();
+  const isAuthed = !!user || !!authToken;
 
   const zonesQuery = useZones(debouncedSearch, typeFilter);
   const zonesResult = zonesOrOffline(zonesQuery.data, zonesQuery.isError && !zonesQuery.isFetching);
@@ -80,8 +81,8 @@ export function LiveConsole() {
 
   const { data: myReservations = [] } = useQuery({
     queryKey: ["my-reservations"],
-    queryFn: () => api.myReservations(authToken!),
-    enabled: !!authToken,
+    queryFn: () => api.myReservations(authToken ?? ""),
+    enabled: isAuthed,
   });
 
   const ownedSpotIds = useMemo(() => {
@@ -172,8 +173,7 @@ export function LiveConsole() {
   };
 
   const ensureAuth = async (): Promise<string | null> => {
-    const existing = token ?? getToken();
-    if (existing) return existing;
+    if (isAuthed) return token ?? getToken() ?? "";
     if (DEMO_MODE) {
       try {
         const { email, password } = DEMO_CREDENTIALS.driver;
@@ -348,7 +348,7 @@ export function LiveConsole() {
         type="button"
         className="console-btn console-btn--secondary console-btn--full"
         onClick={() => {
-          if (!authToken) {
+          if (!isAuthed) {
             setAuthOpen(true);
             return;
           }
@@ -398,10 +398,10 @@ export function LiveConsole() {
 
       <AuthSheet open={authOpen} onClose={() => setAuthOpen(false)} />
 
-      {panelOpen && authToken && user && (
+      {panelOpen && isAuthed && user && (
         <AdminSlideOver
           open={panelOpen}
-          token={authToken}
+          token={authToken ?? ""}
           userRole={user.role}
           zones={zones}
           showcaseZoneId={activeZone?.id}

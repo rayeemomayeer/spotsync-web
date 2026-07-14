@@ -33,6 +33,7 @@ export function DriverMapExperience() {
 
   const debouncedSearch = useDebounce(search, 300);
   const authToken = token ?? getToken();
+  const isAuthed = !!user || !!authToken;
 
   const zonesQuery = useZones(debouncedSearch, "");
   const zonesResult = zonesOrOffline(zonesQuery.data, zonesQuery.isError && !zonesQuery.isFetching);
@@ -52,8 +53,8 @@ export function DriverMapExperience() {
 
   const { data: myReservations = [] } = useQuery({
     queryKey: ["my-reservations"],
-    queryFn: () => api.myReservations(authToken!),
-    enabled: !!authToken,
+    queryFn: () => api.myReservations(authToken ?? ""),
+    enabled: isAuthed,
   });
 
   const defaultSpot = useMemo(() => nextAvailableSpot(displaySpots), [displaySpots]);
@@ -83,12 +84,12 @@ export function DriverMapExperience() {
   }, []);
 
   const onReserve = useCallback(async () => {
-    if (!activeZone || !selectedSpot || !authToken) return;
+    if (!activeZone || !selectedSpot || !isAuthed) return;
     setReserveLoading(true);
     setReserveError("");
     try {
       await api.reserve(
-        authToken,
+        authToken ?? "",
         {
           zone_id: activeZone.id,
           license_plate: plate.trim(),
@@ -104,7 +105,7 @@ export function DriverMapExperience() {
     } finally {
       setReserveLoading(false);
     }
-  }, [activeZone, selectedSpot, authToken, plate, demoSession, qc]);
+  }, [activeZone, selectedSpot, isAuthed, authToken, plate, demoSession, qc]);
 
   return (
     <div className="driver-map" data-testid="driver-map">
@@ -196,7 +197,7 @@ export function DriverMapExperience() {
               {activeZone.type.replace("_", " ")}
             </p>
 
-            {!authToken ? (
+            {!isAuthed ? (
               <p className="driver-map__sheet-auth">
                 <Link href="/login">Sign in</Link> to reserve a spot.
               </p>
