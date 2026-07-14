@@ -16,7 +16,7 @@ import { AuthSheet } from "@/components/overlays/AuthSheet";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api, ApiError, DEMO_CREDENTIALS, demoPlate } from "@/lib/api/client";
 import type { Reservation, Spot } from "@/lib/api/types";
-import { getToken } from "@/lib/auth/session";
+import { getToken, isDemoModeActive } from "@/lib/auth/session";
 import { useGhostGrid } from "@/lib/demo/ghost-grid";
 import { useActivityFeed } from "@/lib/hooks/useActivityFeed";
 import { useDebounce } from "@/lib/hooks/useDebounce";
@@ -100,7 +100,7 @@ export function LiveConsole() {
     () => new Map(displaySpots.map((s) => [s.id, s.label])),
     [displaySpots],
   );
-  const ghostEnabled = !authToken && (demoSession || DEMO_MODE) && GHOST_DEMO;
+  const ghostEnabled = !authToken && (demoSession || DEMO_MODE || isDemoModeActive()) && GHOST_DEMO;
   const ghostIdsRaw = useGhostGrid(showSpotSkeleton ? [] : displaySpots, ghostEnabled);
   const ghostIds = ghostEnabled ? ghostIdsRaw : EMPTY_GHOST_IDS;
 
@@ -161,7 +161,7 @@ export function LiveConsole() {
   const handleSelectSpot = (spot: Spot) => {
     setSelectedSpotId(spot.id);
     if (!plate || plate === "ABC-1234") {
-      setPlate(demoSession || DEMO_MODE ? demoPlate() : "ABC-1234");
+      setPlate(demoSession || DEMO_MODE || isDemoModeActive() ? demoPlate() : "ABC-1234");
     }
     setReserveError("");
   };
@@ -173,17 +173,28 @@ export function LiveConsole() {
   };
 
   const ensureAuth = async (): Promise<string | null> => {
-    if (isAuthed) return token ?? getToken() ?? "";
-    if (DEMO_MODE) {
+    const existing = token ?? getToken();
+    if (existing) return existing;
+
+    // Cookie session (Better Auth) has no Go JWT — mint via demo driver login when sandbox on.
+    if (DEMO_MODE || demoSession || isDemoModeActive()) {
       try {
         const { email, password } = DEMO_CREDENTIALS.driver;
         await login(email, password, true);
         return getToken();
       } catch {
+        setReserveError("Could not mint demo JWT — try Demo Driver in the top bar.");
         setAuthOpen(true);
         return null;
       }
     }
+
+    if (isAuthed) {
+      setReserveError("Needs Go JWT — use Demo Driver, or sign in via console auth sheet.");
+      setAuthOpen(true);
+      return null;
+    }
+
     setAuthOpen(true);
     return null;
   };
@@ -222,7 +233,7 @@ export function LiveConsole() {
           license_plate: reservedPlate,
           spot_id: reservedSpot.id,
         },
-        demoSession || DEMO_MODE,
+        demoSession || DEMO_MODE || isDemoModeActive(),
       );
 
       const optimisticSpots = patchSpotOccupied(previousSpots, reservedSpot.id, true);
@@ -233,11 +244,15 @@ export function LiveConsole() {
 
       const next = nextAvailableSpot(optimisticSpots, reservedSpot.id);
       setSelectedSpotId(next?.id ?? null);
-      if (next && (demoSession || DEMO_MODE)) {
+      if (next && (demoSession || DEMO_MODE || isDemoModeActive())) {
         setPlate(demoPlate());
       }
 
-      showToast(demoSession || DEMO_MODE ? "Demo booking — auto-releases in 10 min" : "Spot reserved!");
+      showToast(
+        demoSession || DEMO_MODE || isDemoModeActive()
+          ? "Demo booking — auto-releases in 10 min"
+          : "Spot reserved!",
+      );
       void qc.invalidateQueries({ queryKey: ["zones"] });
       void qc.invalidateQueries({ queryKey: ["my-reservations"] });
     } catch (e) {
@@ -342,7 +357,7 @@ export function LiveConsole() {
         onReserve={handleReserve}
         loading={reserveLoading}
         error={reserveError}
-        demoMode={demoSession || DEMO_MODE}
+        demoMode={demoSession || DEMO_MODE || isDemoModeActive()}
       />
       <button
         type="button"

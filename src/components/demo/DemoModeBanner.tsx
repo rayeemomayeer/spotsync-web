@@ -1,13 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { usePathname } from "next/navigation";
 import { getBffUrl } from "@/lib/auth/client";
-import {
-  getDemoSessionId,
-  isDemoSession,
-  setDemoSession,
-} from "@/lib/auth/session";
+import { useDemoMode } from "@/components/providers/DemoModeProvider";
+import { getDemoSessionId } from "@/lib/auth/session";
 
 /** Marketing / public pages — no demo chrome. */
 const HIDDEN_PREFIXES = [
@@ -29,20 +26,14 @@ function shouldShowBanner(pathname: string): boolean {
 
 export function DemoModeBanner() {
   const pathname = usePathname() ?? "/";
-  const [on, setOn] = useState(false);
+  const { enabled: on, setEnabled } = useDemoMode();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
-  useEffect(() => {
-    setOn(isDemoSession());
-  }, []);
-
   const toggle = useCallback(() => {
-    const next = !on;
-    setDemoSession(next);
-    setOn(next);
+    setEnabled(!on);
     setMsg("");
-  }, [on]);
+  }, [on, setEnabled]);
 
   async function resetSandbox() {
     const sid = getDemoSessionId();
