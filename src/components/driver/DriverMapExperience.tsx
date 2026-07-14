@@ -37,7 +37,7 @@ export function DriverMapExperience() {
   const authToken = token ?? getToken();
   const isAuthed = !!user || !!authToken;
   const driverPayments = isFeatureEnabled("driver_payments");
-  const useCheckout = driverPayments && !demoSession && !DEMO_MODE;
+  const useCheckout = driverPayments;
   const router = useRouter();
 
   const zonesQuery = useZones(debouncedSearch, "");

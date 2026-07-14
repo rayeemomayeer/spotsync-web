@@ -18,9 +18,9 @@ export type CheckoutQuote = {
   license_plate: string;
 };
 
-export type PaymentIntentData = {
-  client_secret: string;
-  payment_intent_id: string;
+export type CheckoutSessionData = {
+  url: string;
+  id: string;
   amount_cents: number;
   currency: string;
 };
@@ -53,13 +53,14 @@ export function fetchCheckoutQuote(body: {
   return checkoutRequest<CheckoutQuote>("/api/checkout/quote", body);
 }
 
-export function createPaymentIntent(body: {
+/** Create Stripe hosted Checkout session and redirect to `url`. */
+export function createCheckoutSession(body: {
   zone_id: number;
   duration_hours: number;
   license_plate: string;
   spot_id?: number;
 }) {
-  return checkoutRequest<PaymentIntentData>("/api/checkout/payment-intent", body);
+  return checkoutRequest<CheckoutSessionData>("/api/checkout/session", body);
 }
 
 export function confirmDemoCheckout(body: {

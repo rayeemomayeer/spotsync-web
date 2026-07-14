@@ -47,11 +47,14 @@ curl -sS "https://spotsync-notify.onrender.com/healthz"
 # Check Render logs: spotsync-notify → "[notify] event" + Resend response
 ```
 
-## Stripe (test)
+## Stripe (test mode only)
 
-- BFF: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`, `GO_PLATFORM_USER_ID=1`.
-- Webhook `checkout.session.completed` → Go `PATCH /api/v1/orgs/:id/plan`.
-
+- BFF rejects `sk_live_*` at boot. Always use `sk_test_*` + Dashboard **test mode**.
+- Env: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`, `GO_PLATFORM_USER_ID=1`.
+- Driver booking: hosted Checkout via `POST /api/checkout/session` → webhook `checkout.session.completed` (or `payment_intent.succeeded`) creates reservation.
+- Org/platform billing: `POST /api/stripe/checkout` (subscription) → webhook updates org plan.
+- Web flags: `NEXT_PUBLIC_FEATURE_FLAGS=driver_payments,stripe_billing` (plus `demo_mode` if needed).
+- Test card: `4242 4242 4242 4242`, any future expiry, any CVC.
 ## Observability
 
 - Web: `@sentry/nextjs` — set `NEXT_PUBLIC_SENTRY_DSN` (+ optional `SENTRY_DSN`) on Vercel.

@@ -1,15 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState, FormEvent } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import { AppHeader } from "@/components/AppHeader";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api } from "@/lib/api/client";
 import {
-  createPaymentIntent,
+  createCheckoutSession,
   confirmDemoCheckout,
   fetchCheckoutQuote,
   formatCents,
@@ -19,58 +17,6 @@ import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { PriceBreakdown } from "@/components/checkout/PriceBreakdown";
 import { isFeatureEnabled } from "@/lib/config/flags";
 import { getToken, isDemoModeActive } from "@/lib/auth/session";
-
-const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
-const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
-
-function CheckoutForm(props: {
-  zoneId: number;
-  quote: CheckoutQuote;
-  clientSecret: string;
-  onPaid: () => void;
-}) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!stripe || !elements) return;
-    setBusy(true);
-    setError("");
-    const result = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/book/${props.zoneId}?paid=1`,
-      },
-      redirect: "if_required",
-    });
-    if (result.error) {
-      setError(result.error.message ?? "Payment failed");
-      setBusy(false);
-      return;
-    }
-    props.onPaid();
-  }
-
-  return (
-    <form onSubmit={(e) => void onSubmit(e)} className="checkout-pay-form">
-      <p>
-        Total: <strong className="font-mono">{formatCents(props.quote.amount_cents)}</strong> ·{" "}
-        {props.quote.duration_hours}h
-      </p>
-      <PaymentElement />
-      {error ? <p className="auth-card__error">{error}</p> : null}
-      <button type="submit" className="console-btn console-btn--primary console-btn--pill" disabled={!stripe || busy}>
-        {busy ? "Processing…" : "Pay & reserve"}
-      </button>
-      <p className="checkout-pay-form__hint">
-        Test card <code>4242 4242 4242 4242</code> · any future expiry · any CVC
-      </p>
-    </form>
-  );
-}
 
 export default function BookZonePage() {
   return (
@@ -96,11 +42,11 @@ function BookZoneInner() {
   const zoneId = Number(params.zoneId);
   const spotId = search.get("spot") ? Number(search.get("spot")) : undefined;
   const paidFlag = search.get("paid") === "1";
+  const canceled = search.get("checkout") === "cancel";
 
   const [plate, setPlate] = useState("ABC-1234");
   const [duration, setDuration] = useState(1);
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [zoneName, setZoneName] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -132,31 +78,37 @@ function BookZoneInner() {
     void loadQuote();
   }, [loadQuote]);
 
-  async function startPayment() {
+  async function startStripeCheckout() {
     if (!quote) return;
     setBusy(true);
     setError("");
     try {
-      if (isDemoModeActive()) {
-        await confirmDemoCheckout({
-          zone_id: zoneId,
-          duration_hours: duration,
-          license_plate: plate.trim(),
-          spot_id: spotId,
-        });
-        await onPaid();
-        return;
-      }
-      const pi = await createPaymentIntent({
+      const session = await createCheckoutSession({
         zone_id: zoneId,
         duration_hours: duration,
         license_plate: plate.trim(),
         spot_id: spotId,
       });
-      setClientSecret(pi.client_secret);
+      window.location.assign(session.url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Payment setup failed");
-    } finally {
+      setError(e instanceof Error ? e.message : "Checkout failed");
+      setBusy(false);
+    }
+  }
+
+  async function startDemoConfirm() {
+    setBusy(true);
+    setError("");
+    try {
+      await confirmDemoCheckout({
+        zone_id: zoneId,
+        duration_hours: duration,
+        license_plate: plate.trim(),
+        spot_id: spotId,
+      });
+      await onPaid();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Demo booking failed");
       setBusy(false);
     }
   }
@@ -177,13 +129,6 @@ function BookZoneInner() {
     if (paidFlag) void onPaid();
   }, [paidFlag, onPaid]);
 
-  const elementsOptions = useMemo(
-    () => (clientSecret ? { clientSecret } : null),
-    [clientSecret],
-  );
-
-  const step = clientSecret ? "payment" : "details";
-
   if (!paymentsOn) {
     return (
       <div className="shell">
@@ -203,9 +148,11 @@ function BookZoneInner() {
       <AppHeader tag="Checkout" showAuthCta={!user} />
       <main className="shell-main">
         <div className="page-surface checkout-layout">
-          <CheckoutStepper step={step} />
+          <CheckoutStepper step={paidFlag ? "payment" : "details"} />
           <h1>Book {zoneName || `zone #${zoneId}`}</h1>
           {spotId ? <p className="checkout-spot-note">Spot #{spotId} selected</p> : null}
+          {canceled ? <p className="auth-card__error">Checkout cancelled — try again when ready.</p> : null}
+          {paidFlag ? <p className="status-ok">Payment received — confirming reservation…</p> : null}
           {loading ? (
             <p>Loading session…</p>
           ) : !user ? (
@@ -217,7 +164,13 @@ function BookZoneInner() {
               <div>
                 <label className="checkout-field">
                   License plate
-                  <input className="ui-input" value={plate} onChange={(e) => setPlate(e.target.value)} required minLength={1} />
+                  <input
+                    className="ui-input"
+                    value={plate}
+                    onChange={(e) => setPlate(e.target.value)}
+                    required
+                    minLength={1}
+                  />
                 </label>
                 <label className="checkout-field">
                   Duration (hours)
@@ -230,27 +183,41 @@ function BookZoneInner() {
                     onChange={(e) => setDuration(Number(e.target.value))}
                   />
                 </label>
+                {quote ? (
+                  <p>
+                    Total: <strong className="font-mono">{formatCents(quote.amount_cents)}</strong> ·{" "}
+                    {quote.duration_hours}h
+                  </p>
+                ) : null}
                 {error ? <p className="auth-card__error">{error}</p> : null}
 
-                {!clientSecret ? (
-                  <button
-                    type="button"
-                    className="console-btn console-btn--primary console-btn--pill"
-                    disabled={busy || !quote || !stripePromise}
-                    onClick={() => void startPayment()}
-                  >
-                    {busy ? "Preparing…" : isDemoModeActive() ? "Confirm demo booking" : "Continue to payment"}
-                  </button>
-                ) : elementsOptions && stripePromise ? (
-                  <Elements stripe={stripePromise} options={elementsOptions}>
-                    <CheckoutForm
-                      zoneId={zoneId}
-                      quote={quote!}
-                      clientSecret={clientSecret}
-                      onPaid={() => void onPaid()}
-                    />
-                  </Elements>
+                {!paidFlag ? (
+                  <div className="checkout-actions">
+                    <button
+                      type="button"
+                      className="console-btn console-btn--primary console-btn--pill"
+                      disabled={busy || !quote}
+                      onClick={() => void startStripeCheckout()}
+                    >
+                      {busy ? "Opening Stripe…" : "Pay with Stripe (test)"}
+                    </button>
+                    {isDemoModeActive() ? (
+                      <button
+                        type="button"
+                        className="console-btn console-btn--ghost console-btn--pill"
+                        disabled={busy || !quote}
+                        onClick={() => void startDemoConfirm()}
+                      >
+                        Skip — demo booking
+                      </button>
+                    ) : null}
+                  </div>
                 ) : null}
+
+                <p className="checkout-pay-form__hint">
+                  Opens Stripe Checkout (test mode). Card <code>4242 4242 4242 4242</code> · any future
+                  expiry · any CVC.
+                </p>
 
                 <p className="checkout-back">
                   <Link href="/driver">← Back to map</Link>

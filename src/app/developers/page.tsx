@@ -20,7 +20,8 @@ const endpoints = [
   { method: "GET", path: "/api/v1/zones", note: "Public marketplace inventory (search, sort, FTS)" },
   { method: "POST", path: "/api/v1/reservations", note: "Driver reserve — pay-then-reserve via BFF checkout" },
   { method: "GET", path: "/api/v1/reservations/my-reservations", note: "Driver bookings + payment_status" },
-  { method: "POST", path: "/api/checkout/payment-intent", note: "BFF Stripe PaymentIntent (driver)" },
+  { method: "POST", path: "/api/checkout/session", note: "BFF Stripe Checkout Session (driver, test mode)" },
+  { method: "POST", path: "/api/stripe/checkout", note: "BFF Stripe Checkout Session (org/platform subscription)" },
   { method: "GET", path: "/api/v1/orgs", note: "Platform org roster (saas_admin)" },
   { method: "GET", path: "/api/auth/get-session", note: "Better Auth session cookie (BFF)" },
 ];
