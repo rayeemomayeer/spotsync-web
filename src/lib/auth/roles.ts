@@ -72,6 +72,7 @@ export function primaryNavLinks(role: string | undefined | null): NavLink[] {
     return [
       { href: "/search", label: "Find parking" },
       { href: "/pricing", label: "Pricing" },
+      { href: "/apply", label: "Operate" },
       { href: "/how-it-works", label: "How it works" },
     ];
   }
@@ -99,6 +100,7 @@ export function primaryNavLinks(role: string | undefined | null): NavLink[] {
     { href: "/driver", label: "Driver map" },
     { href: "/search", label: "Find parking" },
     { href: "/reservations", label: "Reservations" },
+    { href: "/apply", label: "Operate" },
     { href: "/account", label: "Account" },
   ];
 }

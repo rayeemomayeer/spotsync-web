@@ -33,7 +33,11 @@ export default function HowItWorksPage() {
 
           <h2>For operators</h2>
           <ol>
-            <li>Platform admin creates and approves your organization.</li>
+            <li>
+              <Link href="/apply">Apply</Link> with your account — org starts as{" "}
+              <code>pending</code>.
+            </li>
+            <li>A platform admin approves (or rejects) your application.</li>
             <li>
               Subscribe on <Link href="/pricing">Starter or Growth</Link>.
             </li>

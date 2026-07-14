@@ -99,7 +99,7 @@ export default function PlatformOrgsPage() {
         <AdminShell
           eyebrow="Platform"
           title="Organizations"
-          subtitle="Approve operators, suspend abuse, create orgs."
+          subtitle="Approve self-apply operators, suspend abuse, or create orgs manually."
           nav={PLATFORM_NAV}
         >
           {error ? <p className="auth-card__error">{error}</p> : null}

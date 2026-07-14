@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { AuthColdStartStatus, useAuthColdStart } from "@/components/auth/AuthColdStart";
@@ -12,9 +12,16 @@ import { PersonaSwitcher } from "@/components/demo/PersonaSwitcher";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { homePathForRole } from "@/lib/auth/roles";
 
-export default function LoginPage() {
+function safeNextPath(raw: string | null): string | null {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return null;
+  return raw;
+}
+
+function LoginInner() {
   const { loginWithSession } = useAuth();
   const router = useRouter();
+  const search = useSearchParams();
+  const nextPath = safeNextPath(search.get("next"));
   const { phase, setPhase, ensureReady, mapError } = useAuthColdStart();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +36,7 @@ export default function LoginPage() {
       await ensureReady();
       setPhase("signing");
       const { role } = await loginWithSession(email, password);
-      router.replace(homePathForRole(role));
+      router.replace(nextPath ?? homePathForRole(role));
     } catch (err) {
       setError(mapError(err));
       setPhase("degraded");
@@ -37,6 +44,10 @@ export default function LoginPage() {
       setLoading(false);
     }
   }
+
+  const signupHref = nextPath
+    ? `/signup?next=${encodeURIComponent(nextPath)}`
+    : "/signup";
 
   return (
     <div className="auth-page">
@@ -74,15 +85,29 @@ export default function LoginPage() {
           </Button>
           <GoogleAuthButton />
           <p className="auth-card__sub auth-card__sub--foot">
-            No account? <Link href="/signup">Create one</Link>
+            No account? <Link href={signupHref}>Create one</Link>
             {" · "}
             <Link href="/forgot-password">Forgot password</Link>
             {" · "}
-            Demo console at <Link href="/console">/console</Link>
+            <Link href="/apply">Apply as operator</Link>
           </p>
           <PersonaSwitcher onDone={(role) => router.replace(homePathForRole(role))} />
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="auth-page">
+          <p>Loading…</p>
+        </div>
+      }
+    >
+      <LoginInner />
+    </Suspense>
   );
 }

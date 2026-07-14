@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: "How do garage operators join?",
-    a: "Platform admins approve new orgs. Operators subscribe on Starter or Growth, then publish zones.",
+    a: "Apply at /apply with a signed-in account. Platform admins approve your org, then subscribe on Starter or Growth and publish zones.",
   },
   {
     q: "What is Demo Mode?",

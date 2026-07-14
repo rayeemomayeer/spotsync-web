@@ -73,6 +73,12 @@ export default function AccountPage() {
 
             <p>
               <Link href="/reservations">My reservations →</Link> · <Link href="/driver">Driver map</Link>
+              {user.role === "driver" ? (
+                <>
+                  {" · "}
+                  <Link href="/apply">Operate a garage</Link>
+                </>
+              ) : null}
             </p>
           </>
         )}

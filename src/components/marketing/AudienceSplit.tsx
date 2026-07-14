@@ -10,9 +10,9 @@ const drivers = [
 ];
 
 const operators = [
-  "Org approval, then Stripe subscription",
-  "Zone CRUD with row-level capacity locks",
-  "Platform audit for marketplace ops",
+  "Self-apply → platform approval",
+  "Stripe subscription unlocks zone publish",
+  "Row-level capacity locks — never oversell",
 ];
 
 export function AudienceSplit() {

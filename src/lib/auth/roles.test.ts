@@ -65,5 +65,7 @@ describe("primaryNavLinks", () => {
     expect(primaryNavLinks("org_admin").some((l) => l.href === "/org")).toBe(true);
     expect(primaryNavLinks("org_admin").some((l) => l.href === "/org/members")).toBe(true);
     expect(primaryNavLinks("driver").some((l) => l.href === "/driver")).toBe(true);
+    expect(primaryNavLinks("driver").some((l) => l.href === "/apply")).toBe(true);
+    expect(primaryNavLinks(null).some((l) => l.href === "/apply")).toBe(true);
   });
 });
