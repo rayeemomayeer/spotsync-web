@@ -1,5 +1,5 @@
 import type { Spot } from "@/lib/api/types";
-import { offlineShowcaseSpots, OFFLINE_SHOWCASE_ZONE } from "./offline-fallback";
+import { OFFLINE_SHOWCASE_ZONE } from "./offline-fallback";
 
 /** Offline/demo rows use zone_id 0 and empty timestamps — never send their ids to the API. */
 export function isOfflineSpotData(spots: Spot[]): boolean {
@@ -7,8 +7,10 @@ export function isOfflineSpotData(spots: Spot[]): boolean {
 }
 
 export function normalizeShowcaseSpots(apiSpots: Spot[] | undefined, zoneId: number): Spot[] {
+  // Never invent spot ids for a live zone — offline A-01… IDs collide with other zones
+  // and make POST /reservations return 404 (spot not in zone).
   if (!apiSpots?.length) {
-    return offlineShowcaseSpots().map((s) => ({ ...s, zone_id: zoneId }));
+    return [];
   }
   return apiSpots.map((s) => ({ ...s, zone_id: zoneId }));
 }

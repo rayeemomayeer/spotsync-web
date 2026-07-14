@@ -183,16 +183,17 @@ export function LiveConsole() {
         await login(email, password, true);
         return getToken();
       } catch {
+        // Fall through: BFF can bridge cookie session → Go JWT when goUserId is linked.
+        if (isAuthed) return "";
         setReserveError("Could not mint demo JWT — try Demo Driver in the top bar.");
         setAuthOpen(true);
         return null;
       }
     }
 
+    // Cookie-only session (e.g. Google): proxy issues Go JWT from session goUserId.
     if (isAuthed) {
-      setReserveError("Needs Go JWT — use Demo Driver, or sign in via console auth sheet.");
-      setAuthOpen(true);
-      return null;
+      return "";
     }
 
     setAuthOpen(true);
@@ -264,6 +265,9 @@ export function LiveConsole() {
         setShakeSpotId(reservedSpot.id);
         setTimeout(() => setShakeSpotId(null), 500);
         setReserveError("Spot taken");
+        void qc.invalidateQueries({ queryKey: spotsQueryKey });
+      } else if (e instanceof ApiError && e.status === 404) {
+        setReserveError("Spot not found — refresh the grid and pick again");
         void qc.invalidateQueries({ queryKey: spotsQueryKey });
       } else {
         setReserveError(e instanceof Error ? e.message : "Reservation failed");

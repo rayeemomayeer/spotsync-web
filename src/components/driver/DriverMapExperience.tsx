@@ -12,7 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api, ApiError, demoPlate } from "@/lib/api/client";
 import type { Zone } from "@/lib/api/types";
-import { getToken } from "@/lib/auth/session";
+import { getToken, isDemoModeActive } from "@/lib/auth/session";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useZoneSpots } from "@/lib/hooks/useZoneSpots";
 import { useZones, zonesOrOffline } from "@/lib/hooks/useZones";
@@ -98,6 +98,7 @@ export function DriverMapExperience() {
     setReserveLoading(true);
     setReserveError("");
     try {
+      // Empty token OK: BFF cookie session → Go bridge JWT.
       await api.reserve(
         authToken ?? "",
         {
@@ -105,13 +106,18 @@ export function DriverMapExperience() {
           license_plate: plate.trim(),
           spot_id: selectedSpot.id,
         },
-        demoSession || DEMO_MODE,
+        demoSession || DEMO_MODE || isDemoModeActive(),
       );
       await qc.invalidateQueries({ queryKey: ["my-reservations"] });
       await qc.invalidateQueries({ queryKey: ["zone-spots", activeZone.id] });
       setPlate(demoSession || DEMO_MODE ? demoPlate() : plate);
     } catch (e) {
-      setReserveError(e instanceof ApiError ? e.message : "Reserve failed");
+      if (e instanceof ApiError && e.status === 404) {
+        setReserveError("Spot not found — refresh and pick again");
+        await qc.invalidateQueries({ queryKey: ["zone-spots", activeZone.id] });
+      } else {
+        setReserveError(e instanceof ApiError ? e.message : "Reserve failed");
+      }
     } finally {
       setReserveLoading(false);
     }

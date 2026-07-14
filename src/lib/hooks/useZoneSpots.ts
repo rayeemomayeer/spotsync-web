@@ -39,6 +39,10 @@ export function useZoneSpots(activeZone: Zone | undefined, apiOnline: boolean) {
         return { spots: offlineShowcaseSpots(), online: false };
       }
       const data = await api.spots(activeZone.id);
+      if (!data.length) {
+        // Empty live grid — show offline preview as offline (not reservable).
+        return { spots: offlineShowcaseSpots(), online: false };
+      }
       return {
         spots: normalizeShowcaseSpots(data, activeZone.id),
         online: true,

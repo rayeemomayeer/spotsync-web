@@ -14,10 +14,19 @@ describe("isOfflineSpotData", () => {
 });
 
 describe("normalizeShowcaseSpots", () => {
-  it("falls back to offline layout when API returns empty", () => {
+  it("returns empty when API has no spots (do not invent fake ids)", () => {
     const spots = normalizeShowcaseSpots([], 9);
-    expect(spots).toHaveLength(24);
-    expect(spots[0].zone_id).toBe(9);
+    expect(spots).toEqual([]);
+  });
+
+  it("stamps zone_id on live api spots", () => {
+    const spots = normalizeShowcaseSpots(
+      [{ ...offlineShowcaseSpots()[0], id: 93, zone_id: 4, created_at: "x" }],
+      4,
+    );
+    expect(spots).toHaveLength(1);
+    expect(spots[0].id).toBe(93);
+    expect(spots[0].zone_id).toBe(4);
   });
 });
 
