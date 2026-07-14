@@ -1,12 +1,14 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
+import { EntitlementBanner } from "@/components/dashboard/EntitlementBanner";
 import { api, ApiError } from "@/lib/api/client";
-import type { Zone } from "@/lib/api/types";
+import type { Organization, Zone } from "@/lib/api/types";
+import { isEntitlementApiError, orgEntitlement } from "@/lib/org/entitlement";
 
 const ZONE_TYPES = [
   { value: "general", label: "General" },
@@ -20,11 +22,17 @@ export function ZoneManager({
   token,
   filterOrgId,
   title = "Zones",
+  organization,
+  entitlementGate = false,
 }: {
   token: string | null;
   /** When set, only show zones for this org (org admin). */
   filterOrgId?: number | null;
   title?: string;
+  /** Org used for entitlement banner (org admin surfaces). */
+  organization?: Organization | null;
+  /** When true, block create/edit until org is entitled. */
+  entitlementGate?: boolean;
 }) {
   const qc = useQueryClient();
   const [name, setName] = useState("");
@@ -33,6 +41,15 @@ export function ZoneManager({
   const [price, setPrice] = useState(5);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState<Zone | null>(null);
+
+  const entitlement = useMemo(
+    () =>
+      entitlementGate
+        ? orgEntitlement(organization)
+        : { entitled: true, reason: null, title: "", body: "" },
+    [entitlementGate, organization],
+  );
+  const locked = entitlementGate && !entitlement.entitled;
 
   const zonesQuery = useQuery({
     queryKey: ["admin-zones"],
@@ -43,6 +60,16 @@ export function ZoneManager({
     if (filterOrgId == null) return true;
     return z.organization_id === filterOrgId;
   });
+
+  function mapMutationError(e: unknown, fallback: string) {
+    if (e instanceof ApiError) {
+      if (isEntitlementApiError(e.message, e.errors)) {
+        return e.errors.organization ? `${e.message}: ${e.errors.organization}` : e.message;
+      }
+      return e.message;
+    }
+    return fallback;
+  }
 
   const create = useMutation({
     mutationFn: () =>
@@ -57,7 +84,7 @@ export function ZoneManager({
       setError("");
       await qc.invalidateQueries({ queryKey: ["admin-zones"] });
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Create failed"),
+    onError: (e) => setError(mapMutationError(e, "Create failed")),
   });
 
   const update = useMutation({
@@ -76,7 +103,7 @@ export function ZoneManager({
       setError("");
       await qc.invalidateQueries({ queryKey: ["admin-zones"] });
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Update failed"),
+    onError: (e) => setError(mapMutationError(e, "Update failed")),
   });
 
   const remove = useMutation({
@@ -84,10 +111,11 @@ export function ZoneManager({
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["admin-zones"] });
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Delete failed"),
+    onError: (e) => setError(mapMutationError(e, "Delete failed")),
   });
 
   function startEdit(z: Zone) {
+    if (locked) return;
     setEditing(z);
     setName(z.name);
     setType((ZONE_TYPES.find((t) => t.value === z.type)?.value ?? "general") as ZoneType);
@@ -106,69 +134,78 @@ export function ZoneManager({
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (locked) {
+      setError(entitlement.title || "Organization not entitled");
+      return;
+    }
     if (editing) update.mutate();
     else create.mutate();
   }
 
   return (
     <div className="dash-split">
+      {entitlementGate ? <EntitlementBanner state={entitlement} /> : null}
       <div className="dash-panel">
         <div className="dash-chart__head">
           <h2>{editing ? `Edit ${editing.name}` : "Create zone"}</h2>
           <p>
-            {editing
-              ? "Update capacity carefully — cannot go below active reservations."
-              : "Org admins attach the zone to their entitled org automatically."}
+            {locked
+              ? "Create stays locked until the org is approved and subscribed."
+              : editing
+                ? "Update capacity carefully — cannot go below active reservations."
+                : "Org admins attach the zone to their entitled org automatically."}
           </p>
         </div>
         <form className="dash-form" onSubmit={onSubmit}>
-          <label>
-            Name
-            <Input value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
-          </label>
-          <label>
-            Type
-            <select
-              className="ui-input"
-              value={type}
-              onChange={(e) => setType(e.target.value as ZoneType)}
-            >
-              {ZONE_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="dash-form__row">
+          <fieldset disabled={locked} className="dash-form__fieldset">
             <label>
-              Capacity
-              <Input
-                type="number"
-                min={1}
-                value={capacity}
-                onChange={(e) => setCapacity(Number(e.target.value))}
-                required
-              />
+              Name
+              <Input value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
             </label>
             <label>
-              $/hour
-              <Input
-                type="number"
-                min={0.01}
-                step={0.01}
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                required
-              />
+              Type
+              <select
+                className="ui-input"
+                value={type}
+                onChange={(e) => setType(e.target.value as ZoneType)}
+              >
+                {ZONE_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
             </label>
-          </div>
+            <div className="dash-form__row">
+              <label>
+                Capacity
+                <Input
+                  type="number"
+                  min={1}
+                  value={capacity}
+                  onChange={(e) => setCapacity(Number(e.target.value))}
+                  required
+                />
+              </label>
+              <label>
+                $/hour
+                <Input
+                  type="number"
+                  min={0.01}
+                  step={0.01}
+                  value={price}
+                  onChange={(e) => setPrice(Number(e.target.value))}
+                  required
+                />
+              </label>
+            </div>
+          </fieldset>
           {error ? <p className="auth-card__error">{error}</p> : null}
           <div className="dash-form__actions">
             <button
               type="submit"
               className="console-btn console-btn--primary console-btn--pill"
-              disabled={create.isPending || update.isPending}
+              disabled={locked || create.isPending || update.isPending}
             >
               {editing
                 ? update.isPending
@@ -190,34 +227,27 @@ export function ZoneManager({
       <div className="dash-panel">
         <div className="dash-chart__head">
           <h2>{title}</h2>
-          <p>{zones.length} zone{zones.length === 1 ? "" : "s"}</p>
+          <Badge tone="muted">{zones.length} listed</Badge>
         </div>
         <ul className="dash-table">
           {zonesQuery.isLoading ? <li className="dash-table__row">Loading…</li> : null}
           {!zonesQuery.isLoading && zones.length === 0 ? (
-            <li className="dash-table__row dash-table__row--empty">No zones yet — create one.</li>
+            <li className="dash-table__row dash-table__row--empty">No zones yet.</li>
           ) : null}
           {zones.map((z) => (
-            <li key={z.id} className="dash-table__row dash-table__row--stack">
-              <div className="dash-table__row-main">
-                <div>
-                  <strong>{z.name}</strong>
-                  <p className="dash-table__meta">
-                    {z.type.replace("_", " ")} · ${z.price_per_hour.toFixed(2)}/hr
-                    {z.organization_id != null ? ` · org #${z.organization_id}` : ""}
-                  </p>
-                </div>
-                <Badge tone={z.available_spots > 0 ? "success" : "muted"}>
-                  {z.available_spots}/{z.total_capacity}
-                </Badge>
+            <li key={z.id} className="dash-table__row">
+              <div>
+                <strong>{z.name}</strong>
+                <p className="dash-table__meta">
+                  {z.type.replace("_", " ")} · {z.available_spots}/{z.total_capacity} free · $
+                  {z.price_per_hour.toFixed(2)}/hr
+                </p>
               </div>
               <div className="dash-table__actions">
-                <Link href={`/console?zone=${z.id}`} className="console-btn console-btn--ghost">
-                  Console
-                </Link>
                 <button
                   type="button"
                   className="console-btn console-btn--ghost"
+                  disabled={locked}
                   onClick={() => startEdit(z)}
                 >
                   Edit
@@ -225,13 +255,14 @@ export function ZoneManager({
                 <button
                   type="button"
                   className="console-btn console-btn--ghost"
-                  disabled={remove.isPending}
-                  onClick={() => {
-                    if (window.confirm(`Delete zone “${z.name}”?`)) remove.mutate(z.id);
-                  }}
+                  disabled={locked || remove.isPending}
+                  onClick={() => remove.mutate(z.id)}
                 >
                   Delete
                 </button>
+                <Link href={`/zones/${z.id}`} className="console-btn console-btn--ghost">
+                  View
+                </Link>
               </div>
             </li>
           ))}

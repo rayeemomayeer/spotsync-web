@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminShell, ORG_NAV } from "@/components/dashboard/AdminShell";
+import { EntitlementBanner } from "@/components/dashboard/EntitlementBanner";
 import {
   OccupancyRing,
   ReservationSpark,
@@ -14,6 +16,7 @@ import { StatGrid } from "@/components/dashboard/StatGrid";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { api } from "@/lib/api/client";
 import { isPlatformAdmin } from "@/lib/auth/roles";
+import { orgEntitlement } from "@/lib/org/entitlement";
 
 export default function OrgOverviewPage() {
   const { user, token } = useAuth();
@@ -37,6 +40,10 @@ export default function OrgOverviewPage() {
   });
 
   const org = orgQuery.data;
+  const entitlement = useMemo(
+    () => (isPlatformAdmin(user?.role) ? { entitled: true, reason: null, title: "", body: "" } : orgEntitlement(org)),
+    [org, user?.role],
+  );
   const allZones = zonesQuery.data ?? [];
   const zones =
     org?.id != null
@@ -65,6 +72,7 @@ export default function OrgOverviewPage() {
           }
           nav={ORG_NAV}
         >
+          {!isPlatformAdmin(user?.role) ? <EntitlementBanner state={entitlement} /> : null}
           <StatGrid
             items={[
               { label: "Zones", value: zones.length, tone: "brand" },

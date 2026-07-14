@@ -5,6 +5,7 @@ import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { DemoModeProvider } from "@/components/providers/DemoModeProvider";
+import { SoftWarm } from "@/components/providers/SoftWarm";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ObservabilityProvider } from "@/components/providers/ObservabilityProvider";
 import { siteConfig } from "@/lib/seo/site";
@@ -69,7 +70,10 @@ export default function RootLayout({
           <ObservabilityProvider>
             <QueryProvider>
               <AuthProvider>
-                <DemoModeProvider>{children}</DemoModeProvider>
+                <DemoModeProvider>
+                  <SoftWarm />
+                  {children}
+                </DemoModeProvider>
               </AuthProvider>
             </QueryProvider>
           </ObservabilityProvider>

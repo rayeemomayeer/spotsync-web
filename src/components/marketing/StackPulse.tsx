@@ -26,13 +26,33 @@ export function StackPulse() {
   ]);
 
   useEffect(() => {
+    let cancelled = false;
     const go = goOrigin();
     const bff = bffOrigin();
-    void Promise.all([
-      probe("Go /healthz", `${go}/healthz`),
-      probe("Go /readyz", `${go}/readyz`),
-      probe("BFF /healthz", `${bff}/healthz`),
-    ]).then(setProbes);
+
+    async function run() {
+      const next = await Promise.all([
+        probe("Go /healthz", `${go}/healthz`),
+        probe("Go /readyz", `${go}/readyz`),
+        probe("BFF /healthz", `${bff}/healthz`),
+      ]);
+      if (!cancelled) setProbes(next);
+      return next;
+    }
+
+    void (async () => {
+      const first = await run();
+      if (cancelled) return;
+      // Free-tier cold start: one delayed retry if anything failed.
+      if (first.some((p) => p.ok !== true)) {
+        await new Promise((r) => setTimeout(r, 8_000));
+        if (!cancelled) await run();
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const live = probes.filter((p) => p.ok === true).length;

@@ -10,10 +10,11 @@ import { isPlatformAdmin } from "@/lib/auth/roles";
 
 export default function OrgZonesPage() {
   const { user, token } = useAuth();
+  const platform = isPlatformAdmin(user?.role);
   const orgQuery = useQuery({
     queryKey: ["org-me"],
     queryFn: () => api.orgMe(token),
-    enabled: !!user && !isPlatformAdmin(user.role),
+    enabled: !!user && !platform,
   });
 
   return (
@@ -28,7 +29,9 @@ export default function OrgZonesPage() {
         >
           <ZoneManager
             token={token}
-            filterOrgId={isPlatformAdmin(user?.role) ? undefined : orgQuery.data?.id}
+            filterOrgId={platform ? undefined : orgQuery.data?.id}
+            organization={platform ? undefined : orgQuery.data}
+            entitlementGate={!platform}
           />
         </AdminShell>
       </main>
