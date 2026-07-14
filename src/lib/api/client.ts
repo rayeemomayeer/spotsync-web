@@ -1,6 +1,7 @@
 import type { ErrorEnvelope, SuccessEnvelope } from "./types";
 import { fetchWithColdStartRetry } from "./fetch-retry";
 import { notifyUnauthorized } from "./unauthorized";
+import { getDemoSessionId, isDemoModeActive } from "@/lib/auth/session";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
 
@@ -33,6 +34,11 @@ export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Pr
   }
   if (opts.demoReservation) {
     headers["X-Demo-Reservation"] = "true";
+  }
+  if (isDemoModeActive()) {
+    headers["X-Demo-Mode"] = "true";
+    const sid = getDemoSessionId();
+    if (sid) headers["X-Demo-Session-Id"] = sid;
   }
 
   const res = await fetchWithColdStartRetry(

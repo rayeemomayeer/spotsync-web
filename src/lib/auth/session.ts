@@ -2,6 +2,7 @@
 
 const TOKEN_KEY = "spotsync_token";
 const DEMO_SESSION_KEY = "spotsync_demo_session";
+const DEMO_SESSION_ID_KEY = "spotsync_demo_session_id";
 const USER_KEY = "spotsync_user";
 
 export function getToken(): string | null {
@@ -40,13 +41,27 @@ export function isDemoSession(): boolean {
 export function setDemoSession(value: boolean) {
   if (value) {
     localStorage.setItem(DEMO_SESSION_KEY, "1");
+    if (!localStorage.getItem(DEMO_SESSION_ID_KEY)) {
+      localStorage.setItem(DEMO_SESSION_ID_KEY, crypto.randomUUID());
+    }
   } else {
     localStorage.removeItem(DEMO_SESSION_KEY);
+    localStorage.removeItem(DEMO_SESSION_ID_KEY);
   }
+}
+
+export function getDemoSessionId(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(DEMO_SESSION_ID_KEY);
+}
+
+export function isDemoModeActive(): boolean {
+  return isDemoSession();
 }
 
 export function clearSession() {
   clearToken();
   localStorage.removeItem(DEMO_SESSION_KEY);
+  localStorage.removeItem(DEMO_SESSION_ID_KEY);
   localStorage.removeItem(USER_KEY);
 }
