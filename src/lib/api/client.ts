@@ -235,7 +235,11 @@ export const api = {
 export const DEMO_CREDENTIALS = {
   driver: { email: "alice@spotsync.com", password: "DriverPass123!" },
   demoAdmin: { email: "demo_admin@spotsync.com", password: "DemoAdminPass123!" },
-  admin: { email: process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL ?? "", password: process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD ?? "" },
+  /** Platform saas_admin — override via env if prod seed password differs. */
+  admin: {
+    email: process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL ?? "admin@spotsync.com",
+    password: process.env.NEXT_PUBLIC_DEMO_ADMIN_PASSWORD ?? "AdminPass123!",
+  },
 };
 
 export function demoPlate() {

@@ -1,21 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { bffOrigin, goOrigin } from "@/lib/api/probe-origins";
 
 type Probe = { name: string; ok: boolean | null; detail: string };
 
-function goOrigin(): string {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
-  return base.replace(/\/api\/v1\/?$/, "");
-}
-
-function bffOrigin(): string {
-  return (process.env.NEXT_PUBLIC_BFF_URL ?? "http://localhost:4000").replace(/\/$/, "");
-}
-
 async function probe(name: string, url: string): Promise<Probe> {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 12_000);
+  const timer = setTimeout(() => ctrl.abort(), 55_000);
   try {
     const res = await fetch(url, { cache: "no-store", signal: ctrl.signal });
     return { name, ok: res.ok, detail: res.ok ? `${res.status} OK` : `${res.status}` };

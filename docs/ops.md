@@ -16,13 +16,15 @@ Production stack (free tier):
 Render free sleeps. First hit after idle can take 30–90s.
 
 - **Web → BFF auth:** browser calls `NEXT_PUBLIC_BFF_URL` **directly** (Better Auth cookies are `SameSite=None`). Do **not** rely on Vercel `/api/auth` rewrites for login — those return **504 Gateway Timeout** while Render wakes.
-- **API data:** `NEXT_PUBLIC_API_BASE_URL` hits BFF/Go direct the same way.
+- **API data:** `NEXT_PUBLIC_API_BASE_URL` usually points at BFF `/api/v1`.
+- **Go probes:** set `NEXT_PUBLIC_GO_API_URL=https://spotsync-ei6g.onrender.com` so Observe hits the real Go `/readyz` (not the BFF).
 - Login/signup pages warm `/healthz` on mount and before submit; fetch layer retries 502/503/504 with backoff.
 
 ## Auth / demo
 
 - Signup: `/signup` → Better Auth on BFF → Go user bridge (`driver` only).
 - Seeded: `admin@spotsync.com` (saas_admin), `demo_admin@spotsync.com` (org_admin), `alice@spotsync.com` (driver).
+- Login quick personas: Driver / Org admin / **Platform admin** (`AdminPass123!` unless `NEXT_PUBLIC_DEMO_ADMIN_PASSWORD` overrides). Platform button falls back to Go JWT if Better Auth user missing.
 - Prod/preview: `NEXT_PUBLIC_DEMO_MODE=true` + `NEXT_PUBLIC_DEMO_GHOST_GRID=true` so Demo Driver/Admin show on console.
 
 ## Worker topology

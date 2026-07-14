@@ -44,11 +44,7 @@ export function AuthSheet({ open, onClose }: { open: boolean; onClose: () => voi
               loading={loading}
               onDriver={() => handleLogin(true, DEMO_CREDENTIALS.driver)}
               onDemoAdmin={() => handleLogin(true, DEMO_CREDENTIALS.demoAdmin)}
-              onAdmin={
-                DEMO_CREDENTIALS.admin.email
-                  ? () => handleLogin(true, DEMO_CREDENTIALS.admin)
-                  : undefined
-              }
+              onAdmin={() => handleLogin(true, DEMO_CREDENTIALS.admin)}
             />
             <div className="my-4 flex items-center gap-2 text-xs text-[#999]">
               <span className="h-px flex-1 bg-[#eee]" />

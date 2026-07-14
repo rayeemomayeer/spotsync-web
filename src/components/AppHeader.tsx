@@ -58,7 +58,10 @@ export function AppHeader({
             <>
               <NotificationBell />
               <Link href="/account" className="app-header__cta app-header__cta--ghost">
-                {user.name.split(" ")[0] ?? "Account"}
+                <span className="app-header__cta-label">{user.name.split(" ")[0] ?? "Account"}</span>
+                <span className="app-header__cta-short" aria-hidden>
+                  Me
+                </span>
               </Link>
             </>
           ) : showAuthCta ? (

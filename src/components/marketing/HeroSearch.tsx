@@ -33,7 +33,7 @@ export function HeroSearch() {
         Drivers search and book in seconds. Garage operators publish inventory after one approval — no oversell, ever.
       </p>
 
-      <SearchPill onSubmit={onSubmit} role="search" aria-label="Find parking">
+      <SearchPill onSubmit={onSubmit} role="search" aria-label="Find parking" className="landing-search--hero">
         <input
           id="landing-location"
           type="search"

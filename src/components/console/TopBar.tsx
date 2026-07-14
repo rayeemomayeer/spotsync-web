@@ -82,7 +82,15 @@ export function TopBar({
                   disabled={demoLoading}
                   onClick={() => demoLogin(DEMO_CREDENTIALS.demoAdmin)}
                 >
-                  Demo Admin
+                  Demo Org admin
+                </button>
+                <button
+                  type="button"
+                  className="console-btn console-btn--ghost"
+                  disabled={demoLoading || !DEMO_CREDENTIALS.admin.password}
+                  onClick={() => demoLogin(DEMO_CREDENTIALS.admin)}
+                >
+                  Demo Platform
                 </button>
               </>
             ) : null}

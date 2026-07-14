@@ -1,13 +1,5 @@
 import { fetchWithColdStartRetry } from "./fetch-retry";
-
-function bffOrigin(): string {
-  return (process.env.NEXT_PUBLIC_BFF_URL ?? "http://localhost:4000").replace(/\/$/, "");
-}
-
-function goOrigin(): string {
-  const api = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
-  return api.replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
-}
+import { bffOrigin, goOrigin } from "./probe-origins";
 
 export type WarmProgress = "idle" | "warming" | "ready" | "degraded";
 

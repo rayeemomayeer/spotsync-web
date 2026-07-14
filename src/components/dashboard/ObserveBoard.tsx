@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/Badge";
+import { fetchWithColdStartRetry } from "@/lib/api/fetch-retry";
+import { bffOrigin, goOrigin } from "@/lib/api/probe-origins";
 
 type Probe = {
   name: string;
@@ -12,17 +14,14 @@ type Probe = {
   detail: string;
 };
 
-function probeOrigins() {
-  const bff = (process.env.NEXT_PUBLIC_BFF_URL ?? "http://localhost:4000").replace(/\/$/, "");
-  const api = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
-  const go = api.replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
-  return { bff, go };
-}
-
 async function hit(url: string): Promise<{ ok: boolean; ms: number; detail: string }> {
   const t0 = performance.now();
   try {
-    const res = await fetch(url, { cache: "no-store", credentials: "omit", signal: AbortSignal.timeout(20_000) });
+    const res = await fetchWithColdStartRetry(
+      url,
+      { cache: "no-store", credentials: "omit" },
+      { attempts: 4, timeoutMs: 60_000 },
+    );
     const ms = Math.round(performance.now() - t0);
     const text = await res.text();
     return { ok: res.ok, ms, detail: text.slice(0, 120) || res.statusText };
@@ -30,7 +29,7 @@ async function hit(url: string): Promise<{ ok: boolean; ms: number; detail: stri
     return {
       ok: false,
       ms: Math.round(performance.now() - t0),
-      detail: e instanceof Error ? e.message : "failed",
+      detail: e instanceof Error ? e.message : "unreachable",
     };
   }
 }
@@ -42,7 +41,8 @@ export function ObserveBoard({
 }) {
   const grafana = (process.env.NEXT_PUBLIC_GRAFANA_URL ?? "").replace(/\/$/, "");
   const metricsPublic = (process.env.NEXT_PUBLIC_METRICS_URL ?? "").replace(/\/$/, "");
-  const { bff, go } = probeOrigins();
+  const bff = bffOrigin();
+  const go = goOrigin();
   const [probes, setProbes] = useState<Probe[]>([]);
   const [busy, setBusy] = useState(false);
 
@@ -66,7 +66,7 @@ export function ObserveBoard({
 
   useEffect(() => {
     void run();
-    const id = window.setInterval(() => void run(), 30_000);
+    const id = window.setInterval(() => void run(), 45_000);
     return () => window.clearInterval(id);
   }, [run]);
 
@@ -78,7 +78,9 @@ export function ObserveBoard({
         <div className="dash-chart__head dash-chart__head--row">
           <div>
             <h2>Live probes</h2>
-            <p>Direct health checks · refresh every 30s</p>
+            <p>
+              Direct health checks · Go at <code>{go}</code> · retries cold starts
+            </p>
           </div>
           <button
             type="button"
@@ -91,7 +93,7 @@ export function ObserveBoard({
         </div>
         <div className="dash-observe__status">
           <Badge tone={allOk ? "success" : probes.some((p) => p.ok === false) ? "danger" : "muted"}>
-            {allOk ? "All green" : busy ? "Checking" : "Degraded / cold"}
+            {allOk ? "All green" : busy ? "Checking / waking" : "Degraded / cold"}
           </Badge>
         </div>
         <ul className="dash-probe-grid">
