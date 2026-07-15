@@ -14,6 +14,7 @@ function safeNextPath(raw: string | null): string | null {
 
 /**
  * Post-OAuth landing. Always redirects to role home (or ?next / org apply).
+ * Retries getSession while free-tier BFF finishes waking from the Google hop.
  */
 function ContinueInner() {
   const { user, loading, refresh } = useAuth();
@@ -21,7 +22,7 @@ function ContinueInner() {
   const search = useSearchParams();
   const audience = parseAuthAudience(search.get("as"));
   const nextPath = safeNextPath(search.get("next"));
-  const [status, setStatus] = useState("Finishing sign-in…");
+  const [status, setStatus] = useState("Waking API & finishing sign-in…");
   const done = useRef(false);
 
   useEffect(() => {
@@ -29,11 +30,15 @@ function ContinueInner() {
     let cancelled = false;
 
     async function settle() {
-      // OAuth redirect can beat cookie persist — retry getSession briefly.
-      for (let i = 0; i < 6; i++) {
+      const { warmBackend } = await import("@/lib/api/warm-backend");
+      setStatus("Waking free-tier API…");
+      await warmBackend().catch(() => undefined);
+      // OAuth redirect can beat cookie persist / cold start — retry briefly.
+      for (let i = 0; i < 10; i++) {
         if (cancelled) return;
+        setStatus(i < 3 ? "Finishing sign-in…" : "Still waking API — leave this open…");
         await refresh();
-        await new Promise((r) => setTimeout(r, 200 + i * 100));
+        await new Promise((r) => setTimeout(r, 300 + i * 150));
       }
     }
 
@@ -66,7 +71,7 @@ function ContinueInner() {
       if (audience === "organization") q.set("as", "org");
       if (nextPath) q.set("next", nextPath);
       router.replace(`/login?${q.toString()}`);
-    }, 3500);
+    }, 12_000);
 
     return () => window.clearTimeout(fail);
   }, [loading, user, audience, nextPath, router]);

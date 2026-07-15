@@ -1,0 +1,39 @@
+# Keep Render free-tier web services from sleeping (~15m idle).
+# Free GitHub Actions cron — no paid host required.
+name: keep-warm
+
+on:
+  schedule:
+    # Every 12 minutes (Render free sleeps after ~15m inactivity).
+    - cron: "*/12 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wake BFF + Go
+        shell: bash
+        env:
+          BFF_URL: ${{ vars.KEEP_WARM_BFF_URL || 'https://spotsync-bff.onrender.com' }}
+          GO_URL: ${{ vars.KEEP_WARM_GO_URL || 'https://spotsync-ei6g.onrender.com' }}
+        run: |
+          set +e
+          ok=0
+          for url in "$BFF_URL/healthz" "$GO_URL/healthz"; do
+            echo "GET $url"
+            code=$(curl -sS -o /tmp/keep-warm-body.txt -w "%{http_code}" --max-time 90 "$url" || echo "000")
+            echo "status=$code"
+            head -c 200 /tmp/keep-warm-body.txt || true
+            echo
+            if [ "$code" = "200" ]; then
+              ok=1
+            fi
+          done
+          # Soft success: at least one service woke; do not fail the schedule job
+          # every cycle when a single free instance is restarting.
+          if [ "$ok" -eq 0 ]; then
+            echo "Neither healthz returned 200 — instances likely still cold; next cron will retry."
+          fi
+          exit 0
