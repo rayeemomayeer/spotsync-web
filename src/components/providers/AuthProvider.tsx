@@ -187,11 +187,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loginWithSession = useCallback(async (email: string, password: string) => {
-    // Drop any leftover console/demo JWT so driver cannot send a dead Bearer.
+    // Drop leftover console JWT so driver cannot send a dead Bearer.
+    // Keep demo-mode toggle — portfolio skip-booking still needs it.
     clearToken();
     setTokenState(null);
-    setDemoSession(false);
-    setDemoSessionState(false);
 
     let result: Awaited<ReturnType<typeof authClient.signIn.email>>;
     try {
@@ -225,8 +224,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (input: { name: string; email: string; password: string }) => {
       clearToken();
       setTokenState(null);
-      setDemoSession(false);
-      setDemoSessionState(false);
 
       let result: Awaited<ReturnType<typeof authClient.signUp.email>>;
       try {

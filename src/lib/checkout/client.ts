@@ -1,5 +1,10 @@
 import { getBffUrl } from "@/lib/auth/client";
-import { getDemoSessionId, isDemoModeActive } from "@/lib/auth/session";
+import {
+  canUseDemoBooking,
+  ensureDemoSessionActive,
+  getDemoSessionId,
+  isDemoModeActive,
+} from "@/lib/auth/session";
 
 type CheckoutEnvelope<T> = {
   success: boolean;
@@ -25,13 +30,17 @@ export type CheckoutSessionData = {
   currency: string;
 };
 
+function attachDemoHeaders(headers: Record<string, string>) {
+  if (!canUseDemoBooking() && !isDemoModeActive()) return;
+  ensureDemoSessionActive();
+  headers["X-Demo-Mode"] = "true";
+  const sid = getDemoSessionId();
+  if (sid) headers["X-Demo-Session-Id"] = sid;
+}
+
 async function checkoutRequest<T>(path: string, body: unknown): Promise<T> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (isDemoModeActive()) {
-    headers["X-Demo-Mode"] = "true";
-    const sid = getDemoSessionId();
-    if (sid) headers["X-Demo-Session-Id"] = sid;
-  }
+  attachDemoHeaders(headers);
   const res = await fetch(`${getBffUrl()}${path}`, {
     method: "POST",
     credentials: "include",
@@ -40,7 +49,8 @@ async function checkoutRequest<T>(path: string, body: unknown): Promise<T> {
   });
   const json = (await res.json()) as CheckoutEnvelope<T>;
   if (!res.ok || !json.success || !json.data) {
-    throw new Error(json.message ?? "Checkout request failed");
+    const fieldErr = json.errors ? Object.values(json.errors)[0] : undefined;
+    throw new Error(fieldErr ?? json.message ?? "Checkout request failed");
   }
   return json.data;
 }

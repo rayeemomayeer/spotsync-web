@@ -59,6 +59,30 @@ export function isDemoModeActive(): boolean {
   return isDemoSession();
 }
 
+/** True when portfolio demo tooling should be available (env, flag, or session toggle). */
+export function canUseDemoBooking(): boolean {
+  if (typeof window === "undefined") {
+    return (
+      process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
+      (process.env.NEXT_PUBLIC_FEATURE_FLAGS ?? "").split(",").some((s) => s.trim() === "demo_mode")
+    );
+  }
+  if (isDemoSession()) return true;
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") return true;
+  return (process.env.NEXT_PUBLIC_FEATURE_FLAGS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .includes("demo_mode");
+}
+
+/** Ensure demo session id exists so BFF can attribute sandbox reservations. */
+export function ensureDemoSessionActive(): string | null {
+  if (!isDemoSession()) {
+    setDemoSession(true);
+  }
+  return getDemoSessionId();
+}
+
 export function clearSession() {
   clearToken();
   localStorage.removeItem(DEMO_SESSION_KEY);

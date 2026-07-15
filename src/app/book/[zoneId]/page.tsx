@@ -16,7 +16,7 @@ import {
 import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { PriceBreakdown } from "@/components/checkout/PriceBreakdown";
 import { isFeatureEnabled } from "@/lib/config/flags";
-import { getToken, isDemoModeActive } from "@/lib/auth/session";
+import { getToken, canUseDemoBooking, ensureDemoSessionActive } from "@/lib/auth/session";
 import { toast } from "@/lib/toast";
 import { AppPageLoader } from "@/components/ui/AppPageLoader";
 
@@ -43,14 +43,16 @@ function BookZoneInner() {
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
   const [zoneName, setZoneName] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
+  const showDemoSkip = canUseDemoBooking();
 
   const paymentsOn = isFeatureEnabled("driver_payments");
   const authToken = token ?? getToken();
 
   const loadQuote = useCallback(async () => {
     if (!Number.isFinite(zoneId) || zoneId < 1) return;
-    setBusy(true);
+    setQuoteLoading(true);
     setError("");
     try {
       const z = await api.zone(zoneId);
@@ -58,13 +60,13 @@ function BookZoneInner() {
       const q = await fetchCheckoutQuote({
         zone_id: zoneId,
         duration_hours: duration,
-        license_plate: plate.trim(),
+        license_plate: plate.trim() || "ABC-1234",
       });
       setQuote(q);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Quote failed");
     } finally {
-      setBusy(false);
+      setQuoteLoading(false);
     }
   }, [zoneId, duration, plate]);
 
@@ -74,7 +76,7 @@ function BookZoneInner() {
 
   async function startStripeCheckout() {
     if (!quote) return;
-    setBusy(true);
+    setActionBusy(true);
     setError("");
     try {
       const session = await createCheckoutSession({
@@ -88,37 +90,48 @@ function BookZoneInner() {
       const msg = e instanceof Error ? e.message : "Checkout failed";
       setError(msg);
       toast.error("Checkout failed", msg);
-      setBusy(false);
+      setActionBusy(false);
     }
   }
 
   async function startDemoConfirm() {
-    setBusy(true);
+    if (!plate.trim()) {
+      setError("License plate required");
+      toast.error("License plate required");
+      return;
+    }
+    setActionBusy(true);
     setError("");
+    ensureDemoSessionActive();
     try {
-      await confirmDemoCheckout({
+      const result = await confirmDemoCheckout({
         zone_id: zoneId,
         duration_hours: duration,
         license_plate: plate.trim(),
         spot_id: spotId,
       });
-      toast.success("Booking confirmed");
-      await onPaid();
+      toast.success("Demo booking confirmed", `Reservation #${result.reservation_id}`);
+      router.push("/reservations?booked=1");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Demo booking failed";
       setError(msg);
-      toast.error("Booking failed", msg);
-      setBusy(false);
+      toast.error("Demo booking failed", msg);
+      setActionBusy(false);
     }
   }
 
   const onPaid = useCallback(async () => {
     for (let i = 0; i < 8; i++) {
       await new Promise((r) => setTimeout(r, 800));
-      const list = await api.myReservations(authToken ?? "");
-      if (list.some((r) => r.zone_id === zoneId && r.status === "active")) {
-        router.push("/reservations?booked=1");
-        return;
+      try {
+        if (!authToken) continue;
+        const list = await api.myReservations(authToken);
+        if (list.some((r) => r.zone_id === zoneId && r.status === "active")) {
+          router.push("/reservations?booked=1");
+          return;
+        }
+      } catch {
+        /* keep polling */
       }
     }
     router.push("/reservations?booked=pending");
@@ -156,7 +169,7 @@ function BookZoneInner() {
             <p>Loading session…</p>
           ) : !user ? (
             <p>
-              Sign in to pay & reserve. <Link href="/login">Sign in</Link>
+              Sign in to pay &amp; reserve. <Link href="/login">Sign in</Link>
             </p>
           ) : (
             <div className="checkout-layout__grid">
@@ -182,6 +195,7 @@ function BookZoneInner() {
                     onChange={(e) => setDuration(Number(e.target.value))}
                   />
                 </label>
+                {quoteLoading && !quote ? <p className="checkout-pay-form__hint">Loading price…</p> : null}
                 {quote ? (
                   <p>
                     Total: <strong className="font-mono">{formatCents(quote.amount_cents)}</strong> ·{" "}
@@ -195,19 +209,23 @@ function BookZoneInner() {
                     <button
                       type="button"
                       className="console-btn console-btn--primary console-btn--pill"
-                      disabled={busy || !quote}
+                      disabled={actionBusy || !quote}
                       onClick={() => void startStripeCheckout()}
                     >
-                      {busy ? "Opening Stripe…" : "Pay with Stripe (test)"}
+                      {actionBusy && !showDemoSkip
+                        ? "Opening Stripe…"
+                        : actionBusy
+                          ? "Working…"
+                          : "Pay with Stripe (test)"}
                     </button>
-                    {isDemoModeActive() ? (
+                    {showDemoSkip ? (
                       <button
                         type="button"
                         className="console-btn console-btn--ghost console-btn--pill"
-                        disabled={busy || !quote}
+                        disabled={actionBusy || !plate.trim()}
                         onClick={() => void startDemoConfirm()}
                       >
-                        Skip — demo booking
+                        {actionBusy ? "Booking…" : "Skip — demo booking"}
                       </button>
                     ) : null}
                   </div>
