@@ -26,10 +26,11 @@ function buildContinueUrl(audience: AuthAudience, nextPath?: string | null): str
 function buildErrorUrl(audience: AuthAudience, nextPath?: string | null): string {
   const origin = window.location.origin;
   const q = new URLSearchParams();
-  q.set("error", "google");
   if (audience === "organization") q.set("as", "org");
   if (nextPath) q.set("next", nextPath);
-  return `${origin}/login?${q.toString()}`;
+  // Better Auth appends ?error=<code>; leave room for account_not_linked etc.
+  const qs = q.toString();
+  return `${origin}/login${qs ? `?${qs}` : ""}`;
 }
 
 /** Google OAuth via BFF Better Auth. Hidden unless `google_oauth` feature flag. */

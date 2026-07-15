@@ -12,6 +12,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { PersonaSwitcher } from "@/components/demo/PersonaSwitcher";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { postAuthPath } from "@/lib/auth/roles";
+import { oauthErrorMessage } from "@/lib/auth/oauth-errors";
 
 function safeNextPath(raw: string | null): string | null {
   if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return null;
@@ -29,13 +30,7 @@ function LoginInner() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(() =>
-    search.get("error") === "google"
-      ? "Google sign-in failed. Try again or use email."
-      : search.get("error") === "session"
-        ? "Signed in with Google but session did not stick. Try again."
-        : "",
-  );
+  const [error, setError] = useState(() => oauthErrorMessage(search));
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
