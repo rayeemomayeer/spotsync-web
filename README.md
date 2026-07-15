@@ -9,56 +9,64 @@ Marketplace parking product UI for SpotSync — drivers book across org zones, o
 | | |
 | --- | --- |
 | **Live app** | https://spotsync-nu.vercel.app |
-| **Live API** | https://spotsync-ei6g.onrender.com/api/v1 |
+| **BFF** | https://spotsync-bff.onrender.com |
+| **Go API** | https://spotsync-ei6g.onrender.com |
 | **This repo** | https://github.com/rayeemomayeer/spotsync-web |
-| **Go API** | https://github.com/rayeemomayeer/SpotSync |
-| **BFF** | sibling `spotsync-bff` (Better Auth + Stripe test + notify forward) |
-| **Notify** | sibling `spotsync-notify` (Resend + Redis) |
+| **Full stack guide** | [docs/STACK.md](./docs/STACK.md) |
+| **Go API repo** | https://github.com/rayeemomayeer/SpotSync |
+| **BFF** | https://github.com/rayeemomayeer/spotsync-bff |
+| **Notify** | https://github.com/rayeemomayeer/spotsync-notify |
 
 ## Product surfaces
 
 | Path | Audience |
 | --- | --- |
 | `/` | Marketing landing |
-| `/login` | Better Auth via BFF |
-| `/driver` | Driver book flow (LiveConsole) |
-| `/org` | Org admin shell |
-| `/platform` | SaaS admin shell |
-| `/platform/billing` | Stripe **test mode** plans (flag `stripe_billing`) |
-| `/console` | Live ops console (demo JWT path) |
-| `/developers` | Lightweight developer portal |
+| `/search` | Marketplace browse |
+| `/login` · `/signup` | Better Auth (driver / org tabs) |
+| `/apply` | Garage self-apply |
+| `/driver` · `/book/[zoneId]` | Map + Stripe/demo checkout |
+| `/reservations` · `/account` | Driver bookings & profile |
+| `/org/*` | Org admin (zones, billing, members, observe) |
+| `/platform/*` | SaaS admin hub |
+| `/console` | Live ops console (legacy JWT / demo) |
+| `/developers` | OpenAPI (ReDoc) + endpoint map |
 
-Dark / light theme supported (system preference + toggle). Optional client observability via `NEXT_PUBLIC_SENTRY_DSN` (stub until full Sentry SDK wired).
+Dark / light theme (system + toggle). Optional Sentry via `NEXT_PUBLIC_SENTRY_DSN` (`@sentry/nextjs`).
 
-**Design system:** [docs/design-system.md](./docs/design-system.md) — warm minimal tokens (Stripe + Airbnb inspired). Console grid spec in [docs/design.md](./docs/design.md).
+**Design system:** [docs/design-system.md](./docs/design-system.md). Console grid: [docs/design.md](./docs/design.md).
 
 ## Local development
 
-1. Start Go API (+ Redis recommended) from SpotSync-server compose.
-2. Start `spotsync-bff` on `:4000` (optional `NOTIFY_URL` → notify `:3100`).
-3. Optional: start `spotsync-notify` on `:3100`.
-4. `npm install && cp .env.example .env.local && npm run dev`
+See **[docs/STACK.md](./docs/STACK.md)** for all four services. Short path:
+
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
 
 | Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_API_BASE_URL` | Go API `/api/v1` |
-| `NEXT_PUBLIC_BFF_URL` | Express BFF origin |
-| `NEXT_PUBLIC_DEMO_MODE` | Demo reserve headers |
-| `NEXT_PUBLIC_FEATURE_FLAGS` | e.g. `stripe_billing` |
-| `NEXT_PUBLIC_SENTRY_DSN` | Optional client observability stub |
+| `NEXT_PUBLIC_API_BASE_URL` | Prefer BFF `…/api/v1` (proxied Go) |
+| `NEXT_PUBLIC_BFF_URL` | Better Auth + checkout origin |
+| `NEXT_PUBLIC_FEATURE_FLAGS` | `stripe_billing,driver_payments,demo_mode,google_oauth` |
+| `NEXT_PUBLIC_DEMO_MODE` | Portfolio demo chrome |
+| `NEXT_PUBLIC_SENTRY_DSN` | Optional client observability |
 
 ## Tests
 
 ```bash
 npm run test:unit
 npm run lint
+npm run typecheck
 npm run build
 npm run test:e2e
 ```
 
 ## Deploy
 
-Vercel — `vercel.json` sets security headers (CSP, frame deny, nosniff, referrer, permissions).
+Vercel — `vercel.json` security headers. GitHub Actions `keep-warm.yml` pings Render `/healthz` on a schedule (free-tier anti-sleep).
 
 ## License
 

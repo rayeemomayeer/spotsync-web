@@ -2057,6 +2057,32 @@ html.dark .audience-split__panel--ops {
   line-height: 1.45;
 }
 
+.developers-openapi {
+  margin: 1.25rem 0 2rem;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.developers-openapi__links {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.developers-openapi__mount {
+  min-height: 28rem;
+  max-height: 70vh;
+  overflow: auto;
+  background: #fff;
+}
+
+html.dark .developers-openapi__mount {
+  background: #0f1115;
+}
+
 .status-ok {
   color: var(--color-success);
   font-weight: 600;

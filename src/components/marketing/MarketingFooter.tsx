@@ -4,6 +4,7 @@ const productLinks = [
   { href: "/search", label: "Find parking" },
   { href: "/pricing", label: "Pricing" },
   { href: "/how-it-works", label: "How it works" },
+  { href: "/apply", label: "Apply as garage" },
   { href: "/developers", label: "Developers" },
 ];
 
@@ -18,6 +19,7 @@ const workspaceLinks = [
   { href: "/console", label: "Live console" },
   { href: "/login", label: "Driver sign in" },
   { href: "/login?as=org", label: "Organization sign in" },
+  { href: "/apply", label: "Garage application" },
 ];
 
 export function MarketingFooter() {

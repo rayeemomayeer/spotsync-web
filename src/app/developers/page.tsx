@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { siteConfig } from "@/lib/seo/site";
+import { OpenApiReference } from "@/components/developers/OpenApiReference";
 
 export const metadata: Metadata = {
   title: "Developers",
@@ -13,7 +13,12 @@ function goOpenApiUrl(): string {
   const raw = process.env.NEXT_PUBLIC_GO_OPENAPI_URL ?? "";
   if (raw) return raw.replace(/\/$/, "");
   const api = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8081/api/v1";
-  return api.replace(/\/api\/v1\/?$/, "") + "/openapi.yaml";
+  // Prefer Go origin for openapi; if API base is BFF, use known Go Render host.
+  const stripped = api.replace(/\/api\/v1\/?$/, "");
+  if (/spotsync-bff|localhost:4000/i.test(stripped)) {
+    return "https://spotsync-ei6g.onrender.com/openapi.yaml";
+  }
+  return `${stripped}/openapi.yaml`;
 }
 
 const endpoints = [
@@ -29,36 +34,17 @@ const endpoints = [
 export default function DevelopersPage() {
   const openApi = goOpenApiUrl();
   const bff = process.env.NEXT_PUBLIC_BFF_URL ?? "http://localhost:4000";
-  const goBase = openApi.replace("/openapi.yaml", "");
+  const goBase = openApi.replace(/\/openapi\.yaml$/, "");
 
   return (
     <div className="shell">
       <AppHeader tag="Developers" />
-      <main className="shell-main">
+      <main className="shell-main shell-main--wide">
         <article className="page-prose">
           <h1>Developer portal</h1>
           <p>
-            SpotSync = Go reservation engine + Express BFF (Better Auth, Stripe) + Next.js web. The graded contract
-            keeps nine core endpoints stable; SaaS features are additive.
-          </p>
-
-          <h2>OpenAPI</h2>
-          <ul>
-            <li>
-              <a href={openApi} target="_blank" rel="noopener noreferrer">
-                Go API — openapi.yaml
-              </a>
-            </li>
-            <li>
-              BFF OpenAPI: <code>spotsync-bff/openapi.yaml</code> in repo
-            </li>
-          </ul>
-          <p>
-            View interactively: paste the Go spec URL into{" "}
-            <a href="https://editor.swagger.io/" target="_blank" rel="noopener noreferrer">
-              Swagger Editor
-            </a>{" "}
-            or run Scalar locally.
+            SpotSync = Go reservation engine + Express BFF (Better Auth, Stripe test) + Next.js web. Nine graded
+            endpoints stay frozen; SaaS surfaces are additive.
           </p>
 
           <h2>Base URLs</h2>
@@ -87,6 +73,9 @@ export default function DevelopersPage() {
               </li>
             ))}
           </ul>
+
+          <h2>OpenAPI reference</h2>
+          <OpenApiReference specUrl={openApi} />
 
           <p>
             <Link href="/">← Home</Link>
